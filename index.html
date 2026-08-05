@@ -1,0 +1,2717 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>致理科大資源教室 - 活動報名系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'chihlee-blue': '#002855',
+                        'chihlee-red': '#A81D33',
+                        'chihlee-gold': '#A38B59',
+                        'cat-career-bg': '#f8e5b2',
+                        'cat-career-text': '#c39a2e',
+                        'cat-academic-bg': '#f7c6d7',
+                        'cat-academic-text': '#c12c4e',
+                        'cat-inter-bg': '#e2f2d4',
+                        'cat-inter-text': '#3a9d51'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        .toast-enter { animation: slideUp 0.3s ease-out forwards; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .nav-buttons-container { min-width: max-content; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <nav class="bg-chihlee-blue text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-auto py-3 md:py-0 md:h-16 gap-3">
+                <div class="flex items-center cursor-pointer flex-shrink-0" onclick="switchView('student')">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-white text-chihlee-blue font-bold mr-3 border-2 border-chihlee-gold flex-shrink-0">致</div>
+                    <div class="flex flex-col md:flex-row md:items-end whitespace-nowrap">
+                        <span class="font-bold text-lg md:text-xl tracking-wider leading-none">資源教室活動報名系統</span>
+                        <span id="version-display" class="text-[10px] md:text-xs text-blue-200 md:ml-3 mt-1 md:mt-0 font-mono tracking-tighter opacity-80" title="最後更新時間">
+                            <i class="fa-solid fa-clock mr-1"></i>載入中...
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 md:space-x-4 overflow-x-auto no-scrollbar pb-1 md:pb-0 nav-buttons-container flex-1 justify-end">
+                    <button onclick="switchView('student')" id="nav-student-btn" class="px-3 py-2 rounded-md text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap">報名專區</button>
+                    <button onclick="openQueryModal()" id="nav-query-btn" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-1"></i> 查詢/修改</button>
+                    <button onclick="switchView('teacherLogin')" id="nav-teacher-btn" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap"><i class="fa-solid fa-user-tie mr-1"></i> 系統後台</button>
+                    <div id="nav-admin-badge" class="hidden items-center px-2 py-1 rounded bg-yellow-500 text-yellow-900 text-xs font-bold shadow-sm whitespace-nowrap"><i class="fa-solid fa-crown mr-1"></i>系統管理員</div>
+                    <div id="nav-staff-badge" class="hidden items-center px-2 py-1 rounded bg-blue-500 text-white text-xs font-bold shadow-sm whitespace-nowrap"></div>
+                    <button onclick="logoutTeacher()" id="nav-logout-btn" class="hidden px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap"><i class="fa-solid fa-right-from-bracket mr-1"></i> 登出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative pb-24 overflow-x-hidden">
+        
+        <!-- 學生端：報名專區 -->
+        <div id="view-student" class="block animate-fade-in">
+            <div class="mb-8 text-center relative">
+                <h1 class="text-3xl font-bold text-chihlee-blue mb-2">近期活動</h1>
+                <p class="text-gray-500">勾選您想參加的活動，一次完成報名手續！</p>
+                <div id="student-identity-bar" class="hidden mx-auto mt-4 px-4 py-2 bg-red-50 border border-red-100 rounded-lg text-sm text-red-800 flex justify-center items-center gap-3 w-max shadow-sm transition-all">
+                    <span><i class="fa-solid fa-user-shield mr-1"></i>目前綁定學號：<span id="current-sid-display" class="font-bold text-red-600"></span></span>
+                    <button onclick="clearStudentData()" class="bg-white border border-red-200 text-red-600 hover:bg-red-600 hover:text-white transition px-3 py-1 rounded-md text-xs font-bold shadow-sm">清除本機紀錄</button>
+                </div>
+            </div>
+
+            <!-- 骨架屏載入 -->
+            <div id="skeleton-student" class="hidden space-y-4 max-w-4xl mx-auto">
+                <div class="animate-pulse flex flex-col md:flex-row bg-white p-5 rounded-xl border border-gray-200 shadow-sm gap-4">
+                    <div class="w-5 h-5 bg-gray-200 rounded shrink-0"></div>
+                    <div class="flex-grow space-y-3">
+                        <div class="flex gap-2"><div class="h-5 w-12 bg-gray-200 rounded"></div><div class="h-5 w-16 bg-gray-200 rounded"></div></div>
+                        <div class="h-6 w-3/4 bg-gray-200 rounded"></div>
+                        <div class="h-4 w-full bg-gray-200 rounded"></div>
+                    </div>
+                    <div class="shrink-0 space-y-2 md:w-48"><div class="h-5 w-full bg-gray-200 rounded"></div></div>
+                </div>
+            </div>
+
+            <div id="student-main-content">
+                <div class="flex flex-wrap justify-center gap-2 mb-6" id="category-filters">
+                    <button id="filter-btn-all" onclick="filterEvents('全部')" data-category="全部" class="filter-btn active px-4 py-2 rounded-full border border-chihlee-blue bg-chihlee-blue text-white text-sm font-medium transition shadow-sm">全部</button>
+                    <button id="filter-btn-inter" onclick="filterEvents('人際')" data-category="人際" class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-inter-text hover:text-cat-inter-text text-sm font-medium transition">人際</button>
+                    <button id="filter-btn-academic" onclick="filterEvents('課業')" data-category="課業" class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-academic-text hover:text-cat-academic-text text-sm font-medium transition">課業</button>
+                    <button id="filter-btn-career" onclick="filterEvents('職涯')" data-category="職涯" class="filter-btn px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-career-text hover:text-cat-career-text text-sm font-medium transition">職涯</button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                    <div id="student-events-container" class="divide-y divide-gray-200"></div>
+                </div>
+                
+                <div id="no-events-msg" class="hidden text-center text-gray-500 mt-10 py-10 bg-white rounded-xl shadow-sm border border-gray-200">
+                    <i class="fa-regular fa-folder-open text-4xl mb-3 text-gray-300"></i>
+                    <p>目前沒有可報名的活動喔！</p>
+                </div>
+            </div>
+
+            <div id="bulk-action-bar" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-full shadow-2xl border border-gray-200 px-6 py-3 flex items-center justify-between gap-6 z-40 whitespace-nowrap">
+                <span class="font-medium text-gray-700">已勾選 <span id="selected-count" class="text-chihlee-red font-bold text-xl px-1">0</span> 個活動</span>
+                <button onclick="openRegisterModal()" class="bg-chihlee-blue text-white px-6 py-2.5 rounded-full font-bold hover:bg-opacity-90 shadow-md transition flex items-center">
+                    下一步：填寫資料 <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 系統後台：登入 -->
+        <div id="view-teacher-login" class="hidden max-w-md mx-auto mt-10 animate-fade-in">
+            <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-chihlee-red">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 text-chihlee-red mb-4">
+                        <i class="fa-solid fa-lock text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">系統後台登入</h2>
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm text-center text-gray-600">
+                        <p class="font-bold text-gray-700">⚠️ 安全連線確認</p>
+                        <p class="mt-1 text-xs text-gray-500">本系統與 Google 雲端安全串接<br>請輸入您的專屬帳密</p>
+                    </div>
+                    <div id="login-error-msg" class="hidden mt-4 p-3 bg-red-50 rounded-lg border border-red-200 text-sm text-center text-red-600 font-bold"></div>
+                </div>
+                <form onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <input type="text" id="admin-account" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chihlee-blue focus:border-chihlee-blue transition outline-none" required placeholder="請輸入帳號">
+                    </div>
+                    <div class="mb-6">
+                        <input type="password" id="admin-password" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chihlee-blue focus:border-chihlee-blue transition outline-none" required placeholder="請輸入密碼">
+                    </div>
+                    <button type="submit" id="login-submit-btn" class="w-full bg-chihlee-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition shadow-md flex justify-center items-center">登入</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 系統後台：主控台 -->
+        <div id="view-teacher-dashboard" class="hidden animate-fade-in">
+            <div class="flex space-x-4 mb-6 border-b pb-2 overflow-x-auto no-scrollbar whitespace-nowrap">
+                <button id="tabActivityList" onclick="switchAdminTab('list')" class="font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition">活動列表</button>
+                <button id="tabActivityLog" onclick="switchAdminTab('log')" class="text-gray-500 hover:text-gray-800 pb-1 px-2 transition">動態紀錄</button>
+                <button id="tabStudents" onclick="switchAdminTab('students')" class="text-gray-500 hover:text-gray-800 pb-1 px-2 transition">學生資料庫</button>
+            </div>
+
+            <!-- 骨架屏載入 (後台用) -->
+            <div id="skeleton-admin" class="hidden space-y-4 max-w-full">
+                <div class="animate-pulse bg-white p-4 rounded-xl border border-gray-200 h-16 w-full mb-4"></div>
+                <div class="animate-pulse bg-white p-5 rounded-xl border border-gray-200 h-96 w-full"></div>
+            </div>
+
+            <div id="adminActivitySection" class="hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto flex-grow">
+                        <div class="relative flex-grow md:max-w-xs">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                            </div>
+                            <input type="text" id="teacher-search-input" oninput="renderTeacherDashboard(1)" placeholder="搜尋活動名稱..." class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-1.5 text-sm focus:ring-chihlee-blue outline-none bg-white shadow-sm">
+                        </div>
+                        <select id="teacher-year-filter" onchange="renderTeacherDashboard(1)" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 focus:ring-chihlee-blue outline-none bg-white shadow-sm"></select>
+                        <select id="teacher-category-filter" onchange="renderTeacherDashboard(1)" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 focus:ring-chihlee-blue outline-none bg-white shadow-sm">
+                            <option value="all">所有分類</option>
+                            <option value="職涯">職涯</option>
+                            <option value="課業">課業</option>
+                            <option value="人際">人際</option>
+                        </select>
+                        <select id="teacher-name-filter" onchange="renderTeacherDashboard(1)" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 focus:ring-chihlee-blue outline-none bg-white shadow-sm"></select>
+                    </div>
+                    <button onclick="openEditEventModal()" class="bg-chihlee-blue text-white px-5 py-2.5 rounded-lg shadow hover:bg-opacity-90 transition flex items-center text-sm font-bold flex-shrink-0">
+                        <i class="fa-solid fa-plus mr-2"></i> 新增活動
+                    </button>
+                </div>
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-auto custom-scroll max-h-[70vh] relative">
+                    <table class="w-full whitespace-nowrap">
+                        <thead class="bg-gray-200 text-gray-700 text-sm shadow-sm sticky top-0 z-20">
+                            <tr>
+                                <th class="px-6 py-4 text-left font-semibold">分類</th>
+                                <th class="px-6 py-4 text-left font-semibold">活動名稱 & 承辦人</th>
+                                <th class="px-6 py-4 text-left font-semibold">場次時間/地點</th>
+                                <th class="px-6 py-4 text-center font-semibold">報名</th>
+                                <th class="px-6 py-4 text-right font-semibold sticky right-0 bg-gray-200 z-30 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-events-tbody" class="text-sm"></tbody>
+                    </table>
+                </div>
+                <div id="admin-pagination-container" class="mt-4 flex justify-between items-center hidden"></div>
+            </div>
+
+            <!-- 動態紀錄 -->
+            <div id="adminLogSection" class="hidden">
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-auto custom-scroll max-h-[70vh]">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-200 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700 w-1/4">時間</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700 w-3/4">動態內容</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-logs-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 學生資料庫 -->
+            <div id="adminStudentSection" class="hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                    <h2 class="text-xl font-bold text-gray-800">全域學生名冊</h2>
+                    <div class="flex gap-2">
+                        <button id="btn-batch-import" onclick="openImportStudentModal()" class="disabled:opacity-50 disabled:cursor-not-allowed bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition flex items-center text-sm font-bold">
+                            <i class="fa-solid fa-file-import mr-2"></i> 批次匯入 / 新增
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-auto custom-scroll max-h-[70vh] relative">
+                    <table class="w-full whitespace-nowrap text-left text-sm">
+                        <thead class="bg-gray-200 text-gray-700 shadow-sm">
+                            <tr>
+                                <th class="px-6 py-4 font-semibold sticky top-0 left-0 z-30 bg-gray-200 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">學號</th>
+                                <th class="px-6 py-4 font-semibold sticky top-0 z-20 bg-gray-200">姓名</th>
+                                <th class="px-6 py-4 font-semibold sticky top-0 z-20 bg-gray-200">系級</th>
+                                <th class="px-6 py-4 font-semibold sticky top-0 z-20 bg-gray-200">聯絡電話</th>
+                                <th class="px-6 py-4 font-semibold sticky top-0 z-20 bg-gray-200">LINE User ID</th>
+                                <th class="px-6 py-4 font-semibold text-right sticky top-0 right-0 z-30 bg-gray-200 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminStudentList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: 填寫報名資料 -->
+    <div id="modal-register" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative animate-fade-in custom-scroll">
+            <button type="button" onclick="closeModal('modal-register')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            <div class="p-6 md:p-8">
+                <h3 class="text-2xl font-bold text-chihlee-blue mb-4">填寫報名資料</h3>
+                <form onsubmit="submitRegistration(event)">
+                    <div class="space-y-4 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                                <input type="email" id="reg-email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">聯絡電話 <span class="text-red-500">*</span></label>
+                                <input type="tel" id="reg-phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">學號 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal ml-1">限8碼數字</span></label>
+                                <input type="text" id="reg-student-id" required pattern="\d{8}" title="請輸入8碼數字" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
+                                <input type="text" id="reg-name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <h4 class="font-bold text-gray-700 mb-2 border-b pb-1">活動場次勾選與用餐選擇</h4>
+                    <p class="text-xs text-gray-500 mb-3">請確認您可以出席的場次並選擇用餐。一對一活動僅限單選。</p>
+                    <div id="dynamic-meal-section" class="space-y-4 mb-6"></div>
+                    <div class="mt-8 flex justify-end space-x-3">
+                        <button type="button" onclick="closeModal('modal-register')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition font-medium">取消</button>
+                        <button type="submit" id="btn-submit-registration" class="px-6 py-2 bg-chihlee-gold text-white font-bold rounded-md hover:bg-yellow-600 transition shadow">確認送出報名</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 報名成功 -->
+    <div id="modal-success" class="fixed inset-0 bg-black bg-opacity-60 z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md relative overflow-hidden animate-fade-in">
+            <div class="bg-green-500 p-6 text-center">
+                <i class="fa-regular fa-circle-check text-5xl text-white mb-2"></i>
+                <h3 class="text-2xl font-bold text-white">報名成功！</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 text-sm mb-4 text-center">已為您紀錄報名資訊。請將活動加入行事曆！</p>
+                <div id="success-events-list" class="space-y-3 max-h-[40vh] overflow-y-auto p-1 custom-scroll"></div>
+                <div class="mt-6 text-center">
+                    <button onclick="closeModal('modal-success')" class="w-full px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-md hover:bg-gray-200 transition">完成並關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 學生查詢/修改 -->
+    <div id="modal-query" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col relative animate-fade-in">
+            <button onclick="closeQueryModalSafe()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl z-10"><i class="fa-solid fa-xmark"></i></button>
+                            <div class="p-6 md:p-8 border-b border-gray-100 flex-shrink-0">
+                <h3 class="text-2xl font-bold text-chihlee-blue mb-2">查詢我的報名紀錄</h3>
+                <p class="text-sm text-gray-500 mb-4">已報名的活動，若於活動48小時前需取消或修改報名，請直接聯繫資源教室輔導員辦理。</p>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <input type="text" id="query-student-id" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-sm transition">
+                    <input type="text" id="query-name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-sm transition">
+                    <input type="tel" id="query-phone" placeholder="請輸入聯絡電話" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-sm transition">
+                    <button onclick="checkUnsavedChanges(executeStudentQuery)" class="w-full px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>雲端安全查詢</button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow bg-gray-50 custom-scroll">
+                <div id="query-result-container" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">請於上方輸入資料進行查詢</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 新增/編輯活動 -->
+    <div id="modal-edit-event" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative animate-fade-in custom-scroll">
+            <button type="button" onclick="safeCloseEditEvent()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 id="edit-modal-title" class="text-2xl font-bold text-chihlee-blue">新增 / 編輯活動</h3>
+                </div>
+                <form id="edit-event-form" onsubmit="submitEventEdit(event)" oninput="markDirty()" onchange="markDirty()">
+                    <input type="hidden" id="edit-id">
+                    <div class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">活動名稱 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal ml-1">不得超過15字</span></label>
+                                <input type="text" id="edit-title" required maxlength="15" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">主分類 <span class="text-red-500">*</span></label>
+                                <select id="edit-category" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none bg-white">
+                                    <option value="職涯">職涯</option>
+                                    <option value="人際">人際</option>
+                                    <option value="課業">課業</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">活動標籤 (最多3個)</label>
+                            <div class="flex space-x-2 mb-2">
+                                <input type="text" id="edit-tag-input" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTempTag(); markDirty();}" class="border border-gray-300 rounded-md p-2 flex-1 focus:ring-chihlee-blue outline-none text-sm" placeholder="輸入標籤...按 Enter 加入" maxlength="10">
+                                <button type="button" onclick="addTempTag(); markDirty();" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 font-medium text-sm transition">加入</button>
+                            </div>
+                            <div id="edit-tags-container" class="flex flex-wrap gap-2 min-h-[30px]"></div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <label class="block text-sm font-bold text-chihlee-blue mb-2">活動形式設定 <span class="text-red-500">*</span></label>
+                            <div class="space-y-2">
+                                <label class="flex items-start space-x-2 cursor-pointer p-2 rounded hover:bg-white transition border border-transparent hover:border-gray-200">
+                                    <input type="radio" name="edit-activity-type" value="normal" onchange="handleActivityTypeChange(); markDirty()" class="mt-0.5 w-4 h-4 text-chihlee-blue focus:ring-chihlee-blue" checked>
+                                    <div>
+                                        <span class="text-sm font-bold text-gray-800">一般活動 / 彈性多場次</span>
+                                        <p class="text-xs text-gray-500 mt-0.5">適用於單次性講座、參訪，或同主題提供多個時段。學生可自由勾選欲參加的場次。</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start space-x-2 cursor-pointer p-2 rounded hover:bg-white transition border border-transparent hover:border-gray-200">
+                                    <input type="radio" name="edit-activity-type" value="series" onchange="handleActivityTypeChange(); markDirty()" class="mt-0.5 w-4 h-4 text-purple-600 focus:ring-purple-600">
+                                    <div>
+                                        <span class="text-sm font-bold text-purple-700">系列活動 / 長期團體</span>
+                                        <p class="text-xs text-purple-600 mt-0.5 opacity-80">適用於連續多週的課程。系統會「預設全選」，若學生取消超過一半將跳出防呆警告。</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start space-x-2 cursor-pointer p-2 rounded hover:bg-white transition border border-transparent hover:border-gray-200">
+                                    <input type="radio" name="edit-activity-type" value="ooo" onchange="handleActivityTypeChange(); markDirty()" class="mt-0.5 w-4 h-4 text-pink-600 focus:ring-pink-600">
+                                    <div>
+                                        <span class="text-sm font-bold text-pink-700">個別預約 / 獨立排班 (一對一)</span>
+                                        <p class="text-xs text-pink-600 mt-0.5 opacity-80">適用於 HRV 檢測、駐點諮詢。系統強制單場限額 1 人，學生報名時只能「單選」一個時段。</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <label class="block text-sm font-bold text-chihlee-blue">活動場次與地點設定 <span class="text-red-500">*</span></label>
+                                    <span class="text-xs text-gray-500">若單場獨立地點留白，將自動沿用下方設定的主地點</span>
+                                </div>
+                                <button type="button" onclick="addSessionField(); markDirty();" class="text-xs bg-chihlee-gold text-white px-3 py-1.5 rounded hover:bg-opacity-80 transition shadow-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> 新增一場</button>
+                            </div>
+                            <div id="edit-sessions-container" class="space-y-3"></div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">供餐設定 <span class="text-xs text-gray-400 font-normal ml-1">如無供餐則不勾選</span></label>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="edit-meal-main" class="w-4 h-4 text-chihlee-blue rounded border-gray-300">
+                                        <span class="ml-2 text-sm text-gray-700">提供便當</span>
+                                    </label>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="edit-meal-snack" class="w-4 h-4 text-chihlee-blue rounded border-gray-300">
+                                        <span class="ml-2 text-sm text-gray-700">提供點心</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">人數上限 <span class="text-red-500">*</span></label>
+                                <input type="number" id="edit-capacity" required min="1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none transition-colors">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">主地點設定 (必填) <span class="text-red-500">*</span></label>
+                                <div class="flex flex-wrap gap-3 mb-2">
+                                    <label class="flex items-center space-x-1 cursor-pointer">
+                                        <input type="checkbox" name="edit-loc-quick" value="請先來資源教室集合" class="w-4 h-4 text-chihlee-blue rounded border-gray-300"> <span class="text-sm">請先來資源教室集合</span>
+                                    </label>
+                                    <label class="flex items-center space-x-1 cursor-pointer">
+                                        <input type="checkbox" name="edit-loc-quick" value="資源教室活動區" class="w-4 h-4 text-chihlee-blue rounded border-gray-300"> <span class="text-sm">資源教室活動區</span>
+                                    </label>
+                                    <label class="flex items-center space-x-1 cursor-pointer">
+                                        <input type="checkbox" name="edit-loc-quick" value="心測室" class="w-4 h-4 text-chihlee-blue rounded border-gray-300"> <span class="text-sm">心測室</span>
+                                    </label>
+                                </div>
+                                <input type="text" id="edit-loc-custom" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm" placeholder="其他主地點填此處 (作為各場次的預設地點)...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">承辦人 <span class="text-red-500">*</span></label>
+                                <select id="edit-teacher" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-white">
+                                    <option value="">請選擇承辦人...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">活動說明 <span class="text-red-500">*</span></label>
+                            <textarea id="edit-description" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none resize-none text-sm"></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex justify-end space-x-3">
+                        <button type="button" onclick="safeCloseEditEvent()" class="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200 transition">取消</button>
+                        <button type="submit" id="btn-submit-edit-event" class="px-6 py-2 bg-chihlee-blue text-white font-bold rounded-md hover:bg-opacity-90 transition shadow">儲存活動</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 報名名單 -->
+    <div id="modal-participants" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col relative animate-fade-in">
+            <button onclick="closeModal('modal-participants')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="p-6 md:p-8 border-b border-gray-100 flex-shrink-0 flex justify-between items-start">
+                <div>
+                    <h3 id="part-modal-title" class="text-2xl font-bold text-chihlee-blue mb-4 flex items-center"></h3>
+                    <div id="part-modal-stats-container" class="flex flex-wrap gap-4 mb-4"></div>
+                </div>
+                <button onclick="openAdminAddParticipantModal()" class="bg-chihlee-gold text-white px-4 py-2 rounded-lg shadow hover:bg-opacity-90 transition flex items-center text-sm font-bold flex-shrink-0 mt-2">
+                    <i class="fa-solid fa-user-plus mr-2"></i> 輔導員新增報名
+                </button>
+            </div>
+            <div class="p-0 overflow-auto flex-grow bg-gray-50 border-t border-gray-200 custom-scroll relative">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-gray-200 text-gray-700 shadow-sm">
+                        <tr>
+                            <th class="px-6 py-3 font-semibold sticky top-0 left-0 z-30 bg-gray-200 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">系級 / 學號 / 姓名</th>
+                            <th class="px-6 py-3 font-semibold sticky top-0 z-20 bg-gray-200">場次參與狀態 (餐點)</th>
+                            <th class="px-6 py-3 font-semibold sticky top-0 z-20 bg-gray-200">輔導員備註</th>
+                            <th class="px-6 py-3 font-semibold text-right sticky top-0 right-0 z-30 bg-gray-200 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="participants-tbody"></tbody>
+                </table>
+                <div id="no-participants-msg" class="hidden text-center text-gray-500 py-10 bg-white">目前尚無人報名</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 輔導員手動新增報名 -->
+    <div id="modal-admin-add-participant" class="fixed inset-0 bg-black bg-opacity-60 z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in max-h-[90vh] overflow-y-auto custom-scroll">
+            <h4 class="font-bold text-lg text-chihlee-blue mb-4">輔導員手動新增報名</h4>
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-gray-700 mb-1">學生學號 (8碼) <span class="text-red-500">*</span></label>
+                <div class="flex gap-2">
+                    <input type="text" id="admin-add-sid" placeholder="請輸入學號" class="flex-grow border border-gray-300 p-2 rounded-md focus:ring-chihlee-blue outline-none text-sm">
+                    <button type="button" onclick="verifyStudentForAdminAdd()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 rounded-md text-sm font-medium transition">驗證</button>
+                </div>
+            </div>
+            <div id="admin-add-student-info" class="hidden mb-4 p-3 bg-blue-50 border border-blue-100 rounded-md text-sm"></div>
+            <div id="admin-add-meals-container" class="hidden">
+                <label class="block text-sm font-bold text-gray-700 mb-1">選擇場次與餐點</label>
+                <div id="admin-add-meals" class="space-y-2 mb-4"></div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeModal('modal-admin-add-participant')" class="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
+                <button id="btn-admin-submit-add" onclick="submitAdminAddParticipant()" disabled class="px-4 py-2 bg-chihlee-blue text-white font-bold rounded-md opacity-50 cursor-not-allowed shadow transition">確認新增</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 編輯報名備註與餐點 -->
+    <div id="modal-remark" class="fixed inset-0 bg-black bg-opacity-60 z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in max-h-[90vh] overflow-y-auto custom-scroll">
+            <h4 class="font-bold text-lg text-chihlee-blue mb-2">編輯報名與備註</h4>
+            <p class="text-sm text-gray-500 mb-4" id="remark-student-info"></p>
+            <div oninput="markDirty()" onchange="markDirty()">
+                <div id="admin-remark-meals" class="mb-4"></div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">輔導員備註</label>
+                <textarea id="admin-remark-input" class="w-full border border-gray-300 p-3 rounded-md h-24 focus:ring-chihlee-blue outline-none text-sm resize-none mb-4" placeholder="輸入備註..."></textarea>
+            </div>
+            <div class="flex justify-end space-x-3 mt-2">
+                <button onclick="safeCloseRemark()" class="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
+                <button id="btn-save-admin-remark" onclick="saveAdminRemark()" class="px-4 py-2 bg-chihlee-blue text-white font-bold rounded-md hover:bg-opacity-90 shadow transition">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: LINE 通知管理 -->
+    <div id="modal-notify" class="fixed inset-0 bg-black bg-opacity-60 z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col relative animate-fade-in">
+            <button onclick="closeModal('modal-notify')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl z-20"><i class="fa-solid fa-xmark"></i></button>
+            <div class="p-6 border-b bg-green-50 rounded-t-xl flex justify-between items-center flex-wrap gap-3 flex-shrink-0 pr-12">
+                <div>
+                    <h3 id="notify-modal-title" class="text-xl md:text-2xl font-bold text-green-800 mb-1 flex items-center">
+                        <i class="fa-brands fa-line mr-2 text-green-600"></i>LINE 通知管理
+                    </h3>
+                    <p id="notify-event-subtitle" class="text-sm text-green-700 font-medium ml-2 md:ml-8"></p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select id="line-template-select" onchange="changeLineTemplate()" class="bg-white border border-green-300 text-green-800 text-sm rounded-md focus:ring-green-500 outline-none font-bold shadow-sm p-2">
+                        <option value="pre_event">📝 範本：活動行前通知</option>
+                        <option value="feedback">⭐ 範本：滿意度回饋</option>
+                        <option value="custom">✏️ 自訂文案 / 載入暫存</option>
+                    </select>
+                    <button onclick="saveLineDraft()" class="bg-white border border-green-600 text-green-700 px-3 py-2 rounded-md hover:bg-green-100 transition text-sm font-bold shadow-sm flex items-center" title="將目前文字儲存到瀏覽器，下次開啟會自動載入">
+                        <i class="fa-solid fa-floppy-disk md:mr-1"></i><span class="hidden md:inline">暫存文案</span>
+                    </button>
+                    <!-- 新增：清除暫存按鈕 (動態顯示) -->
+                    <button id="btn-clear-line-draft" onclick="clearLineDraft()" class="hidden bg-red-50 border border-red-300 text-red-600 px-2 py-2 rounded-md hover:bg-red-100 transition text-sm font-bold shadow-sm items-center" title="清除暫存並恢復預設範本">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow overflow-y-auto bg-gray-50 flex flex-col p-6 gap-6 custom-scroll">
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <label class="block text-sm font-bold text-gray-700">推播文案內容編輯</label>
+                        <!-- 修正：加入明顯的橘色警告標語，防止時空膠囊風險 -->
+                        <span id="line-draft-warning" class="text-xs text-orange-600 font-bold hidden animate-pulse bg-orange-50 px-2 py-1 rounded shadow-sm border border-orange-200"><i class="fa-solid fa-triangle-exclamation mr-1"></i>⚠️ 載入暫存文案 (發送前請確認時間/地點是否需修改)</span>
+                        <span id="line-draft-hint" class="text-xs text-gray-500"><i class="fa-solid fa-circle-info mr-1"></i>尚未有名單也可先行編輯暫存</span>
+                    </div>
+                    <textarea class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-300 font-sans text-gray-800 leading-relaxed text-sm h-48 focus:ring-green-500 outline-none resize-y" id="line-preview-text"></textarea>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-bold text-gray-700">發送對象勾選</label>
+                        <span id="line-recipient-count" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-200 shadow-sm">即將發送: 0 人</span>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-auto custom-scroll relative">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10 shadow-sm border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 font-semibold text-center w-12">
+                                        <input type="checkbox" id="selectAllNotify" onclick="toggleAllNotify(this)" class="w-4 h-4 cursor-pointer rounded text-green-600 focus:ring-green-600 border-gray-300">
+                                    </th>
+                                    <th class="px-4 py-3 font-semibold">姓名 (LINE綁定狀態)</th>
+                                    <th class="px-4 py-3 font-semibold">活動行前通知</th>
+                                    <th class="px-4 py-3 font-semibold">滿意度回饋</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notify-tbody" class="divide-y divide-gray-100 bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t flex justify-end space-x-3 bg-white rounded-b-xl flex-shrink-0">
+                <button onclick="closeModal('modal-notify')" class="px-5 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-md hover:bg-gray-200 transition">取消關閉</button>
+                <button id="btn-confirm-send-line" onclick="confirmSendLine()" class="px-6 py-2.5 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 transition shadow flex items-center">
+                    <i class="fa-solid fa-paper-plane mr-2"></i>確認發送推播
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 編輯學生 -->
+    <div id="modal-edit-student" class="fixed inset-0 bg-black bg-opacity-60 z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in custom-scroll">
+            <h4 class="font-bold text-lg text-chihlee-blue mb-4">編輯學生資料與 LINE 綁定</h4>
+            <input type="hidden" id="edit-stu-original-id">
+            <label class="block text-sm font-bold text-gray-700 mb-1">學號 (8碼) <span class="text-red-500">*</span></label>
+            <input type="text" id="edit-stu-id" pattern="\d{8}" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
+            <label class="block text-sm font-bold text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
+            <input type="text" id="edit-stu-name" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
+            <label class="block text-sm font-bold text-gray-700 mb-1">系級</label>
+            <input type="text" id="edit-stu-class" placeholder="如: 資管三A" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
+            <label class="block text-sm font-bold text-gray-700 mb-1">聯絡電話</label>
+            <input type="text" id="edit-stu-phone" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
+            <label class="block text-sm font-bold text-green-700 mb-1"><i class="fa-brands fa-line mr-1"></i>LINE User ID</label>
+            <input type="text" id="edit-stu-line" class="w-full border border-gray-300 p-2 rounded-md focus:ring-green-500 outline-none text-sm">
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeModal('modal-edit-student')" class="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
+                <button onclick="saveStudentData()" class="px-4 py-2 bg-chihlee-blue text-white font-bold rounded-md hover:bg-opacity-90 shadow">儲存更新</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 批次匯入學生名單 -->
+    <div id="modal-import-students" class="fixed inset-0 bg-black bg-opacity-60 z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-2xl animate-fade-in custom-scroll">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-xl text-green-700"><i class="fa-solid fa-file-import mr-2"></i>批次匯入學生名單 (智慧解析)</h4>
+                <button onclick="closeModal('modal-import-students')" class="text-gray-400 hover:text-gray-700 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 text-sm text-green-800">
+                <p class="font-bold mb-1">匯入與升級說明：</p>
+                <p>請將資料貼至下方。系統支援 Excel 欄位直接複製貼上，或使用空白分隔的字串。</p>
+                <p class="my-1">系統將精準解析 5 個欄位，順序為：<strong class="bg-green-200 px-1 rounded">學制</strong> ➔ <strong class="bg-green-200 px-1 rounded">系級</strong> ➔ <strong class="bg-green-200 px-1 rounded">學號(8碼)</strong> ➔ <strong class="bg-green-200 px-1 rounded">姓名</strong> ➔ <strong class="bg-green-300 px-1 rounded text-green-900">LINE ID (選填)</strong>。</p>
+                <p class="mt-2 text-xs opacity-90"><i class="fa-solid fa-circle-info"></i> 若學號已存在，系統會「自動更新」其資料，不影響歷史紀錄。遇到外籍生或姓名含空白者，系統也會智慧合併。</p>
+            </div>
+            <textarea id="import-students-textarea" class="w-full h-64 border border-gray-300 rounded-md p-3 text-sm font-mono focus:ring-green-500 outline-none resize-none custom-scroll" placeholder="【範例格式】 (直接從 Excel 貼上，或輸入空白分隔字串)&#10;日四技 企四B 11102205 徐先生&#10;日四技 資管二A 11203301 王小明 U1234567890abcdef&#10;進四技 應英一C 11304402 陳美麗&#10;日四技 行銷三A 11105503 Mary Jane"></textarea>
+            <div class="flex justify-end space-x-3 mt-4">
+                <button onclick="closeModal('modal-import-students')" class="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
+                <button onclick="processImportStudents()" class="px-6 py-2 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 shadow">確認匯入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 確認操作 -->
+    <div id="modal-confirm" class="fixed inset-0 bg-black bg-opacity-60 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm animate-fade-in border-t-4 border-red-500 mx-4">
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-triangle-exclamation text-4xl text-red-500 mb-2"></i>
+                <h4 class="font-bold text-xl text-gray-800" id="confirm-title">確認操作</h4>
+            </div>
+            <div class="text-sm text-gray-600 mb-6 bg-red-50 p-3 rounded-lg border border-red-100 leading-relaxed" id="confirm-msg-text"></div>
+            <div class="flex justify-center space-x-3">
+                <button id="btn-confirm-cancel" class="px-5 py-2 bg-gray-100 text-gray-700 font-bold rounded-md hover:bg-gray-200 transition">取消</button>
+                <button id="btn-confirm-ok" class="px-5 py-2 bg-red-600 text-white font-bold rounded-md hover:bg-red-700 transition shadow">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none w-11/12 max-w-sm"></div>
+    <div id="global-loader" class="fixed inset-0 bg-white bg-opacity-70 backdrop-blur-sm z-[200] hidden flex flex-col items-center justify-center transition-opacity">
+        <i class="fa-solid fa-circle-notch fa-spin text-5xl text-chihlee-blue mb-4"></i>
+        <div id="loader-text" class="text-lg font-bold text-gray-700 tracking-wider bg-white px-4 py-1 rounded-full shadow-sm text-center mx-4">系統處理中...</div>
+    </div>
+
+    <script>
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'chihlee_registered_events' && !state.isTeacherLoggedIn) {
+                renderStudentEvents();
+            }
+        });
+
+        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwcGcSGodBzE5EjYHvNoVjxAsWnyB5D53cB-JGc7IFoT8zmmosdenW9BsOSdCbHMS6vRg/exec';
+
+        function formatSafeDate(dateInput) {
+            if (!dateInput) return '';
+            const d = new Date(dateInput);
+            if (isNaN(d.getTime())) return String(dateInput); 
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        let state = {
+            isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
+            selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
+            tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null, studentEditDraft: [],
+            events: [], registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
+            eventCounts: new Map() // O(N) 快取Map
+        };
+
+        let isFormDirty = false;
+        function markDirty() { isFormDirty = true; }
+        function resetDirty() { isFormDirty = false; }
+        window.addEventListener('beforeunload', function (e) { if (isFormDirty) { e.preventDefault(); e.returnValue = ''; } });
+
+        const escapeHTML = (str) => { 
+            if (str === null || str === undefined) return ''; 
+            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); 
+        };
+        const jsSafe = (str) => {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+        };
+
+        function normalizeRegistrations(regs) {
+            if (!regs || !Array.isArray(regs)) return [];
+            return regs.map(r => {
+                let realSessions = r.sessionsData;
+                let realRemark = r.adminRemark;
+                if (realRemark && typeof realRemark === 'object' && Array.isArray(realRemark)) {
+                    realSessions = realRemark;
+                    realRemark = typeof r.sessionsData === 'string' ? r.sessionsData : '';
+                } else if (typeof realSessions === 'string') {
+                    try { realSessions = JSON.parse(realSessions); } catch(e) { realSessions = []; }
+                }
+                if (!Array.isArray(realSessions)) realSessions = [];
+                if (typeof realRemark !== 'string') realRemark = realRemark != null ? String(realRemark) : '';
+                if (realRemark === '[object Object]') realRemark = '';
+                r.sessionsData = realSessions;
+                r.adminRemark = realRemark;
+                return r;
+            });
+        }
+
+        function updateEventCounts() {
+            state.eventCounts.clear();
+            const eventMap = new Map();
+            state.events.forEach(e => eventMap.set(String(e.id), e));
+
+            state.registrations.forEach(r => {
+                const ev = eventMap.get(String(r.eventId));
+                if (!ev) return;
+                const validSessionKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
+                // 檢查是否真的存在於目前活動場次中 (防幽靈名額)
+                const hasValidAttendance = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validSessionKeys.includes(sd.date + '_' + (sd.time || '')));
+                if (hasValidAttendance) {
+                    state.eventCounts.set(String(r.eventId), (state.eventCounts.get(String(r.eventId)) || 0) + 1);
+                }
+            });
+        }
+
+        // 強制同步清理本地端 Cache (解決幽靈殘留問題)
+        function syncLocalRegisteredEvents(sid) {
+            if (!sid) return [];
+            const actualEventIds = [];
+            const eventMap = new Map();
+            state.events.forEach(e => eventMap.set(String(e.id), e));
+
+            const myRegs = state.registrations.filter(r => String(r.studentId) === String(sid));
+            myRegs.forEach(r => {
+                const ev = eventMap.get(String(r.eventId));
+                if (!ev) return;
+                const validKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
+                const hasAttend = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validKeys.includes(sd.date + '_' + (sd.time || '')));
+                if (hasAttend && !actualEventIds.includes(String(r.eventId))) {
+                    actualEventIds.push(String(r.eventId));
+                }
+            });
+            localStorage.setItem('chihlee_registered_events', JSON.stringify(actualEventIds));
+            return actualEventIds;
+        }
+
+        function clearStudentData() {
+            localStorage.removeItem('chihlee_sid');
+            localStorage.removeItem('chihlee_sname');
+            localStorage.removeItem('chihlee_email');
+            localStorage.removeItem('chihlee_phone');
+            localStorage.removeItem('chihlee_registered_events');
+            state.myRegistrations = [];
+            state.selectedEventIds = [];
+            document.getElementById('student-identity-bar').classList.add('hidden');
+            showToast('本機綁定狀態已清除', 'success');
+            renderStudentEvents(); 
+            loadSavedStudentInfo();
+        }
+
+        function safeCloseEditEvent() { if (isFormDirty) { customConfirm('您有尚未儲存的變更，確定要放棄並離開嗎？', () => { resetDirty(); closeModal('modal-edit-event'); }); } else closeModal('modal-edit-event'); }
+        function safeCloseRemark() { if (isFormDirty) { customConfirm('您有尚未儲存的變更，確定要放棄並離開嗎？', () => { resetDirty(); closeModal('modal-remark'); }); } else closeModal('modal-remark'); }
+
+        function copyText(text, label) {
+            navigator.clipboard.writeText(text).then(() => { showToast(`已複製 ${label}：${text}`, 'success'); }).catch(() => {
+                const textArea = document.createElement("textarea"); textArea.value = text;
+                document.body.appendChild(textArea); textArea.select(); document.execCommand('copy'); document.body.removeChild(textArea);
+                showToast(`已複製 ${label}：${text}`, 'success');
+            });
+        }
+
+        function showGlobalLoading(show, text = '處理中...') {
+            const loader = document.getElementById('global-loader'); document.getElementById('loader-text').innerText = text;
+            if (show) loader.classList.remove('hidden'); else loader.classList.add('hidden');
+        }
+
+        function showSkeletonLoading(show) {
+            if (show) {
+                document.getElementById('skeleton-student').classList.remove('hidden'); document.getElementById('student-main-content').classList.add('hidden');
+                if(state.isTeacherLoggedIn) { document.getElementById('skeleton-admin').classList.remove('hidden'); document.getElementById('adminActivitySection').classList.add('hidden'); }
+            } else {
+                document.getElementById('skeleton-student').classList.add('hidden'); document.getElementById('student-main-content').classList.remove('hidden');
+                if(state.isTeacherLoggedIn) { document.getElementById('skeleton-admin').classList.add('hidden'); document.getElementById('adminActivitySection').classList.remove('hidden'); }
+            }
+        }
+
+        function updateVersionTime() {
+            const el = document.getElementById('version-display');
+            if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>v.20260805.Final_Opt`;
+        }
+
+        async function reloadDataSilently(loadingText = '同步最新資料中...') {
+            showGlobalLoading(true, loadingText);
+            try {
+                const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                const pubText = await pubRes.text();
+                try {
+                    const pubData = JSON.parse(pubText);
+                    if (pubData.success) {
+                        state.events = pubData.data.events || [];
+                        if (!state.isTeacherLoggedIn) {
+                            state.registrations = normalizeRegistrations(pubData.data.registrations || []);
+                            updateEventCounts();
+                            syncLocalRegisteredEvents(localStorage.getItem('chihlee_sid'));
+                            renderStudentEvents();
+                        }
+                    }
+                } catch(e) {}
+
+                if (state.isTeacherLoggedIn && state.adminCreds) {
+                    const authRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', account: state.adminCreds.acc, password: state.adminCreds.pwd }) });
+                    const authText = await authRes.text();
+                    try {
+                        const authData = JSON.parse(authText);
+                        if (authData.success) {
+                            state.registrations = normalizeRegistrations(authData.data.fullData.registrations || []);
+                            state.students = authData.data.fullData.students || [];
+                            state.logs = authData.data.fullData.logs || [];
+                            updateEventCounts();
+                            renderTeacherDashboard(); 
+                            if (state.currentAdminEventId && !document.getElementById('modal-participants').classList.contains('hidden')) {
+                                openParticipantsModal(state.currentAdminEventId);
+                            }
+                        }
+                    } catch(e) {}
+                }
+                updateVersionTime();
+            } catch (err) {
+                showToast('背景同步資料失敗', 'error');
+            }
+            showGlobalLoading(false);
+        }
+
+        async function fetchInitialData() {
+            showSkeletonLoading(true);
+            try {
+                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                const text = await response.text(); 
+                
+                try {
+                    const res = JSON.parse(text); 
+                    if (res.success) {
+                        state.events = res.data.events || [];
+                        state.registrations = normalizeRegistrations(res.data.registrations || []); 
+                        state.admins = res.data.admins || [];
+                        if (!state.isTeacherLoggedIn) {
+                            state.students = res.data.students || []; 
+                            state.logs = []; 
+                            updateEventCounts();
+                            syncLocalRegisteredEvents(localStorage.getItem('chihlee_sid'));
+                            renderStudentEvents(); 
+                        }
+                        updateVersionTime();
+                    } else showToast('資料庫讀取失敗：' + res.error, 'error');
+                } catch (parseErr) {
+                    customConfirm('⛔ <b>系統連線遭 Google 阻擋！</b><br><br>請通知系統管理員回到 GAS 編輯器執行以下步驟：<br><br>1. 點擊「部署」➔「管理部署」<br>2. 編輯目前的部署<br>3. 執行身分設為「我(Me)」<br>4. 誰可以存取設為「所有人(Anyone)」<br>5. 儲存部署。', () => {}, 'API 權限設定錯誤');
+                }
+            } catch (err) { showToast('網路連線異常，無法取得資料', 'error'); }
+            showSkeletonLoading(false);
+        }
+
+        window.onload = async () => { updateVersionTime(); await fetchInitialData(); renderStudentEvents(); loadSavedStudentInfo(); switchView('student'); };
+
+        function getEventRegistrationCount(eventId) { 
+            return state.eventCounts.get(String(eventId)) || 0;
+        }
+
+        function getDayOfWeek(dateString) {
+            if (!dateString) return ''; const date = new Date(String(dateString).replace(/-/g, '/')); if (isNaN(date.getTime())) return '';
+            const days = ['日', '一', '二', '三', '四', '五', '六']; return `(${days[date.getDay()]})`;
+        }
+        function getTodayStart() { let d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+        function formatTimeRange(input) { let val = String(input.value).trim(); let match = val.match(/^(\d{1,2})(\d{2})-(\d{1,2})(\d{2})$/); if (match) input.value = `${match[1].padStart(2, '0')}:${match[2]}-${match[3].padStart(2, '0')}:${match[4]}`; }
+        
+        function checkTimeConflict(time1, time2) {
+            if (!time1 || !time2) return false;
+            try {
+                const parseM = (t) => { 
+                    let clean = String(t).replace(/:/g, '');
+                    if (clean.length === 3) clean = '0' + clean;
+                    if (clean.length >= 4) return parseInt(clean.substring(0, 2), 10) * 60 + parseInt(clean.substring(2, 4), 10);
+                    return 0;
+                };
+                // 加入正規化防範波浪號與全形
+                const norm1 = String(time1).replace(/[~～－—]/g, '-');
+                const norm2 = String(time2).replace(/[~～－—]/g, '-');
+                // 若無結束時間則跳過防護
+                if (!norm1.includes('-') || !norm2.includes('-')) return false;
+
+                const [s1Str, e1Str] = norm1.split('-');
+                const [s2Str, e2Str] = norm2.split('-');
+                const s1 = parseM(s1Str), e1 = parseM(e1Str);
+                const s2 = parseM(s2Str), e2 = parseM(e2Str);
+                if (isNaN(s1) || isNaN(e1) || isNaN(s2) || isNaN(e2)) return false;
+                
+                return (s1 < e2) && (s2 < e1);
+            } catch(e) { return false; }
+        }
+
+        function customConfirm(message, onConfirm, title = '確認操作') {
+            document.getElementById('confirm-title').innerText = title; document.getElementById('confirm-msg-text').innerHTML = message;
+            const modal = document.getElementById('modal-confirm'); modal.classList.remove('hidden');
+            document.getElementById('btn-confirm-cancel').onclick = () => { modal.classList.add('hidden'); }; document.getElementById('btn-confirm-ok').onclick = () => { modal.classList.add('hidden'); onConfirm(); };
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container'); const toast = document.createElement('div');
+            let bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800';
+            let icon = type === 'success' ? '<i class="fa-solid fa-circle-check mr-2"></i>' : type === 'error' ? '<i class="fa-solid fa-circle-exclamation mr-2"></i>' : '<i class="fa-solid fa-circle-info mr-2"></i>';
+            toast.className = `${bgColor} text-white px-5 py-3 rounded-lg shadow-xl flex items-center font-bold text-sm toast-enter pointer-events-auto mb-2`; toast.innerHTML = `${icon} ${message}`;
+            container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 100%)'; toast.style.transition = 'all 0.3s ease-in'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function switchView(viewName) {
+            document.getElementById('view-student').classList.add('hidden'); document.getElementById('view-teacher-login').classList.add('hidden');
+            document.getElementById('view-teacher-dashboard').classList.add('hidden'); document.getElementById('bulk-action-bar').classList.add('hidden');
+            document.getElementById('nav-student-btn').className = "px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap";
+            document.getElementById('nav-teacher-btn').className = "px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap";
+
+            if (viewName === 'student') {
+                document.getElementById('view-student').classList.remove('hidden'); document.getElementById('nav-student-btn').className = "px-3 py-2 rounded-md text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap";
+                updateBulkActionBar();
+            } else if (viewName === 'teacherLogin' || viewName === 'teacherDashboard') {
+                if (state.isTeacherLoggedIn) { document.getElementById('view-teacher-dashboard').classList.remove('hidden'); switchAdminTab('list'); renderTeacherDashboard(); } 
+                else document.getElementById('view-teacher-login').classList.remove('hidden');
+                document.getElementById('nav-teacher-btn').className = "px-3 py-2 rounded-md text-sm font-medium bg-chihlee-red text-white shadow transition whitespace-nowrap";
+            }
+            document.getElementById('nav-logout-btn').classList.toggle('hidden', !state.isTeacherLoggedIn);
+            document.getElementById('nav-admin-badge').classList.toggle('hidden', state.currentUserRole !== 'admin');
+            document.getElementById('nav-staff-badge').classList.toggle('hidden', state.currentUserRole !== 'staff');
+            if (state.isTeacherLoggedIn && state.currentUserRole === 'staff') document.getElementById('nav-staff-badge').innerHTML = `<i class="fa-solid fa-user-shield mr-1"></i>${escapeHTML(state.currentUserName)}`;
+            
+            const importBtn = document.getElementById('btn-batch-import');
+            if (importBtn) {
+                if (state.currentUserRole === 'admin') { importBtn.disabled = false; importBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+                else { importBtn.disabled = true; importBtn.classList.add('opacity-50', 'cursor-not-allowed'); }
+            }
+        }
+
+        async function handleLogin(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            let acc, pwd;
+            if (e && e.target && e.target.tagName === 'FORM') { acc = document.getElementById('admin-account').value.trim(); pwd = document.getElementById('admin-password').value; } 
+            else if (state.adminCreds) { acc = state.adminCreds.acc; pwd = state.adminCreds.pwd; } 
+            else return;
+
+            const errorMsgEl = document.getElementById('login-error-msg');
+            const loginBtn = document.getElementById('login-submit-btn');
+            if (errorMsgEl) errorMsgEl.classList.add('hidden');
+            
+            // 加入 Disabled 防護
+            if (loginBtn) {
+                loginBtn.disabled = true;
+                loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                loginBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>登入中...';
+            }
+            showGlobalLoading(true, '安全連線驗證中...');
+            
+            try {
+                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', account: acc, password: pwd }) });
+                const res = await response.json();
+                if (res.success) {
+                    state.adminCreds = { acc, pwd }; const user = res.data; state.isTeacherLoggedIn = true; state.currentUserRole = user.role; state.currentUserName = user.name;
+                    state.students = user.fullData.students || []; 
+                    state.registrations = normalizeRegistrations(user.fullData.registrations || []); 
+                    state.logs = user.fullData.logs || []; state.admins = user.fullData.admins || [];
+                    document.getElementById('admin-account').value = ''; document.getElementById('admin-password').value = '';
+                    
+                    const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                    const pubData = await pubRes.json();
+                    if(pubData.success) state.events = pubData.data.events || [];
+
+                    updateEventCounts(); // 更新後台 Map
+
+                    document.getElementById('teacher-search-input').value = '';
+                    document.getElementById('teacher-year-filter').innerHTML = '';
+                    document.getElementById('teacher-category-filter').value = 'all';
+                    document.getElementById('teacher-name-filter').innerHTML = '';
+
+                    if (e && e.target && e.target.tagName === 'FORM') showToast(`${user.name} 登入成功！`, 'success'); 
+                    updateVersionTime(); switchView('teacherDashboard');
+                } else {
+                    if (errorMsgEl) { errorMsgEl.innerText = res.error || '帳號或密碼錯誤，請重新確認'; errorMsgEl.classList.remove('hidden'); }
+                    showToast(res.error || '帳號或密碼錯誤', 'error');
+                    if (!e || !(e.target && e.target.tagName === 'FORM')) logoutTeacher();
+                }
+            } catch (err) { 
+                if (errorMsgEl) { errorMsgEl.innerText = '登入連線失敗，請檢查網路'; errorMsgEl.classList.remove('hidden'); }
+                showToast('登入連線失敗，請檢查網路', 'error'); 
+            } finally {
+                // 解除 Disabled 防護
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    loginBtn.innerHTML = '登入';
+                }
+                showGlobalLoading(false);
+            }
+        }
+
+        async function logoutTeacher() { 
+            state.adminCreds = null; state.isTeacherLoggedIn = false; state.currentUserRole = null; state.currentUserName = null;
+            state.students = []; state.logs = []; state.admins = []; 
+            showToast('已安全登出', 'info'); switchView('student'); 
+            await fetchInitialData(); renderStudentEvents();
+        }
+
+        function filterEvents(category) {
+            state.currentFilter = category;
+            document.querySelectorAll('#category-filters button').forEach(btn => {
+                const cat = btn.getAttribute('data-category');
+                if(cat === category) {
+                    btn.className = "filter-btn active px-4 py-2 rounded-full border border-chihlee-blue bg-chihlee-blue text-white text-sm font-medium transition shadow-sm";
+                } else {
+                    let hover = 'hover:border-chihlee-gold hover:text-chihlee-gold';
+                    if(cat === '人際') hover = 'hover:border-cat-inter-text hover:text-cat-inter-text';
+                    if(cat === '課業') hover = 'hover:border-cat-academic-text hover:text-cat-academic-text';
+                    if(cat === '職涯') hover = 'hover:border-cat-career-text hover:text-cat-career-text';
+                    btn.className = `filter-btn px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 ${hover} text-sm font-medium transition`;
+                }
+            });
+            renderStudentEvents();
+        }
+
+        function updateBulkActionBar() {
+            const bar = document.getElementById('bulk-action-bar'); document.getElementById('selected-count').innerText = state.selectedEventIds.length;
+            if (state.selectedEventIds.length > 0) bar.classList.remove('hidden'); else bar.classList.add('hidden');
+        }
+
+        function toggleEventSelection(eventId, isChecked) {
+            const safeId = String(eventId);
+            // 完全移除首頁防衝堂判定，將選擇權交給 Modal
+            if (isChecked) { 
+                if (!state.selectedEventIds.includes(safeId)) state.selectedEventIds.push(safeId); 
+            } else {
+                state.selectedEventIds = state.selectedEventIds.filter(id => String(id) !== safeId);
+            }
+            
+            const labelEl = document.getElementById(`event-card-${safeId}`);
+            if (labelEl) {
+                if (isChecked) {
+                    labelEl.classList.remove('hover:bg-yellow-50/50', 'bg-yellow-50/20', 'border-transparent', 'hover:bg-gray-50');
+                    labelEl.classList.add('bg-blue-50/30', 'border-chihlee-blue', 'hover:bg-blue-50/50');
+                } else {
+                    labelEl.classList.remove('bg-blue-50/30', 'border-chihlee-blue', 'hover:bg-blue-50/50');
+                    const ev = state.events.find(e => String(e.id) === safeId);
+                    if (ev) {
+                        const now = new Date();
+                        const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+                        let activeSession = ev.sessions.find(s => {
+                            let sDateTimeStr = String(s.date).replace(/-/g, '/');
+                            if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
+                            const sDateTime = new Date(sDateTimeStr);
+                            return !isNaN(sDateTime.getTime()) ? sDateTime >= now : new Date(String(s.date).replace(/-/g, '/')) >= getTodayStart();
+                        }) || ev.sessions[0];
+                        
+                        let sessionDateTimeStr = String(activeSession.date).replace(/-/g, '/');
+                        if (activeSession.time) sessionDateTimeStr += ' ' + String(activeSession.time).split('-')[0];
+                        const activeSessionDateTime = new Date(sessionDateTimeStr);
+                        const isWithinOneMonth = !isNaN(activeSessionDateTime) && activeSessionDateTime <= thirtyDaysFromNow;
+
+                        if (isWithinOneMonth) {
+                            labelEl.classList.add('hover:bg-yellow-50/50', 'bg-yellow-50/20', 'border-chihlee-gold');
+                        } else {
+                            labelEl.classList.add('hover:bg-gray-50', 'border-transparent');
+                        }
+                    }
+                }
+            }
+            updateBulkActionBar(); 
+        }
+
+        function renderStudentEvents() {
+            const container = document.getElementById('student-events-container'); container.innerHTML = '';
+            
+            let mySavedEvents = [];
+            const savedSid = localStorage.getItem('chihlee_sid');
+            
+            const idBar = document.getElementById('student-identity-bar');
+            if (idBar) {
+                if (savedSid && !state.isTeacherLoggedIn) {
+                    document.getElementById('current-sid-display').innerText = savedSid;
+                    idBar.classList.remove('hidden');
+                } else {
+                    idBar.classList.add('hidden');
+                }
+            }
+
+            // 同步本機 Cache，消除已刪除的幽靈紀錄
+            if (savedSid && !state.isTeacherLoggedIn) {
+                mySavedEvents = syncLocalRegisteredEvents(savedSid);
+            } else {
+                try { mySavedEvents = JSON.parse(localStorage.getItem('chihlee_registered_events')) || []; } catch(e){}
+            }
+
+            const now = new Date();
+            const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+            const validEvents = state.events.filter(ev => {
+                if(!ev.sessions || ev.sessions.length === 0) return false;
+                return ev.sessions.some(s => {
+                    let sessionDateTimeStr = String(s.date).replace(/-/g, '/');
+                    if (s.time) { sessionDateTimeStr += ' ' + String(s.time).split('-')[0]; }
+                    const sessionDateTime = new Date(sessionDateTimeStr);
+                    if (isNaN(sessionDateTime.getTime())) {
+                         const sDate = new Date(String(s.date).replace(/-/g, '/'));
+                         return sDate >= getTodayStart();
+                    }
+                    return sessionDateTime >= now;
+                });
+            });
+
+            const allCount = validEvents.length;
+            const interCount = validEvents.filter(e => e.category === '人際').length;
+            const acadCount = validEvents.filter(e => e.category === '課業').length;
+            const careerCount = validEvents.filter(e => e.category === '職涯').length;
+
+            const btnAll = document.getElementById('filter-btn-all'); if(btnAll) btnAll.innerHTML = `全部 <span class="ml-1 text-xs opacity-80">(${allCount})</span>`;
+            const btnInter = document.getElementById('filter-btn-inter'); if(btnInter) btnInter.innerHTML = `人際 <span class="ml-1 text-xs opacity-80">(${interCount})</span>`;
+            const btnAcad = document.getElementById('filter-btn-academic'); if(btnAcad) btnAcad.innerHTML = `課業 <span class="ml-1 text-xs opacity-80">(${acadCount})</span>`;
+            const btnCareer = document.getElementById('filter-btn-career'); if(btnCareer) btnCareer.innerHTML = `職涯 <span class="ml-1 text-xs opacity-80">(${careerCount})</span>`;
+
+            const visibleEvents = validEvents.filter(ev => state.currentFilter === '全部' || ev.category === state.currentFilter);
+
+            if (visibleEvents.length === 0) {
+                document.getElementById('no-events-msg').classList.remove('hidden'); container.parentElement.classList.add('hidden');
+                updateBulkActionBar(); return;
+            } 
+            document.getElementById('no-events-msg').classList.add('hidden'); container.parentElement.classList.remove('hidden');
+            visibleEvents.sort((a, b) => new Date(String(a.sessions[0].date).replace(/-/g,'/')) - new Date(String(b.sessions[0].date).replace(/-/g,'/')));
+
+            visibleEvents.forEach(ev => {
+                let tagColor = 'bg-gray-100 text-gray-600 border-gray-200';
+                if(ev.category === '職涯') tagColor = 'bg-cat-career-bg text-cat-career-text border-cat-career-text border-opacity-30';
+                if(ev.category === '人際') tagColor = 'bg-cat-inter-bg text-cat-inter-text border-cat-inter-text border-opacity-30';
+                if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text border-cat-academic-text border-opacity-30';
+
+                const safeEvId = String(ev.id);
+                const currentCount = getEventRegistrationCount(ev.id); 
+                const isFull = ev.capacity && currentCount >= ev.capacity;
+                const isAlreadyRegistered = mySavedEvents.some(id => String(id) === safeEvId);
+                let isChecked = state.selectedEventIds.includes(safeEvId);
+                const isOoo = ev.isOneOnOne === true;
+                const isSeries = ev.isSeries === true; 
+
+                let activeSession = ev.sessions.find(s => {
+                    let sDateTimeStr = String(s.date).replace(/-/g, '/');
+                    if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
+                    const sDateTime = new Date(sDateTimeStr);
+                    return !isNaN(sDateTime.getTime()) ? sDateTime >= now : new Date(String(s.date).replace(/-/g, '/')) >= getTodayStart();
+                }) || ev.sessions[0];
+                
+                let sessionDateTimeStr = String(activeSession.date).replace(/-/g, '/');
+                if (activeSession.time) sessionDateTimeStr += ' ' + String(activeSession.time).split('-')[0];
+                const activeSessionDateTime = new Date(sessionDateTimeStr);
+                const isWithinOneMonth = !isNaN(activeSessionDateTime) && activeSessionDateTime <= thirtyDaysFromNow;
+
+                let mealTags = []; if(ev.hasMeal) mealTags.push('附餐'); if(ev.hasSnack) mealTags.push('附點心');
+                const mealStr = mealTags.length > 0 ? `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-orange-100 text-orange-700 border border-orange-200">${mealTags.join('+')}</span>` : `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-gray-100 text-gray-600 border border-gray-200">無供餐</span>`;
+                const hashtags = (ev.tags || []).map(t => `<span class="inline-block text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full mr-1.5 mb-1">${escapeHTML(t)}</span>`).join('');
+                
+                const sessionsHTML = ev.sessions.map((s, i) => {
+                    const prefix = isSeries ? `<span class="inline-block w-14 text-right mr-2 flex-shrink-0 text-gray-400">第${i+1}場:</span>` : '';
+                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums"><div class="flex items-center text-chihlee-gold font-medium text-sm whitespace-nowrap"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-24 text-center inline-block font-bold text-gray-600">${escapeHTML(s.time)}</span></div><span class="text-xs text-gray-500 mt-0.5 ml-6 pl-1"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(s.location || ev.location)}</span></div>`;
+                }).join('');
+                
+                const label = document.createElement('label'); 
+                label.id = `event-card-${safeEvId}`; 
+                let checkboxHTML = '';
+                
+                let borderClass = 'border-transparent';
+                let bgClass = 'hover:bg-gray-50';
+                if (isChecked) { borderClass = 'border-chihlee-blue'; bgClass = 'bg-blue-50/30 hover:bg-blue-50/50'; }
+                else if (isWithinOneMonth && !isAlreadyRegistered && !isFull) { borderClass = 'border-chihlee-gold'; bgClass = 'bg-yellow-50/20 hover:bg-yellow-50/50'; }
+
+                if (isAlreadyRegistered) {
+                    checkboxHTML = `<i class="fa-solid fa-circle-check text-green-500 text-xl" title="您已報名"></i>`; 
+                    label.className = `flex items-start p-4 md:p-5 bg-green-50/30 border-l-4 border-l-green-400 group transition w-full cursor-not-allowed opacity-80`;
+                } else if (isFull) {
+                    checkboxHTML = `<input type="checkbox" disabled class="w-5 h-5 text-gray-300 border-gray-300 rounded cursor-not-allowed">`; 
+                    label.className = `flex items-start p-4 md:p-5 hover:bg-gray-50 bg-gray-50/50 border-l-4 border-l-gray-300 group transition w-full cursor-not-allowed opacity-75`;
+                } else {
+                    checkboxHTML = `<input type="checkbox" id="chk-evt-${safeEvId}" value="${safeEvId}" onchange="toggleEventSelection('${jsSafe(safeEvId)}', this.checked)" class="w-5 h-5 text-chihlee-blue border-gray-300 rounded focus:ring-chihlee-blue cursor-pointer" ${isChecked ? 'checked' : ''}>`; 
+                    label.className = `flex items-start p-4 md:p-5 ${bgClass} group transition duration-150 w-full cursor-pointer border-l-4 ${borderClass}`;
+                }
+
+                label.innerHTML = `
+                    <div class="flex-shrink-0 mr-4 mt-1">${checkboxHTML}</div>
+                    <div class="flex-grow flex flex-col md:flex-row gap-4 w-full justify-between">
+                        <div class="flex-grow">
+                            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded border ${tagColor}">${escapeHTML(ev.category)}</span>
+                                ${isOoo ? `<span class="px-2 py-0.5 text-xs font-bold rounded bg-pink-100 text-pink-700 border border-pink-200"><i class="fa-solid fa-user mr-1"></i>一對一預約</span>` : ''}
+                                ${isSeries ? `<span class="px-2 py-0.5 text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200">系列活動：共 ${ev.sessions.length} 場</span>` : ''}
+                                ${mealStr}
+                                ${isAlreadyRegistered ? `<span class="px-2 py-0.5 text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200 shadow-sm">✅ 您已報名</span>` : ''}
+                                ${(isFull && !isAlreadyRegistered) ? `<span class="px-2 py-0.5 text-xs font-bold rounded bg-red-400 text-white shadow-sm">已額滿</span>` : (!isAlreadyRegistered ? `<span class="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-500 border border-gray-200">剩餘 ${ev.capacity - currentCount} 名額</span>` : '')}
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight">${escapeHTML(ev.title)}</h3>
+                            <p class="text-sm text-gray-500 mt-1.5 mb-2">${escapeHTML(ev.description)}</p>
+                            ${hashtags ? `<div class="flex flex-wrap mt-1">${hashtags}</div>` : ''}
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col text-sm text-gray-600 md:items-end md:min-w-[200px] bg-gray-50 p-3 rounded-lg border border-gray-100">
+                            ${sessionsHTML}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(label);
+            });
+            updateBulkActionBar();
+        }
+
+        function loadSavedStudentInfo() {
+            try {
+                document.getElementById('reg-email').value = localStorage.getItem('chihlee_email') || ''; document.getElementById('reg-student-id').value = localStorage.getItem('chihlee_sid') || '';
+                document.getElementById('reg-name').value = localStorage.getItem('chihlee_sname') || ''; document.getElementById('reg-phone').value = localStorage.getItem('chihlee_phone') || '';
+            } catch(e) {}
+        }
+
+        function getMealOptionsHtml(event) {
+            let opts = '<option value="不用餐">不用餐</option>';
+            if(event.hasMeal && event.hasSnack) opts += '<option value="吃葷(餐+點心)">吃葷(餐+點心)</option><option value="吃素(餐+點心)">吃素(餐+點心)</option>';
+            else if(event.hasMeal) opts += '<option value="吃葷">吃葷</option><option value="吃素">吃素</option>';
+            else if(event.hasSnack) opts += '<option value="點心(葷)">點心(葷)</option><option value="點心(素)">點心(素)</option>';
+            return opts;
+        }
+
+        function handleRegSessionChange(eventId, idx, isOoo, checkboxElem) {
+            const ev = state.events.find(e => String(e.id) === String(eventId));
+            
+            if (checkboxElem && checkboxElem.checked && ev) {
+                const currentSess = ev.sessions[idx];
+                let hasConflict = false;
+                let conflictTitle = '';
+
+                // 1. 檢查當下畫面 (DOM) 勾選的其他活動是否衝堂
+                const allCheckboxes = document.querySelectorAll('input[id^="reg-chk-"]:checked');
+                for (let cb of allCheckboxes) {
+                    if (cb.id === checkboxElem.id) continue;
+                    const match = cb.id.match(/^reg-chk-(.+)-(\d+)$/);
+                    if (match) {
+                        const otherEvId = match[1];
+                        const otherIdx = parseInt(match[2]);
+                        const otherEv = state.events.find(e => String(e.id) === String(otherEvId));
+                        if (otherEv && otherEv.sessions[otherIdx]) {
+                            const otherSess = otherEv.sessions[otherIdx];
+                            if (currentSess.date === otherSess.date && checkTimeConflict(currentSess.time, otherSess.time)) {
+                                hasConflict = true;
+                                conflictTitle = otherEv.title;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 2. 檢查「歷史報名紀錄」是否衝堂 (防止利用時間差分次報名)
+                if (!hasConflict) {
+                    const sidInput = document.getElementById('reg-student-id');
+                    const currentSid = (sidInput && sidInput.value.trim()) ? sidInput.value.trim() : localStorage.getItem('chihlee_sid');
+                    
+                    if (currentSid) {
+                        // 建立歷史時段陣列，提升效能
+                        const myConflictSessions = [];
+                        const historicalRegs = state.registrations.filter(r => String(r.studentId) === currentSid);
+                        for (const r of historicalRegs) {
+                            const rEv = state.events.find(e => String(e.id) === String(r.eventId));
+                            if (!rEv) continue;
+                            const rSessData = Array.isArray(r.sessionsData) ? r.sessionsData : [];
+                            for (const rSd of rSessData) {
+                                if (rSd.attend) {
+                                    const rSess = rEv.sessions.find(s => s.date === rSd.date && (s.time === rSd.time || !rSd.time));
+                                    if (rSess) myConflictSessions.push({ date: rSess.date, time: rSess.time, title: rEv.title + ' (已報名)' });
+                                }
+                            }
+                        }
+                        
+                        // 進行比對
+                        for (const c of myConflictSessions) {
+                            if (c.date === currentSess.date && checkTimeConflict(currentSess.time, c.time)) {
+                                hasConflict = true;
+                                conflictTitle = c.title;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (hasConflict) {
+                    showToast(`時段衝突！此場次與「${conflictTitle}」時間重疊，請擇一。`, 'error');
+                    checkboxElem.checked = false;
+                    const sel = document.getElementById(`reg-meal-${eventId}-${idx}`);
+                    if (sel) { sel.disabled = true; sel.value = '不用餐'; }
+                    return; 
+                }
+            }
+
+            if (isOoo && ev) {
+                ev.sessions.forEach((s, i) => {
+                    const sel = document.getElementById(`reg-meal-${eventId}-${i}`);
+                    if (sel) { sel.disabled = true; sel.value = '不用餐'; }
+                });
+            }
+            const sel = document.getElementById(`reg-meal-${eventId}-${idx}`);
+            if (checkboxElem && sel && ev && (ev.hasMeal || ev.hasSnack)) { 
+                if (checkboxElem.checked) {
+                    sel.disabled = false; 
+                } else {
+                    sel.disabled = true;
+                    sel.value = '不用餐';
+                }
+            } else if (!checkboxElem && sel) {
+                // 確保取消勾選時強制禁用
+                sel.disabled = true;
+                sel.value = '不用餐';
+            }
+        }
+
+        function openRegisterModal() {
+            if (state.isTeacherLoggedIn) {
+                return showToast('您目前為登入狀態！若需協助學生報名，請至後台「報名名單」使用【輔導員新增報名】功能。', 'error');
+            }
+
+            if (state.selectedEventIds.length === 0) return showToast('請先勾選活動！', 'error');
+            let hasFullError = false; let finalValidIds = [];
+            state.selectedEventIds.forEach(eventId => {
+                const ev = state.events.find(e => String(e.id) === String(eventId));
+                if (!ev) return;
+                const currentCount = getEventRegistrationCount(ev.id); 
+                if (ev.capacity && currentCount >= ev.capacity) { hasFullError = true; showToast(`「${ev.title}」剛剛已額滿，已為您取消勾選。`, 'error'); } 
+                else finalValidIds.push(eventId);
+            });
+
+            state.selectedEventIds = finalValidIds; if (hasFullError) renderStudentEvents(); if (state.selectedEventIds.length === 0) return;
+            
+            const mealSection = document.getElementById('dynamic-meal-section'); mealSection.innerHTML = '';
+            state.selectedEventIds.forEach(eventId => {
+                const ev = state.events.find(e => String(e.id) === String(eventId));
+                if (!ev) return;
+                const opts = getMealOptionsHtml(ev);
+                const isOoo = ev.isOneOnOne === true;
+                const isSeries = ev.isSeries === true;
+                
+                let takenSessions = [];
+                if (isOoo) {
+                    state.registrations.forEach(r => {
+                        if (String(r.eventId) === String(ev.id)) {
+                            (Array.isArray(r.sessionsData) ? r.sessionsData : []).forEach(sd => { 
+                                if (sd.attend) takenSessions.push(sd.date + '_' + (sd.time || '')); 
+                            }); 
+                        }
+                    });
+                }
+
+                let seriesHintHtml = '';
+                if (isSeries) {
+                    seriesHintHtml = `<div class="mb-3 px-3 py-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-700 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>此為系列活動，系統已為您預設勾選所有場次，請盡量全程參與。若有無法出席的場次可手動取消。</div>`;
+                }
+
+                let sessionsHtml = ev.sessions.map((s, idx) => {
+                    const isTaken = isOoo && takenSessions.includes(s.date + '_' + (s.time || '')); 
+                    
+                    let sDateTimeStr = String(s.date).replace(/-/g, '/');
+                    if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
+                    const sDateTime = new Date(sDateTimeStr);
+                    const isPastSession = (!isNaN(sDateTime.getTime()) ? sDateTime : new Date(String(s.date).replace(/-/g, '/'))) < new Date();
+
+                    const isUnavailable = isTaken || isPastSession;
+                    const inputType = isOoo ? 'radio' : 'checkbox';
+                    const inputName = isOoo ? `name="reg-ooo-${ev.id}"` : '';
+                    // 修正：只有系列活動預設全選，一般多場次交由學生自行打勾
+                    const defaultChecked = (!isUnavailable && isSeries) ? 'checked' : '';
+                    const disabledStr = isUnavailable ? 'disabled' : '';
+                    
+                    let tagHtml = '';
+                    if (isTaken) tagHtml = '<span class="text-red-500 text-xs ml-2 font-bold bg-red-100 px-1 rounded">(已被預約)</span>';
+                    else if (isPastSession) tagHtml = '<span class="text-gray-500 text-xs ml-2 font-bold bg-gray-200 px-1 rounded">(已過期)</span>';
+
+                    return `
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 ${isUnavailable ? 'opacity-50' : ''}">
+                        <label class="flex items-center space-x-2 ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer'} flex-1">
+                            <input type="${inputType}" ${inputName} id="reg-chk-${ev.id}-${idx}" value="${escapeHTML(s.date)}" class="w-4 h-4 text-chihlee-blue focus:ring-chihlee-blue" ${defaultChecked} ${disabledStr} onchange="handleRegSessionChange('${jsSafe(ev.id)}', ${idx}, ${isOoo}, this)">
+                            <span class="text-sm font-medium text-gray-700 tabular-nums">${escapeHTML(s.date)} ${getDayOfWeek(s.date)} <span class="text-blue-600 font-bold ml-1">${escapeHTML(s.time)}</span> ${tagHtml}</span>
+                        </label>
+                        <select id="reg-meal-${ev.id}-${idx}" class="border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 focus:ring-chihlee-blue outline-none w-36" ${(!ev.hasMeal && !ev.hasSnack) || isUnavailable || isOoo || (!defaultChecked) ? 'disabled style="display:none"' : ''}>${opts}</select>
+                        ${!ev.hasMeal && !ev.hasSnack ? '<span class="text-xs text-gray-500">無供餐</span>' : ''}
+                    </div>`;
+                }).join('');
+
+                const block = document.createElement('div'); block.className = 'bg-white border border-gray-200 rounded-lg p-4 shadow-sm';
+                block.innerHTML = `<h5 class="font-bold text-chihlee-blue mb-2 text-lg">${escapeHTML(ev.title)}</h5>${seriesHintHtml}<div class="bg-gray-50 rounded px-3 py-1 border border-gray-200">${sessionsHtml}</div>`;
+                mealSection.appendChild(block);
+            });
+            openModal('modal-register');
+        }
+
+        async function submitRegistration(e) {
+            e.preventDefault(); 
+            
+            const submitBtn = document.getElementById('btn-submit-registration');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...';
+            }
+
+            const toHalfWidth = (str) => String(str).replace(/[\uff01-\uff5e]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).replace(/\u3000/g, ' ');
+            const email = document.getElementById('reg-email').value.trim();
+            let sid = toHalfWidth(document.getElementById('reg-student-id').value.trim()).replace(/\s+/g, '');
+            const sname = document.getElementById('reg-name').value.trim();
+            let phone = toHalfWidth(document.getElementById('reg-phone').value.trim()).replace(/[-\s]/g, '');
+
+            if (!/^\d{8}$/.test(sid)) {
+                if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
+                return showToast('學號格式錯誤，請輸入 8 碼數字', 'error');
+            }
+
+            let hasAnyAttend = false; let allCheckedSessions = []; let payloads = []; let droppedEvents = [];
+            state.selectedEventIds.forEach(eventId => {
+                const ev = state.events.find(e => String(e.id) === String(eventId)); let sessData = []; let hasAttendThisEvent = false;
+                if(!ev) return;
+                ev.sessions.forEach((s, idx) => {
+                    const chk = document.getElementById(`reg-chk-${eventId}-${idx}`); const mealSel = document.getElementById(`reg-meal-${eventId}-${idx}`);
+                    if(chk && chk.checked) {
+                        sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true }); 
+                        allCheckedSessions.push({ event: ev, sessionDate: s.date, sessionTime: s.time, sessionLoc: s.location || ev.location }); hasAttendThisEvent = true; hasAnyAttend = true;
+                    } else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false }); 
+                });
+                
+                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, email, phone, sessionsData: sessData });
+                else droppedEvents.push(ev.title); 
+            });
+            
+            if(!hasAnyAttend) {
+                if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
+                return showToast('您尚未勾選任何預約場次！', 'error');
+            }
+
+            let seriesWarningMsg = '';
+            for (let p of payloads) {
+                const ev = state.events.find(e => String(e.id) === String(p.eventId));
+                if (ev && ev.isSeries) {
+                    const attendCount = p.sessionsData.filter(sd => sd.attend).length;
+                    if (attendCount > 0 && attendCount < (ev.sessions.length / 2)) {
+                        seriesWarningMsg = `<div class="text-left text-purple-700">您在<span class="font-bold">「${escapeHTML(ev.title)}」</span>中取消了超過一半的場次。<br><br>為確保活動成效，建議盡量全程參與。請問是否確定只報名您勾選的剩餘場次？</div>`;
+                        break; 
+                    }
+                }
+            }
+
+            const proceedSubmit = async () => {
+                try { localStorage.setItem('chihlee_email', email); localStorage.setItem('chihlee_sid', sid); localStorage.setItem('chihlee_sname', sname); localStorage.setItem('chihlee_phone', phone); } catch (err) {}
+                showGlobalLoading(true, '同步最新名額狀態與資料安全驗證中...');
+                
+                // 1. 強制拉取最新資料庫狀態，防堵 TOCTOU 超額漏洞
+                try {
+                    const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                    const pubText = await pubRes.text();
+                    const pubData = JSON.parse(pubText);
+                    if (pubData.success) {
+                        state.events = pubData.data.events || [];
+                        state.registrations = normalizeRegistrations(pubData.data.registrations || []);
+                        updateEventCounts(); // 刷新所有 Map 快取
+                    }
+                } catch(e) {}
+
+                // 2. 二次容量驗證 (Capacity check using fresh data)
+                let isCapacityExceeded = false;
+                let exceededEventName = '';
+                for (let p of payloads) {
+                    const ev = state.events.find(e => String(e.id) === String(p.eventId));
+                    if (ev && ev.capacity) {
+                        const currentCount = getEventRegistrationCount(p.eventId);
+                        if (currentCount >= ev.capacity) {
+                            isCapacityExceeded = true;
+                            exceededEventName = ev.title;
+                            break;
+                        }
+                    }
+                }
+
+                if (isCapacityExceeded) {
+                    if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
+                    showGlobalLoading(false);
+                    return showToast(`非常抱歉！「${exceededEventName}」剛剛已被搶先額滿，請關閉視窗並重新勾選。`, 'error');
+                }
+
+                // 3. 執行正式送出
+                try {
+                    const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'submitRegistration', data: payloads }) });
+                    const res = await response.json();
+                    
+                    if (res.success) {
+                        let mySavedEvents = JSON.parse(localStorage.getItem('chihlee_registered_events')) || [];
+                        payloads.forEach(p => { if (!mySavedEvents.includes(p.eventId)) mySavedEvents.push(p.eventId); });
+                        localStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents));
+                        
+                        closeModal('modal-register'); 
+                        showSuccessAndCalendar(allCheckedSessions); 
+                        state.selectedEventIds = []; 
+                        
+                        if (droppedEvents.length > 0) {
+                            setTimeout(() => showToast(`已為您放棄未勾選場次的活動：${droppedEvents.join('、')}`, 'info'), 600);
+                        }
+                        await reloadDataSilently('報名成功，同步活動資料中...'); 
+                    } else {
+                        showToast(res.error || '報名失敗，請確認資料是否正確', 'error');
+                    }
+                } catch (err) { 
+                    showToast('網路連線異常', 'error'); 
+                } finally {
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
+                    showGlobalLoading(false);
+                }
+            };
+
+            if (seriesWarningMsg) {
+                if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; } 
+                customConfirm(seriesWarningMsg, () => {
+                    if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...'; }
+                    proceedSubmit();
+                }, '⚠️ 系列活動報名提醒');
+            } else {
+                proceedSubmit();
+            }
+        }
+
+        function checkUnsavedChanges(callback) { if (state.editingRegId !== null) customConfirm('您有尚未儲存的變更，確定要放棄並離開嗎？', () => { state.editingRegId = null; state.studentEditDraft = []; callback(); }); else callback(); }
+        function closeQueryModalSafe() { checkUnsavedChanges(() => { closeModal('modal-query'); }); }
+        
+        function openQueryModal() {
+            switchView('student'); 
+            const savedSid = localStorage.getItem('chihlee_sid'); 
+            const savedName = localStorage.getItem('chihlee_sname');
+            const savedPhone = localStorage.getItem('chihlee_phone');
+            document.getElementById('query-student-id').value = savedSid || ''; 
+            document.getElementById('query-name').value = savedName || '';
+            document.getElementById('query-phone').value = savedPhone || '';
+            document.getElementById('query-result-container').innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-shield-halved text-4xl mb-3 text-gray-300"></i><br>請輸入驗證資料以查詢您的報名</div>';
+            openModal('modal-query'); setTimeout(() => document.getElementById('query-student-id').focus(), 100);
+        }
+
+        async function executeStudentQuery() {
+            const sid = document.getElementById('query-student-id').value.trim(); 
+            const sname = document.getElementById('query-name').value.trim();
+            const phone = document.getElementById('query-phone').value.trim();
+            
+            // 💡 修正：移除對 phone 的判斷防呆，只要學號與姓名有填即可
+            if(!sid || !sname) return showToast('請完整填寫學號與姓名', 'error');
+            
+            const container = document.getElementById('query-result-container'); 
+            container.innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-chihlee-blue"></i><br><span class="font-bold tracking-widest">安全連線查詢中...</span></div>';
+            try {
+                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'queryStudent', sid: sid, sname: sname, phone: phone }) });
+                const res = await response.json();
+                if (res.success) { 
+                    state.myRegistrations = res.data; 
+                    
+                    const eventMap = new Map();
+                    state.events.forEach(e => eventMap.set(String(e.id), e));
+
+                    let mySavedEvents = [];
+                    res.data.forEach(r => {
+                        const ev = eventMap.get(String(r.eventId));
+                        if(!ev) return;
+                        const validKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
+                        const hasAttend = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validKeys.includes(sd.date + '_' + (sd.time || '')));
+                        if (hasAttend && !mySavedEvents.includes(String(r.eventId))) mySavedEvents.push(String(r.eventId));
+                    });
+                    
+                    localStorage.setItem('chihlee_sid', sid);
+                    localStorage.setItem('chihlee_sname', sname);
+                    localStorage.setItem('chihlee_phone', phone);
+                    localStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents)); // 同步覆蓋最新真實狀態
+                    
+                    const idBar = document.getElementById('student-identity-bar');
+                    if(idBar && !state.isTeacherLoggedIn) {
+                        document.getElementById('current-sid-display').innerText = sid;
+                        idBar.classList.remove('hidden');
+                    }
+
+                    renderQueryResults(); 
+                } 
+                else container.innerHTML = `<div class="text-center text-red-500 py-8 font-bold">${escapeHTML(res.error || '查詢發生錯誤')}</div>`;
+            } catch (err) { container.innerHTML = '<div class="text-center text-red-500 py-8">網路連線異常。</div>'; }
+        }
+
+        function renderQueryResults() {
+            const container = document.getElementById('query-result-container');
+            if(state.myRegistrations.length === 0) { container.innerHTML = '<div class="text-center text-red-500 py-8"><i class="fa-regular fa-folder-open mb-2 text-2xl"></i><br>找不到您的報名紀錄。</div>'; return; }
+            container.innerHTML = ''; 
+            
+            const eventMap = new Map();
+            state.events.forEach(e => eventMap.set(String(e.id), e));
+
+            let sortedRegs = state.myRegistrations.filter(r => { 
+                const ev = eventMap.get(String(r.eventId)); return ev && ev.sessions && ev.sessions.length > 0; 
+            }).sort((a, b) => { 
+                const evA = eventMap.get(String(a.eventId)); const evB = eventMap.get(String(b.eventId)); 
+                return new Date(String(evA.sessions[0].date).replace(/-/g,'/')) - new Date(String(evB.sessions[0].date).replace(/-/g,'/')); 
+            });
+
+            sortedRegs.forEach(reg => {
+                const ev = eventMap.get(String(reg.eventId));
+                let tagColor = 'bg-gray-100 text-gray-600 border-gray-200';
+                if(ev.category === '職涯') tagColor = 'bg-cat-career-bg text-cat-career-text border-cat-career-text border-opacity-30';
+                if(ev.category === '人際') tagColor = 'bg-cat-inter-bg text-cat-inter-text border-cat-inter-text border-opacity-30';
+                if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text border-cat-academic-text border-opacity-30';
+
+                const sessHtml = reg.sessionsData.map((sd, idx) => {
+                    // 複合主鍵精準匹配
+                    const session = ev.sessions.find(s => s.date === sd.date && (s.time === sd.time || !sd.time)) || ev.sessions[idx]; 
+                    if (!session) return '';
+                    
+                    let timeStart = String(session.time).split('-')[0].trim() || '00:00'; 
+                    let timeStartClean = timeStart.replace(':', '') + '00';
+                    const dateStr = String(session.date).replace(/\//g, ''); 
+                    
+                    let timeEndStr = '';
+                    if (String(session.time).includes('-') && String(session.time).split('-')[1]) {
+                        timeEndStr = String(session.time).split('-')[1].trim().replace(':', '') + '00';
+                    } else {
+                        let h = parseInt(timeStart.split(':')[0], 10);
+                        let m = timeStart.split(':')[1] || '00';
+                        h += 1;
+                        if (isNaN(h)) { timeStartClean = '000000'; timeEndStr = '235900'; }
+                        else if (h >= 24) { timeEndStr = '235900'; }
+                        else { timeEndStr = String(h).padStart(2, '0') + m + '00'; }
+                    }
+
+                    const isoStart = `${dateStr}T${timeStartClean}`; const isoEnd = `${dateStr}T${timeEndStr}`; const loc = session.location || ev.location;
+                    const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}`;
+                    let statusHtml = sd.attend ? `<span class="font-bold text-blue-700 text-sm bg-blue-50 px-2 py-1 rounded border border-blue-100">${escapeHTML(sd.meal)}</span>` : `<span class="text-gray-400 text-sm bg-gray-100 px-2 py-1 rounded">未參加</span>`;
+                    return `<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-3 border-b border-gray-100 last:border-0 gap-2 px-1"><div class="flex flex-col tabular-nums"><div class="flex items-center"><span class="${sd.attend ? 'text-gray-800' : 'text-gray-400 line-through'} font-medium">${escapeHTML(session.date)} ${getDayOfWeek(session.date)} <span class="text-gray-500 text-xs ml-1">${escapeHTML(session.time)}</span></span>${sd.attend ? `<a href="${calUrl}" target="_blank" title="加入行事曆" class="ml-2 text-blue-500 hover:text-blue-700 transition text-lg drop-shadow-sm"><i class="fa-regular fa-calendar-plus"></i></a>` : ''}</div><span class="text-xs text-gray-500 mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(loc)}</span></div><div class="flex items-center">${statusHtml}</div></div>`;
+                }).join('');
+                container.innerHTML += `<div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden transition-all duration-200"><div class="absolute top-0 left-0 w-1.5 h-full ${tagColor.split(' ')[0]}"></div><div class="mb-3 pl-3 flex justify-between items-start"><div><div class="flex items-center gap-2 mb-1.5"><span class="px-2 py-0.5 text-xs font-semibold rounded border ${tagColor}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? `<span class="px-2 py-0.5 text-xs font-bold rounded bg-pink-100 text-pink-700 border border-pink-200">一對一預約</span>` : ''}</div><h4 class="font-bold text-gray-800 text-lg sm:text-xl leading-tight mb-0">${escapeHTML(ev.title)}</h4></div></div><div class="bg-gray-50 p-2 sm:p-4 rounded-lg border border-gray-100 ml-1.5">${sessHtml}</div></div>`;
+            });
+        }
+
+        function showSuccessAndCalendar(sessionsList) {
+            const container = document.getElementById('success-events-list');
+            container.innerHTML = sessionsList.map(item => {
+                const dateStr = String(item.sessionDate).replace(/\//g, ''); 
+                let timeStart = String(item.sessionTime).split('-')[0].trim() || '00:00';
+                let timeStartClean = timeStart.replace(':', '') + '00'; 
+                let timeEndStr = '';
+                
+                if (String(item.sessionTime).includes('-') && String(item.sessionTime).split('-')[1]) {
+                    timeEndStr = String(item.sessionTime).split('-')[1].trim().replace(':', '') + '00';
+                } else {
+                    let h = parseInt(timeStart.split(':')[0], 10);
+                    let m = timeStart.split(':')[1] || '00';
+                    h += 1;
+                    if (isNaN(h)) {
+                        timeStartClean = '000000';
+                        timeEndStr = '235900';
+                    } else if (h >= 24) { 
+                        timeEndStr = '235900'; 
+                    } else { 
+                        timeEndStr = String(h).padStart(2, '0') + m + '00'; 
+                    }
+                }
+
+                const isoStart = `${dateStr}T${timeStartClean}`; const isoEnd = `${dateStr}T${timeEndStr}`; const loc = item.sessionLoc || item.event.location;
+                const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.event.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}`;
+                return `<a href="${url}" target="_blank" class="block w-full py-2.5 bg-blue-50 text-chihlee-blue font-bold rounded-md shadow-sm border border-blue-200 hover:bg-blue-100 transition text-sm text-center mb-2"><i class="fa-regular fa-calendar-plus mr-1"></i> 加入 ${escapeHTML(item.event.title)} (${escapeHTML(item.sessionDate)})</a>`;
+            }).join('');
+            openModal('modal-success');
+        }
+
+        function switchAdminTab(tab) {
+            document.getElementById('adminActivitySection').classList.toggle('hidden', tab !== 'list'); document.getElementById('adminLogSection').classList.toggle('hidden', tab !== 'log'); document.getElementById('adminStudentSection').classList.toggle('hidden', tab !== 'students');
+            document.getElementById('tabActivityList').className = tab === 'list' ? 'font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition whitespace-nowrap' : 'text-gray-500 hover:text-gray-800 pb-1 px-2 transition whitespace-nowrap';
+            document.getElementById('tabActivityLog').className = tab === 'log' ? 'font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition whitespace-nowrap' : 'text-gray-500 hover:text-gray-800 pb-1 px-2 transition whitespace-nowrap';
+            document.getElementById('tabStudents').className = tab === 'students' ? 'font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition whitespace-nowrap' : 'text-gray-500 hover:text-gray-800 pb-1 px-2 transition whitespace-nowrap';
+            if (tab === 'students') renderStudentRoster(); if (tab === 'log') renderLogs();
+        }
+
+        function renderTeacherDashboard(page = null) {
+            if (page !== null) state.adminCurrentPage = page;
+            const searchInput = document.getElementById('teacher-search-input').value.trim().toLowerCase();
+            const yearSelect = document.getElementById('teacher-year-filter'); const categorySelect = document.getElementById('teacher-category-filter'); const teacherSelect = document.getElementById('teacher-name-filter');
+            
+            if(yearSelect.options.length === 0) {
+                let years = [...new Set(state.events.filter(e => e.sessions && e.sessions.length > 0).map(ev => String(ev.sessions[0].date).split('/')[0]))].sort((a,b)=>b-a);
+                const currentY = String(new Date().getFullYear());
+                yearSelect.innerHTML = `<option value="all">全部年度</option>` + years.map(y => `<option value="${escapeHTML(y)}">${escapeHTML(y)} 年度</option>`).join('');
+                if (years.includes(currentY)) yearSelect.value = currentY; else if(years.length > 0) yearSelect.value = years[0]; 
+            }
+            const currentTeacherVal = teacherSelect.value || 'all'; const teachers = [...new Set(state.events.map(ev => ev.teacher).filter(t => t))].sort();
+            teacherSelect.innerHTML = `<option value="all">所有承辦人</option>` + teachers.map(t => `<option value="${escapeHTML(t)}" ${t===currentTeacherVal?'selected':''}>${escapeHTML(t)}</option>`).join('');
+            
+            const currentYear = yearSelect.value || 'all'; const currentCat = categorySelect.value || 'all'; const currentTeacher = teacherSelect.value || 'all';
+            const tbody = document.getElementById('teacher-events-tbody'); tbody.innerHTML = ''; 
+            const today = new Date(); today.setHours(0,0,0,0);
+
+            const isEventFullyExpired = (ev, refDate) => ev.sessions.every(s => new Date(String(s.date).replace(/-/g,'/')) < refDate);
+            const getActiveSessionDate = (ev, refDate) => {
+                let active = ev.sessions.find(s => new Date(String(s.date).replace(/-/g,'/')) >= refDate);
+                return active ? new Date(String(active.date).replace(/-/g,'/')) : new Date(String(ev.sessions[ev.sessions.length - 1].date).replace(/-/g,'/'));
+            };
+
+            // Schwartzian Transform: O(N) mapping before O(N log N) sorting
+            const mappedEvents = state.events.map(ev => ({
+                ev: ev,
+                isPast: (!ev.sessions || ev.sessions.length === 0) ? true : isEventFullyExpired(ev, today),
+                activeDate: (!ev.sessions || ev.sessions.length === 0) ? new Date(0) : getActiveSessionDate(ev, today)
+            }));
+
+            mappedEvents.sort((a, b) => {
+                if(!a.ev.sessions || a.ev.sessions.length === 0) return 1; if(!b.ev.sessions || b.ev.sessions.length === 0) return -1;
+                if (a.isPast && !b.isPast) return 1; if (!a.isPast && b.isPast) return -1; 
+                return a.activeDate - b.activeDate;
+            });
+            const sortedEvents = mappedEvents.map(item => item.ev);
+
+            let filteredEvents = sortedEvents.filter(ev => {
+                if(!ev.sessions || ev.sessions.length === 0) return false;
+                if(currentYear !== 'all' && String(ev.sessions[0].date).split('/')[0] !== currentYear) return false;
+                if(currentCat !== 'all' && ev.category !== currentCat) return false;
+                if(currentTeacher !== 'all' && ev.teacher !== currentTeacher) return false;
+                if(searchInput && !String(ev.title).toLowerCase().includes(searchInput)) return false; return true;
+            });
+
+            const itemsPerPage = 10; const totalPages = Math.ceil(filteredEvents.length / itemsPerPage) || 1;
+            if (state.adminCurrentPage > totalPages) state.adminCurrentPage = totalPages;
+            const startIndex = (state.adminCurrentPage - 1) * itemsPerPage; const paginatedEvents = filteredEvents.slice(startIndex, startIndex + itemsPerPage);
+
+            paginatedEvents.forEach(ev => {
+                if(!ev.sessions || ev.sessions.length === 0) return;
+                const isPast = isEventFullyExpired(ev, today);
+                const isSeries = ev.isSeries === true;
+                const pCount = getEventRegistrationCount(ev.id); 
+                const isFull = ev.capacity && pCount >= ev.capacity;
+                let tagColor = 'bg-gray-100 text-gray-600';
+                if(ev.category === '職涯') tagColor = 'bg-cat-career-bg text-cat-career-text'; if(ev.category === '人際') tagColor = 'bg-cat-inter-bg text-cat-inter-text'; if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text';
+
+                const datesHTML = ev.sessions.map((s, idx) => {
+                    const numHtml = ev.sessions.length > 1 ? `<span class="inline-block w-4 text-right mr-1.5 text-gray-500 font-medium">${idx+1}.</span>` : '';
+                    
+                    let sDateTimeStr = String(s.date).replace(/-/g, '/');
+                    if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
+                    const sDateTime = new Date(sDateTimeStr);
+                    const isSessionPast = !isNaN(sDateTime.getTime()) ? sDateTime < new Date() : new Date(String(s.date).replace(/-/g, '/')) < today;
+
+                    const dateTextColor = isSessionPast ? 'text-gray-400 line-through decoration-gray-300' : 'text-gray-800';
+                    const timeTextColor = isSessionPast ? 'text-gray-400' : 'text-chihlee-blue';
+                    const borderColor = isSessionPast ? 'border-gray-200' : 'border-blue-300';
+
+                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums border-l-2 ${borderColor} pl-2 ml-1 ${isSessionPast ? 'opacity-60' : ''}">
+                                <div class="flex items-center whitespace-nowrap mb-0.5">
+                                    ${numHtml}<span class="font-medium ${dateTextColor}">${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span> <span class="${timeTextColor} mx-2 inline-block text-center font-bold">${escapeHTML(s.time)}</span>
+                                </div>
+                                <span class="text-gray-500 text-xs ml-4"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(s.location || ev.location)}</span>
+                            </div>`;
+                }).join('');
+                
+                const deleteBtnHtml = state.currentUserRole === 'admin' 
+                    ? `<button onclick="deleteAdminEvent('${jsSafe(ev.id)}')" title="刪除活動" class="text-red-500 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`
+                    : `<button disabled title="僅管理員可刪除" class="text-gray-300 cursor-not-allowed px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`;
+                
+                const tr = document.createElement('tr');
+                tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white`;
+                tr.innerHTML = `
+                    <td class="px-6 py-4 align-top"><span class="inline-block px-2 py-0.5 rounded text-xs font-semibold ${tagColor}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-xs font-bold bg-pink-100 text-pink-700">一對一</span>' : ''}${isSeries ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-xs font-bold bg-purple-100 text-purple-700">系列活動</span>' : ''}</td>
+                    <td class="px-6 py-4 align-top font-medium ${isPast ? 'text-gray-500' : 'text-gray-900'}"><div class="max-w-[200px] whitespace-normal break-words">${escapeHTML(ev.title)}</div> <span class="text-xs text-gray-500 block mt-2"><i class="fa-solid fa-user-tie mr-1"></i>承辦人: ${escapeHTML(ev.teacher || '未設定')}</span></td>
+                    <td class="px-6 py-4 text-sm leading-relaxed align-top">${datesHTML}</td>
+                    <td class="px-6 py-4 text-center align-middle"><span class="inline-flex items-center justify-center ${isFull ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-full h-6 px-3 font-semibold text-xs whitespace-nowrap">${pCount} / ${ev.capacity}</span></td>
+                    <td class="px-6 py-4 text-right whitespace-nowrap sticky right-0 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-middle">
+                        <button onclick="openParticipantsModal('${jsSafe(ev.id)}')" title="報名名單" class="text-chihlee-blue hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg"><i class="fa-solid fa-users"></i></button>
+                        <button onclick="openNotifyModal('${jsSafe(ev.id)}')" title="發送通知" class="text-green-600 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg mx-1"><i class="fa-solid fa-comment-dots"></i></button>
+                        <button onclick="openEditEventModal('${jsSafe(ev.id)}')" title="編輯活動" class="text-gray-600 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${deleteBtnHtml}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const paginationContainer = document.getElementById('admin-pagination-container');
+            if(filteredEvents.length > 0) {
+                paginationContainer.classList.remove('hidden');
+                paginationContainer.innerHTML = `
+                    <div class="text-sm text-gray-600">顯示 ${startIndex + 1} 到 ${Math.min(startIndex + itemsPerPage, filteredEvents.length)} 筆，共 <span class="font-bold text-chihlee-blue">${filteredEvents.length}</span> 筆</div>
+                    <div class="flex space-x-2">
+                        <button onclick="renderTeacherDashboard(${state.adminCurrentPage - 1})" ${state.adminCurrentPage === 1 ? 'disabled class="px-3 py-1.5 rounded-md border border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-md border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition"'}><i class="fa-solid fa-chevron-left text-xs mr-1"></i>上一頁</button>
+                        <span class="px-4 py-1.5 rounded-md bg-chihlee-blue text-white text-sm font-medium shadow-sm">${state.adminCurrentPage} / ${totalPages}</span>
+                        <button onclick="renderTeacherDashboard(${state.adminCurrentPage + 1})" ${state.adminCurrentPage === totalPages ? 'disabled class="px-3 py-1.5 rounded-md border border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-md border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition"'}>下一頁<i class="fa-solid fa-chevron-right text-xs ml-1"></i></button>
+                    </div>
+                `;
+            } else { paginationContainer.classList.add('hidden'); tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500"><i class="fa-regular fa-folder-open text-3xl mb-2 text-gray-300 block"></i>找不到符合條件的活動</td></tr>'; }
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('admin-logs-tbody'); if (!tbody) return;
+            if (state.logs.length === 0) { tbody.innerHTML = '<tr><td colspan="2" class="text-center py-4 text-gray-500">目前尚無動態紀錄</td></tr>'; return; }
+            tbody.innerHTML = state.logs.map(log => `<tr class="border-b border-gray-100 even:bg-slate-50 odd:bg-white hover:bg-blue-50 transition-colors"><td class="py-3 px-4 text-gray-500 whitespace-nowrap font-mono text-xs">${escapeHTML(formatSafeDate(log.time))}</td><td class="py-3 px-4 text-gray-800 leading-relaxed">${escapeHTML(log.message)}</td></tr>`).join('');
+        }
+
+        function renderStudentRoster() {
+            const tbody = document.getElementById('adminStudentList');
+            if (!state.students || state.students.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">目前資料庫無學生資料</td></tr>'; 
+                return; 
+            }
+            try {
+                tbody.innerHTML = state.students.map(s => {
+                    const safeId = s.id != null ? String(s.id).trim() : '';
+                    const safeName = s.name != null ? String(s.name).trim() : '';
+                    const safeEdu = s.eduSystem != null ? String(s.eduSystem).trim() : '';
+                    const safeClass = s.className != null ? String(s.className).trim() : '';
+                    const safePhone = s.phone != null ? String(s.phone).trim() : '';
+                    const safeLine = s.lineId != null ? String(s.lineId).trim() : '';
+
+                    const hasLine = safeLine !== '';
+                    const displayClass = (safeEdu || safeClass) ? `${safeEdu}${safeClass}` : '-';
+
+                    return `<tr class="hover:bg-blue-50 even:bg-slate-50 odd:bg-white transition border-b border-gray-100 group">
+                        <td class="px-6 py-4 font-bold text-gray-900 sticky left-0 z-10 bg-inherit border-r border-gray-100 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
+                            <div class="flex items-center justify-between">${escapeHTML(safeId)} <button type="button" onclick="copyText('${jsSafe(safeId)}', '學號')" class="opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-chihlee-blue"><i class="fa-regular fa-copy"></i></button></div>
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-800"><div class="flex items-center justify-between">${escapeHTML(safeName)} <button type="button" onclick="copyText('${jsSafe(safeName)}', '姓名')" class="opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-chihlee-blue ml-2"><i class="fa-regular fa-copy"></i></button></div></td>
+                        <td class="px-6 py-4 text-gray-700">${escapeHTML(displayClass)}</td>
+                        <td class="px-6 py-4 text-gray-600"><div class="flex items-center justify-between">${escapeHTML(safePhone) || '-'} ${safePhone ? `<button type="button" onclick="copyText('${jsSafe(safePhone)}', '電話')" class="opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-chihlee-blue ml-2"><i class="fa-regular fa-copy"></i></button>` : ''}</div></td>
+                        <td class="px-6 py-4"><div class="flex items-center justify-between">${hasLine ? '<div class="flex items-center"><i class="fa-brands fa-line text-green-500 text-lg mr-1"></i><span class="text-green-700 font-bold">' + escapeHTML(safeLine) + '</span></div><button type="button" onclick="copyText(\''+jsSafe(safeLine)+'\', \'LINE ID\')" class="opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-chihlee-blue ml-2"><i class="fa-regular fa-copy"></i></button>' : '<div class="flex items-center"><i class="fa-brands fa-line text-gray-300 text-lg mr-1"></i><span class="text-gray-400 italic">尚未綁定</span></div>'}</div></td>
+                        <td class="px-6 py-4 text-right sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">${state.currentUserRole === 'admin' ? `<button onclick="openEditStudentModal('${jsSafe(safeId)}')" class="text-chihlee-blue border border-chihlee-blue px-3 py-1 rounded text-xs hover:bg-blue-50 transition font-bold"><i class="fa-solid fa-pen mr-1"></i>編輯</button>` : `<span class="text-xs text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded"><i class="fa-solid fa-lock mr-1"></i>僅管理員可改</span>`}</td>
+                    </tr>`;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-500">資料庫格式解析錯誤。</td></tr>`;
+            }
+        }
+
+        function renderTempTags() { document.getElementById('edit-tags-container').innerHTML = state.tempTags.map((t, idx) => `<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm font-bold flex items-center">${escapeHTML(t)} <button type="button" onclick="removeTempTag(${idx}); markDirty();" class="ml-1 text-blue-500 hover:text-red-500">✕</button></span>`).join(''); }
+        function addTempTag() { const input = document.getElementById('edit-tag-input'); let val = input.value.trim(); if(!val) return; if(!val.startsWith('#')) val = '#' + val; if(state.tempTags.length >= 3) return showToast('最多 3 個標籤！', 'error'); if(!state.tempTags.includes(val)) { state.tempTags.push(val); input.value = ''; renderTempTags(); } }
+        function removeTempTag(idx) { state.tempTags.splice(idx, 1); renderTempTags(); }
+
+        function handleActivityTypeChange() {
+            const type = document.querySelector('input[name="edit-activity-type"]:checked').value;
+            const capInput = document.getElementById('edit-capacity');
+            if (type === 'ooo') {
+                capInput.value = state.tempSessions.length;
+                capInput.readOnly = true;
+                capInput.classList.add('bg-gray-100', 'text-gray-500');
+            } else {
+                if (capInput.readOnly) { capInput.value = ''; }
+                capInput.readOnly = false;
+                capInput.classList.remove('bg-gray-100', 'text-gray-500');
+            }
+        }
+
+        function syncTempSessions() {
+            for(let i = 0; i < state.tempSessions.length; i++) {
+                const dateEl = document.getElementById(`sesDate_${i}`); const timeEl = document.getElementById(`sesTime_${i}`); const locEl = document.getElementById(`sesLoc_${i}`);
+                if (dateEl && dateEl.value) state.tempSessions[i].date = dateEl.value.replace(/-/g, '/');
+                if (timeEl) state.tempSessions[i].time = timeEl.value; if (locEl) state.tempSessions[i].location = locEl.value;
+            }
+        }
+        
+        function renderTempSessions() {
+            document.getElementById('edit-sessions-container').innerHTML = state.tempSessions.map((s, idx) => `
+                <div class="flex flex-col md:flex-row gap-2 items-center bg-white p-2 rounded-md border border-gray-200">
+                    <input type="date" id="sesDate_${idx}" value="${String(s.date).replace(/\//g, '-')}" onchange="markDirty()" class="w-full md:w-auto px-3 py-1.5 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
+                    <input type="text" id="sesTime_${idx}" value="${escapeHTML(s.time)}" oninput="markDirty()" onblur="formatTimeRange(this); syncTempSessions();" class="w-full md:w-auto px-3 py-1.5 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm" placeholder="18:00-20:00">
+                    <input type="text" id="sesLoc_${idx}" value="${escapeHTML(s.location || '')}" oninput="markDirty()" class="w-full flex-grow px-3 py-1.5 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-yellow-50 placeholder-gray-400" placeholder="本場獨立地點(選填)">
+                    <button type="button" onclick="removeTempSession(${idx}); markDirty();" class="text-red-500 hover:text-red-700 px-2 py-1 w-full md:w-auto text-right md:text-center"><i class="fa-solid fa-trash"></i></button>
+                </div>`).join('');
+        }
+        function addSessionField() { syncTempSessions(); state.tempSessions.push({date:'', time:'', location:''}); renderTempSessions(); handleActivityTypeChange(); }
+        function removeTempSession(idx) { if(state.tempSessions.length <= 1) return showToast('至少需保留一場！', 'error'); syncTempSessions(); state.tempSessions.splice(idx, 1); renderTempSessions(); handleActivityTypeChange(); }
+
+        function openEditEventModal(eventId = null) {
+            resetDirty(); 
+            document.getElementById('edit-event-form').reset(); document.querySelectorAll('input[name="edit-loc-quick"]').forEach(cb => cb.checked = false);
+            const teacherSelect = document.getElementById('edit-teacher'); teacherSelect.innerHTML = '<option value="">請選擇承辦人...</option>';
+            let adminList = state.admins && state.admins.length > 0 ? state.admins : [{name: '黃筱喬'}, {name: '王汶尹'}, {name: '李佩純'}, {name: '梁楒侑'}, {name: '張維萱'}];
+            adminList.forEach(a => { if (a.name) teacherSelect.innerHTML += `<option value="${escapeHTML(a.name)}">${escapeHTML(a.name)}</option>`; });
+
+            if (eventId) {
+                document.getElementById('edit-modal-title').innerText = '編輯活動'; const ev = state.events.find(e => String(e.id) === String(eventId));
+                document.getElementById('edit-id').value = ev.id; 
+                document.getElementById('edit-title').value = ev.title; 
+                
+                // 💡 動態顯示警告
+                const currentCount = getEventRegistrationCount(eventId);
+                const warningEl = document.getElementById('edit-time-warning');
+                if (warningEl) {
+                    if (currentCount > 0) warningEl.classList.remove('hidden');
+                    else warningEl.classList.add('hidden');
+                }
+
+                document.getElementById('edit-category').value = ev.category;
+                document.getElementById('edit-teacher').value = ev.teacher; document.getElementById('edit-capacity').value = ev.capacity; document.getElementById('edit-description').value = ev.description;
+                document.getElementById('edit-meal-main').checked = ev.hasMeal; document.getElementById('edit-meal-snack').checked = ev.hasSnack;
+                
+                if (ev.isOneOnOne) {
+                    document.querySelector('input[name="edit-activity-type"][value="ooo"]').checked = true;
+                } else if (ev.isSeries) {
+                    document.querySelector('input[name="edit-activity-type"][value="series"]').checked = true;
+                } else {
+                    document.querySelector('input[name="edit-activity-type"][value="normal"]').checked = true;
+                }
+
+                state.tempTags = [...(ev.tags || [])]; state.tempSessions = JSON.parse(JSON.stringify(ev.sessions));
+                let customLocs = []; String(ev.location).split('、').forEach(l => { let matched = false; document.querySelectorAll('input[name="edit-loc-quick"]').forEach(cb => { if(cb.value === l) { cb.checked = true; matched = true; }}); if(!matched) customLocs.push(l); });
+                document.getElementById('edit-loc-custom').value = customLocs.join('、');
+            } else {
+                document.getElementById('edit-modal-title').innerText = '新增活動'; document.getElementById('edit-id').value = ''; state.tempTags = []; state.tempSessions = [{date: '', time: '', location: ''}];
+                document.querySelector('input[name="edit-activity-type"][value="normal"]').checked = true;
+            }
+            renderTempTags(); renderTempSessions(); handleActivityTypeChange(); openModal('modal-edit-event');
+        }
+
+        async function submitEventEdit(e) {
+            e.preventDefault(); const id = document.getElementById('edit-id').value;
+            let mainLocs = []; document.querySelectorAll('input[name="edit-loc-quick"]:checked').forEach(cb => mainLocs.push(cb.value));
+            const customLoc = document.getElementById('edit-loc-custom').value.trim(); if(customLoc) mainLocs.push(customLoc); const mainLocationString = mainLocs.join('、');
+            if(mainLocs.length === 0) return showToast('請選擇或填寫活動主地點', 'error');
+
+            let finalSessions = [];
+            for(let i=0; i<state.tempSessions.length; i++){
+                const dateEl = document.getElementById(`sesDate_${i}`); 
+                const t = document.getElementById(`sesTime_${i}`).value.trim(); 
+                const locEl = document.getElementById(`sesLoc_${i}`);
+                
+                if(dateEl && dateEl.value) {
+                    if(!t) return showToast(`第 ${i+1} 場請完整填寫時間 (如: 13:00-15:00)`, 'error');
+                    finalSessions.push({ 
+                        date: dateEl.value.replace(/-/g, '/'), 
+                        time: t, 
+                        location: (locEl && locEl.value.trim()) ? locEl.value.trim() : mainLocationString 
+                    });
+                } else {
+                    if (t || (locEl && locEl.value.trim())) {
+                        return showToast(`第 ${i+1} 場有填寫時間或地點，請務必補上日期！`, 'error');
+                    }
+                }
+            }
+            if(finalSessions.length === 0) return showToast('請完整填寫日期與時間', 'error');
+            
+            const activityType = document.querySelector('input[name="edit-activity-type"]:checked').value;
+            const isOoo = activityType === 'ooo';
+            const isSeriesEvent = activityType === 'series';
+            const finalCapacity = isOoo ? finalSessions.length : parseInt(document.getElementById('edit-capacity').value);
+
+            // 加入 Disabled 防護
+            const submitBtn = document.getElementById('btn-submit-edit-event');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...';
+            }
+
+            const restoreSubmitBtn = () => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = '儲存活動';
+                }
+            };
+
+            if (id) {
+                const currentCount = getEventRegistrationCount(id);
+                if (finalCapacity < currentCount) {
+                    restoreSubmitBtn();
+                    customConfirm(`您設定的人數上限 (${finalCapacity}) 小於目前已報名人數 (${currentCount})。<br><br>這將導致活動立刻額滿，確定要強制下修嗎？`, () => {
+                        if(submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-70', 'cursor-not-allowed'); submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...'; }
+                        proceedSubmitEventEdit(id, mainLocationString, finalSessions, isOoo, isSeriesEvent, finalCapacity, restoreSubmitBtn);
+                    }, '⚠️ 人數上限警告');
+                    return;
+                }
+            }
+            
+            proceedSubmitEventEdit(id, mainLocationString, finalSessions, isOoo, isSeriesEvent, finalCapacity, restoreSubmitBtn);
+        }
+
+        async function proceedSubmitEventEdit(id, mainLocationString, finalSessions, isOoo, isSeriesEvent, finalCapacity, restoreBtnCallback) {
+            const eventData = { 
+                title: document.getElementById('edit-title').value.trim(), 
+                category: document.getElementById('edit-category').value, 
+                tags: [...state.tempTags], 
+                location: mainLocationString, 
+                teacher: document.getElementById('edit-teacher').value.trim(), 
+                capacity: finalCapacity, 
+                description: document.getElementById('edit-description').value.trim(), 
+                hasMeal: document.getElementById('edit-meal-main').checked, 
+                hasSnack: document.getElementById('edit-meal-snack').checked, 
+                isOneOnOne: isOoo,
+                isSeries: isSeriesEvent,
+                sessions: finalSessions 
+            };
+            
+            showGlobalLoading(true, '儲存活動資料中...');
+            try {
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: id ? 'updateEvent' : 'addEvent', 
+                        data: eventData, 
+                        eventId: id || null, 
+                        adminName: state.currentUserName,
+                        adminAcc: state.adminCreds.acc,
+                        adminPwd: state.adminCreds.pwd
+                    }) 
+                });
+                const res = await response.json();
+                if (res.success) { 
+                    resetDirty(); 
+                    showToast('活動儲存成功！', 'success'); 
+                    closeModal('modal-edit-event'); 
+                    await reloadDataSilently('同步最新活動資料中...'); 
+                } 
+                else showToast('儲存失敗：' + res.error, 'error');
+            } catch (err) { showToast('網路連線異常', 'error'); }
+            finally { if (restoreBtnCallback) restoreBtnCallback(); }
+            showGlobalLoading(false);
+        }
+
+        async function deleteAdminEvent(eventId) {
+            const ev = state.events.find(e => String(e.id) === String(eventId)); if (!ev) return;
+            customConfirm(`確定要徹底刪除「${escapeHTML(ev.title)}」嗎？\n(相關報名紀錄也會一併移除)`, async () => {
+                if (state.currentUserRole === 'staff') { const password = prompt('請輸入密碼以確認刪除操作：'); if (password !== '33503708') return showToast('密碼錯誤，取消刪除操作', 'error'); }
+                showGlobalLoading(true, '刪除中...');
+                try {
+                    const response = await fetch(GAS_API_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ 
+                            action: 'deleteEvent', 
+                            eventId: eventId, 
+                            adminName: state.currentUserName,
+                            adminAcc: state.adminCreds.acc,
+                            adminPwd: state.adminCreds.pwd
+                        }) 
+                    });
+                    const res = await response.json();
+                    if (res.success) { 
+                        showToast('活動已刪除', 'success'); 
+                        await reloadDataSilently('同步活動資料中...'); 
+                    } else showToast('刪除失敗', 'error');
+                } catch(e) { showToast('網路錯誤', 'error'); }
+                showGlobalLoading(false);
+            });
+        }
+
+        async function deleteParticipantAdmin(regId) {
+            const reg = state.registrations.find(r => String(r.id) === String(regId)); 
+            if (!reg) return showToast('找不到該筆報名資料', 'error');
+
+            customConfirm(`確定要徹底刪除 <b>${escapeHTML(reg.name)}</b> 的報名紀錄嗎？<br><br><span class="text-sm text-red-600 font-bold">⚠️ 刪除後將直接釋放該名額且無法復原。</span>`, async () => {
+                showGlobalLoading(true, '刪除中...');
+                try {
+                    const response = await fetch(GAS_API_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ 
+                            action: 'deleteRegistration', 
+                            regId: regId, 
+                            adminAcc: state.adminCreds.acc,
+                            adminPwd: state.adminCreds.pwd
+                        }) 
+                    });
+                    const res = await response.json();
+                    if (res.success) { 
+                        showToast('報名紀錄已刪除，名額已釋放', 'success'); 
+                        // reloadDataSilently 內建判斷，若 modal-participants 是開啟狀態會自動重繪
+                        await reloadDataSilently('同步最新報名狀態中...'); 
+                    } else {
+                        showToast('刪除失敗：' + (res.error || '未知錯誤'), 'error');
+                    }
+                } catch(e) { 
+                    showToast('網路連線錯誤', 'error'); 
+                }
+                showGlobalLoading(false);
+            }, '刪除報名確認');
+        }
+
+        function copyParticipantNames(eventId) {
+            const parts = state.registrations.filter(r => String(r.eventId) === String(eventId)); 
+            if (parts.length === 0) return showToast('尚無人報名，無法複製', 'error');
+            
+            const attendedNames = parts
+                .filter(p => Array.isArray(p.sessionsData) && p.sessionsData.some(sd => sd.attend))
+                .map(p => p.name);
+
+            if (attendedNames.length === 0) return showToast('報名者皆未參加此活動，無法複製', 'error');
+            
+            copyText(attendedNames.join(', '), '實際參加學生姓名');
+        }
+
+        function openAdminAddParticipantModal() {
+            // 重置所有輸入與提示狀態，避免殘留上一次的紀錄
+            document.getElementById('admin-add-sid').value = '';
+            
+            const infoBox = document.getElementById('admin-add-student-info');
+            infoBox.innerHTML = '';
+            infoBox.classList.remove('bg-blue-50', 'bg-red-50', 'border-blue-100', 'border-red-100');
+            infoBox.classList.add('hidden');
+            
+            document.getElementById('admin-add-meals-container').classList.add('hidden');
+            document.getElementById('admin-add-meals').innerHTML = '';
+            
+            const submitBtn = document.getElementById('btn-admin-submit-add');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            state.adminAddTempStudent = null;
+            
+            // 開啟手動新增的 Modal
+            openModal('modal-admin-add-participant');
+        }
+
+        function verifyStudentForAdminAdd() {
+            const sid = document.getElementById('admin-add-sid').value.trim();
+            if (!sid || !/^\d{8}$/.test(sid)) return showToast('請輸入有效的 8 碼學號', 'error');
+
+            const student = state.students.find(s => s && s.id != null && String(s.id).trim() === sid);
+            const infoBox = document.getElementById('admin-add-student-info');
+            
+            if (student) {
+                const isAlreadyRegistered = state.registrations.some(r => String(r.eventId) === String(state.currentAdminEventId) && String(r.studentId) === sid);
+                if (isAlreadyRegistered) {
+                    infoBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-500 mr-1"></i> <span class="font-bold text-red-600">${escapeHTML(student.name)}</span> 已在此活動的報名名單中！`;
+                    infoBox.classList.remove('hidden', 'bg-blue-50', 'border-blue-100'); infoBox.classList.add('bg-red-50', 'border-red-100');
+                    document.getElementById('admin-add-meals-container').classList.add('hidden');
+                    document.getElementById('btn-admin-submit-add').disabled = true; document.getElementById('btn-admin-submit-add').classList.add('opacity-50', 'cursor-not-allowed');
+                    return;
+                }
+
+                state.adminAddTempStudent = student;
+                infoBox.innerHTML = `<i class="fa-solid fa-check-circle text-green-500 mr-1"></i> 找到學生：<span class="font-bold text-gray-800">${escapeHTML(student.name)}</span> (${escapeHTML(student.eduSystem || '')}${escapeHTML(student.className || '')})`;
+                infoBox.classList.remove('hidden', 'bg-red-50', 'border-red-100'); infoBox.classList.add('bg-blue-50', 'border-blue-100');
+                
+                const ev = state.events.find(e => String(e.id) === state.currentAdminEventId); const opts = getMealOptionsHtml(ev);
+                
+                const inputType = 'checkbox';
+                const inputName = '';
+
+                // O(1) Map Precompilation for Conflicts
+                const eventMapForConflicts = new Map();
+                state.events.forEach(e => eventMapForConflicts.set(String(e.id), e));
+
+                const precompiledConflicts = [];
+                const studentOtherRegs = state.registrations.filter(r => String(r.studentId) === sid);
+                for (const otherReg of studentOtherRegs) {
+                    const otherEv = eventMapForConflicts.get(String(otherReg.eventId));
+                    if (!otherEv) continue;
+                    const otherAttended = (Array.isArray(otherReg.sessionsData) ? otherReg.sessionsData : []).filter(osd => osd.attend);
+                    for (const osd of otherAttended) {
+                        const otherSessionDetails = otherEv.sessions.find(s => s.date === osd.date && (s.time === osd.time || !osd.time));
+                        if (otherSessionDetails && otherSessionDetails.time) precompiledConflicts.push({ date: otherSessionDetails.date, time: otherSessionDetails.time, title: otherEv.title });
+                    }
+                }
+
+                let onChangeLogic = `const sel=document.getElementById('admin-add-meal-${'${idx}'}'); if(sel){sel.disabled=!this.checked; if(!this.checked)sel.value='不用餐';}`;
+                if (ev.isOneOnOne) {
+                     onChangeLogic = `if(\${hasTimeConflict}) { this.checked=false; return; } document.querySelectorAll('.admin-add-meal-sel').forEach(s => {s.disabled=true; s.value='不用餐';}); const sel=document.getElementById('admin-add-meal-${'${idx}'}'); if(sel && this.checked){sel.disabled=false;} if(this.checked){ for(let i=0;i<${ev.sessions.length};i++){ if(i!==${'${idx}'}){ let c=document.getElementById('admin-add-attend-'+i); if(c && !c.disabled)c.checked=false; } } }`;
+                }
+
+                document.getElementById('admin-add-meals').innerHTML = ev.sessions.map((sess, idx) => {
+                    let hasTimeConflict = false;
+                    let conflictEvTitle = '';
+
+                    for (const c of precompiledConflicts) {
+                        if (c.date === sess.date && checkTimeConflict(sess.time, c.time)) {
+                            hasTimeConflict = true;
+                            conflictEvTitle = c.title;
+                            break;
+                        }
+                    }
+
+                    const disableAttr = hasTimeConflict ? 'disabled' : (!ev.isOneOnOne ? 'checked' : '');
+                    const bgClass = hasTimeConflict ? 'bg-red-50 border-red-200 opacity-75' : 'bg-gray-50 border-gray-100';
+                    const cursorClass = hasTimeConflict ? 'cursor-not-allowed' : 'cursor-pointer';
+                    const warningHtml = hasTimeConflict ? `<span class="text-xs text-red-500 font-bold ml-2">(與「${escapeHTML(conflictEvTitle)}」衝堂)</span>` : '';
+
+                    return `
+                    <div class="flex items-center justify-between mb-2 p-2 rounded border ${bgClass}">
+                        <label class="flex items-center space-x-2 ${cursorClass}">
+                            <input type="${inputType}" ${inputName} id="admin-add-attend-${idx}" class="text-chihlee-blue rounded focus:ring-chihlee-blue" ${disableAttr} onchange="${onChangeLogic.replace(/\$\{idx\}/g, idx).replace(/\$\{hasTimeConflict\}/g, hasTimeConflict)}">
+                            <span class="text-sm font-medium ${hasTimeConflict ? 'text-gray-400' : 'text-gray-700'}">${escapeHTML(sess.date)} ${warningHtml}</span>
+                        </label>
+                        <select id="admin-add-meal-${idx}" class="admin-add-meal-sel border border-gray-300 rounded px-2 py-1 text-sm outline-none focus:ring-chihlee-blue ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${hasTimeConflict || ev.isOneOnOne ? 'disabled' : ''}>
+                            ${opts}
+                        </select>
+                        ${!ev.hasMeal && !ev.hasSnack ? '<span class="text-xs text-gray-500">無供餐</span>' : ''}
+                    </div>`;
+                }).join('');
+                
+                document.getElementById('admin-add-meals-container').classList.remove('hidden');
+                document.getElementById('btn-admin-submit-add').disabled = false; document.getElementById('btn-admin-submit-add').classList.remove('opacity-50', 'cursor-not-allowed');
+
+            } else {
+                state.adminAddTempStudent = null;
+                infoBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> 資料庫查無此學號。請先至「學生資料庫」新增。`;
+                infoBox.classList.remove('hidden', 'bg-blue-50', 'border-blue-100'); infoBox.classList.add('bg-red-50', 'border-red-100');
+                document.getElementById('admin-add-meals-container').classList.add('hidden');
+                document.getElementById('btn-admin-submit-add').disabled = true; document.getElementById('btn-admin-submit-add').classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        async function submitAdminAddParticipant() {
+            if (!state.adminAddTempStudent) return;
+            const student = state.adminAddTempStudent; 
+            const ev = state.events.find(e => String(e.id) === state.currentAdminEventId);
+            let sessData = []; let hasAnyAttend = false;
+
+            ev.sessions.forEach((s, idx) => {
+                const chk = document.getElementById(`admin-add-attend-${idx}`); const mealSel = document.getElementById(`admin-add-meal-${idx}`);
+                if(chk && chk.checked) { sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true }); hasAnyAttend = true; } 
+                else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false });
+            });
+            if(!hasAnyAttend) return showToast('請至少選擇一個場次', 'error');
+
+            const currentCount = getEventRegistrationCount(ev.id);
+            if (ev.capacity && currentCount >= ev.capacity) {
+                customConfirm(`【警告】此活動已達人數上限 (${ev.capacity}人)！<br><br>確定要強制超額新增這名學生嗎？`, () => {
+                    proceedAdminAddParticipant(ev.id, student, sessData);
+                }, '⚠️ 人數上限警告');
+            } else {
+                proceedAdminAddParticipant(ev.id, student, sessData);
+            }
+        }
+
+        async function proceedAdminAddParticipant(eventId, student, sessData) {
+            const payload = [{ eventId: eventId, studentId: student.id, name: student.name, email: student.email || '', phone: student.phone || '', sessionsData: sessData }];
+            showGlobalLoading(true, '新增報名資料中...');
+            try {
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'submitRegistration', 
+                        data: payload,
+                        adminAcc: state.adminCreds.acc,
+                        adminPwd: state.adminCreds.pwd,
+                        isAdminOverride: true
+                    }) 
+                });
+                const res = await response.json();
+                if (res.success) { 
+                    closeModal('modal-admin-add-participant'); 
+                    await reloadDataSilently('同步報名資料中...');
+                    showToast('新增報名成功！', 'success'); 
+                } 
+                else showToast('新增失敗：' + res.error, 'error');
+            } catch (err) { showToast('網路連線異常', 'error'); }
+            showGlobalLoading(false);
+        }
+
+        function openAdminRemarkModal(regId, studentName) {
+            resetDirty(); state.currentRemarkStudent = String(regId); 
+            const reg = state.registrations.find(r => String(r.id) === state.currentRemarkStudent); 
+            if (!reg) return showToast('找不到該筆報名資料', 'error');
+            const ev = state.events.find(e => String(e.id) === String(reg.eventId));
+            if (!ev) return showToast('找不到關聯的活動資料', 'error');
+
+            document.getElementById('remark-student-info').innerText = `正在編輯: ${studentName}`; document.getElementById('admin-remark-input').value = reg.adminRemark || '';
+            const opts = getMealOptionsHtml(ev);
+            const sData = Array.isArray(reg.sessionsData) ? reg.sessionsData : [];
+            
+            // O(1) Map Precompilation
+            const eventMapForConflicts = new Map();
+            state.events.forEach(e => eventMapForConflicts.set(String(e.id), e));
+
+            const precompiledConflicts = [];
+            const studentOtherRegs = state.registrations.filter(r => String(r.studentId) === String(reg.studentId) && String(r.id) !== String(reg.id));
+            for (const otherReg of studentOtherRegs) {
+                const otherEv = eventMapForConflicts.get(String(otherReg.eventId));
+                if (!otherEv) continue;
+                const otherAttended = (Array.isArray(otherReg.sessionsData) ? otherReg.sessionsData : []).filter(osd => osd.attend);
+                for (const osd of otherAttended) {
+                    const otherSessionDetails = otherEv.sessions.find(s => s.date === osd.date && (s.time === osd.time || !osd.time));
+                    if (otherSessionDetails && otherSessionDetails.time) precompiledConflicts.push({ date: otherSessionDetails.date, time: otherSessionDetails.time, title: otherEv.title });
+                }
+            }
+
+            let takenOooSessions = [];
+            if (ev.isOneOnOne) {
+                state.registrations.forEach(r => {
+                    if (String(r.eventId) === String(ev.id) && String(r.id) !== String(reg.id)) {
+                        (Array.isArray(r.sessionsData) ? r.sessionsData : []).forEach(sd => {
+                            if (sd.attend) takenOooSessions.push(sd.date + '_' + (sd.time || '')); 
+                        });
+                    }
+                });
+            }
+
+            let htmlStr = '<label class="block text-sm font-bold text-gray-700 mb-1">場次參與與餐點修正</label>';
+            htmlStr += ev.sessions.map((sess, idx) => {
+                const d = sData.find(x => x.date === sess.date && (x.time === sess.time || !x.time)) || { date: sess.date, time: sess.time, attend: false, meal: '不用餐' }; 
+                
+                const isTakenByOthers = ev.isOneOnOne && takenOooSessions.includes(d.date + '_' + (d.time || '')) && !d.attend;
+                
+                let hasTimeConflict = false;
+                let conflictEvTitle = '';
+                for (const c of precompiledConflicts) {
+                    if (c.date === sess.date && checkTimeConflict(sess.time, c.time)) {
+                        hasTimeConflict = true;
+                        conflictEvTitle = c.title;
+                        break;
+                    }
+                }
+
+                const isLocked = isTakenByOthers || hasTimeConflict;
+                const disableStr = isLocked ? 'disabled' : '';
+                let warningTag = '';
+                if (isTakenByOthers) warningTag = '<span class="text-xs text-red-500 ml-2 font-bold">(時段已被約走)</span>';
+                else if (hasTimeConflict) warningTag = `<span class="text-xs text-red-500 ml-2 font-bold">(與「${escapeHTML(conflictEvTitle)}」衝堂)</span>`;
+                
+                let onChangeLogic = `markDirty(); const sel=document.getElementById('remark-meal-${idx}'); if(sel){sel.disabled=!this.checked; if(!this.checked)sel.value='不用餐';}`;
+                if (ev.isOneOnOne) {
+                    onChangeLogic = `if(${isLocked}) { this.checked=false; return; } markDirty(); document.querySelectorAll('.remark-meal-sel').forEach(s => {s.disabled=true; s.value='不用餐';}); const sel=document.getElementById('remark-meal-${idx}'); if(sel && this.checked){sel.disabled=false;} if(this.checked){ for(let i=0;i<${ev.sessions.length};i++){ if(i!==${idx}){ let c=document.getElementById('remark-attend-'+i); if(c && !c.disabled){c.checked=false; let m=document.getElementById('remark-meal-'+i); if(m){m.disabled=true; m.value='不用餐';}} } } }`;
+                }
+
+                return `<div class="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded border border-gray-100 ${isLocked ? 'opacity-60 bg-red-50' : ''}"><label class="flex items-center space-x-2 ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}"><input type="checkbox" id="remark-attend-${idx}" class="text-chihlee-blue rounded focus:ring-chihlee-blue" ${d.attend && !hasTimeConflict ? 'checked' : ''} ${disableStr} onchange="${onChangeLogic}"><span class="text-sm font-medium text-gray-700">${escapeHTML(d.date)}${warningTag}</span></label><select id="remark-meal-${idx}" class="remark-meal-sel border border-gray-300 rounded px-2 py-1 text-sm outline-none focus:ring-chihlee-blue ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${!d.attend || isLocked ? 'disabled' : ''}>${opts.replace(`value="${d.meal}"`, `value="${d.meal}" selected`)}</select>${!ev.hasMeal && !ev.hasSnack ? '<span class="text-xs text-gray-500">無供餐</span>' : ''}</div>`;
+            }).join('');
+            
+            const currentSessionKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
+            let ghostCount = 0;
+            sData.forEach((sd, ghostIdx) => {
+                if (sd.attend && !currentSessionKeys.includes(sd.date + '_' + (sd.time || ''))) {
+                    ghostCount++;
+                    const ghostMealStr = (!ev.hasMeal && !ev.hasSnack) ? '<span class="text-xs text-gray-500">無供餐</span>' : `<span class="text-xs text-gray-500 font-bold">${escapeHTML(sd.meal)}</span>`;
+                    htmlStr += `<div class="flex items-center justify-between mb-2 bg-red-50 p-2 rounded border border-red-200"><label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" id="remark-ghost-${ghostIdx}" class="text-red-600 rounded focus:ring-red-500" checked onchange="markDirty()"><span class="text-sm font-medium text-red-700 line-through opacity-80">${escapeHTML(sd.date)} ${escapeHTML(sd.time||'')}</span><span class="text-xs text-red-600 font-bold ml-2">(已從活動設定中刪除，取消勾選即可釋放名額)</span></label>${ghostMealStr}</div>`;
+                }
+            });
+
+            document.getElementById('admin-remark-meals').innerHTML = htmlStr;
+            openModal('modal-remark');
+        }
+
+        async function saveAdminRemark() {
+            const reg = state.registrations.find(r => String(r.id) === state.currentRemarkStudent); 
+            if (!reg) return showToast('找不到報名資料，無法儲存', 'error');
+
+            const ev = state.events.find(e => String(e.id) === String(reg.eventId));
+            if (!ev) return showToast('找不到活動', 'error');
+
+            const newRemark = document.getElementById('admin-remark-input').value.trim();
+            let newSessionsData = Array.isArray(reg.sessionsData) ? JSON.parse(JSON.stringify(reg.sessionsData)) : [];
+            
+            ev.sessions.forEach((sess, idx) => {
+                const chk = document.getElementById(`remark-attend-${idx}`); 
+                const sel = document.getElementById(`remark-meal-${idx}`);
+                
+                let isAttending = chk ? chk.checked : false;
+                let mealChoice = '不用餐';
+                if (isAttending && sel && !sel.disabled && !sel.classList.contains('hidden')) {
+                    mealChoice = sel.value;
+                }
+                
+                const existingIdx = newSessionsData.findIndex(d => d.date === sess.date && (d.time === sess.time || !d.time));
+                if (existingIdx >= 0) {
+                    newSessionsData[existingIdx].attend = isAttending;
+                    newSessionsData[existingIdx].meal = mealChoice;
+                    newSessionsData[existingIdx].time = sess.time; 
+                } else {
+                    newSessionsData.push({ date: sess.date, time: sess.time, attend: isAttending, meal: mealChoice });
+                }
+            });
+
+            const currentSessionKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
+            Array.isArray(reg.sessionsData) && reg.sessionsData.forEach((sd, ghostIdx) => {
+                if (sd.attend && !currentSessionKeys.includes(sd.date + '_' + (sd.time || ''))) {
+                    const ghostChk = document.getElementById(`remark-ghost-${ghostIdx}`);
+                    if (ghostChk && !ghostChk.checked) {
+                        const targetIdx = newSessionsData.findIndex(d => d.date === sd.date && (d.time === sd.time || !d.time));
+                        if (targetIdx >= 0) newSessionsData[targetIdx].attend = false;
+                    }
+                }
+            });
+
+            if (ev.isSeries) {
+                const attendCount = newSessionsData.filter(sd => sd.attend && currentSessionKeys.includes(sd.date + '_' + (sd.time || ''))).length;
+                if (attendCount < (ev.sessions.length / 2)) {
+                    customConfirm(`<div class="text-left text-purple-700">警告：此為<span class="font-bold">「系列活動」</span>！<br><br>您為該名學生取消了超過一半的場次。請問是否確定要儲存此變更？</div>`, () => {
+                        proceedSaveAdminRemark(reg, newRemark, newSessionsData);
+                    }, '⚠️ 系列活動修改警告');
+                    return;
+                }
+            }
+            
+            proceedSaveAdminRemark(reg, newRemark, newSessionsData);
+        }
+
+        async function proceedSaveAdminRemark(reg, newRemark, newSessionsData) {
+            // 加入 Disabled 防護
+            const saveBtn = document.getElementById('btn-save-admin-remark');
+            if (saveBtn) { saveBtn.disabled = true; saveBtn.classList.add('opacity-70', 'cursor-not-allowed'); saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>儲存中...'; }
+            
+            showGlobalLoading(true, '更新備註中...');
+            try {
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'updateRegistration', 
+                        regId: reg.id, 
+                        remark: newRemark, 
+                        sessionsData: newSessionsData,
+                        adminAcc: state.adminCreds.acc,
+                        adminPwd: state.adminCreds.pwd
+                    }) 
+                });
+                const res = await response.json();
+                if (res.success) { 
+                    resetDirty(); 
+                    reg.adminRemark = newRemark; reg.sessionsData = newSessionsData; 
+                    closeModal('modal-remark'); 
+                    showToast('資料已更新', 'success');
+                    await reloadDataSilently('同步資料狀態...'); 
+                } 
+                else showToast(res.error || '更新失敗', 'error');
+            } catch (err) { showToast('網路錯誤', 'error'); }
+            finally {
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove('opacity-70', 'cursor-not-allowed'); saveBtn.innerHTML = '儲存'; }
+            }
+            showGlobalLoading(false);
+        }
+
+        function toggleAllNotify(source) { 
+            document.querySelectorAll('.notify-checkbox:not([disabled])').forEach(cb => cb.checked = source.checked); 
+            updateSelectAllState();
+        }
+        
+        function updateSelectAllState() { 
+            const allEnabled = document.querySelectorAll('.notify-checkbox:not([disabled])'); 
+            const checkedBoxes = document.querySelectorAll('.notify-checkbox:checked');
+            document.getElementById('selectAllNotify').checked = (allEnabled.length > 0 && allEnabled.length === checkedBoxes.length); 
+            document.getElementById('line-recipient-count').innerText = `即將發送: ${checkedBoxes.length} 人`;
+        }
+
+        window.openNotifyModal = function(eventId) {
+            try {
+                const safeEventId = String(eventId);
+                state.currentAdminEventId = safeEventId;
+                const ev = state.events.find(e => String(e.id) === safeEventId);
+                if (!ev) { showToast('找不到活動資料', 'error'); return; }
+
+                document.getElementById('notify-event-subtitle').innerText = ev.title || '未命名活動';
+                document.getElementById('selectAllNotify').checked = false;
+                
+                const templateSelect = document.getElementById('line-template-select');
+                if (templateSelect) templateSelect.value = 'pre_event';
+                changeLineTemplate();
+
+                const parts = state.registrations.filter(r => String(r.eventId) === safeEventId); 
+                const tbody = document.getElementById('notify-tbody'); 
+                let hasValidUsers = false;
+
+                if(parts.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-gray-500 bg-gray-50"><i class="fa-solid fa-user-xmark text-3xl mb-2 text-gray-300 block"></i>目前尚無學生報名<br><span class="text-xs">您可先編輯並暫存文案</span></td></tr>';
+                } else {
+                    tbody.innerHTML = parts.map(p => {
+                        const safeId = p.studentId != null ? String(p.studentId).trim() : '';
+                        const safeName = p.name != null ? String(p.name).trim() : '未知名稱';
+                        const studentGlobal = state.students.find(s => s && s.id != null && String(s.id).trim() === safeId); 
+                        const safeLine = studentGlobal && studentGlobal.lineId != null ? String(studentGlobal.lineId).trim() : '';
+                        const hasLine = safeLine !== '';
+                        if (hasLine) hasValidUsers = true;
+
+                        const preEventTime = p.lineNotifiedAt ? `<span class="text-green-600 text-xs font-bold bg-green-100 px-2 py-1 rounded shadow-sm"><i class="fa-solid fa-check mr-1"></i>${escapeHTML(formatSafeDate(p.lineNotifiedAt))}</span>` : `<span class="text-gray-400 text-xs">未發送</span>`;
+                        const surveyTime = p.surveyNotifiedAt ? `<span class="text-blue-600 text-xs font-bold bg-blue-100 px-2 py-1 rounded shadow-sm"><i class="fa-solid fa-check mr-1"></i>${escapeHTML(formatSafeDate(p.surveyNotifiedAt))}</span>` : `<span class="text-gray-400 text-xs">未發送</span>`;
+
+                        return `<tr class="hover:bg-green-50 even:bg-slate-50 odd:bg-white transition border-b border-gray-100 last:border-0">
+                            <td class="px-4 py-3 text-center"><input type="checkbox" onchange="updateSelectAllState()" class="notify-checkbox w-4 h-4 cursor-pointer text-green-600 rounded border-gray-300 focus:ring-green-500" value="${p.id}" ${hasLine ? '' : 'disabled'}></td>
+                            <td class="px-4 py-3 font-medium text-gray-900 flex items-center">${escapeHTML(safeName)} ${hasLine ? '<i class="fa-brands fa-line text-green-500 text-lg ml-2 drop-shadow-sm" title="已綁定"></i>' : '<i class="fa-brands fa-line text-gray-300 text-lg ml-2" title="未綁定"></i>'}</td>
+                            <td class="px-4 py-3">${preEventTime}</td>
+                            <td class="px-4 py-3">${surveyTime}</td>
+                        </tr>`;
+                    }).join('');
+                }
+                
+                document.getElementById('selectAllNotify').disabled = !hasValidUsers; 
+                updateSelectAllState();
+                openModal('modal-notify');
+
+            } catch(e) {
+                showToast('開啟通知視窗失敗，請重新整理頁面', 'error');
+            }
+        };
+
+        function changeLineTemplate() {
+            const type = document.getElementById('line-template-select').value;
+            const ev = state.events.find(e => String(e.id) === String(state.currentAdminEventId));
+            if (!ev) return;
+            
+            const textarea = document.getElementById('line-preview-text');
+            const clearBtn = document.getElementById('btn-clear-line-draft');
+            const sessionsStr = (ev.sessions || []).map((s, idx) => `第${idx+1}場: ${escapeHTML(s.date)} ${getDayOfWeek(s.date)} ${escapeHTML(s.time)}`).join('\n');
+
+            const savedDraft = localStorage.getItem(`chihlee_line_draft_${ev.id}_${type}`);
+
+            if (savedDraft) {
+                textarea.value = savedDraft;
+                clearBtn.classList.remove('hidden');
+                clearBtn.classList.add('flex');
+                document.getElementById('line-draft-warning').classList.remove('hidden');
+                document.getElementById('line-draft-hint').classList.add('hidden');
+            } else {
+                clearBtn.classList.remove('flex');
+                clearBtn.classList.add('hidden');
+                document.getElementById('line-draft-warning').classList.add('hidden');
+                document.getElementById('line-draft-hint').classList.remove('hidden');
+                
+                if (type === 'pre_event') {
+                    textarea.value = `【致理科大資源教室 活動提醒】\n同學您好！您報名的活動即將開始囉：\n\n📌 活動名稱：${ev.title}\n📅 活動時間：\n${sessionsStr}\n📍 地點：${ev.location}\n\n💡 小提醒：請留意當天是否有供餐，若臨時不克前來，請於活動前兩天至系統取消，或直接透過本官方帳號聯繫輔導員喔！期待您的參與！`;
+                } else if (type === 'feedback') {
+                    textarea.value = `【致理科大資源教室 滿意度調查】\n同學您好！感謝您參與「${ev.title}」。\n\n為了提供更好的活動品質，想邀請您花 1 分鐘填寫回饋問卷：\n👉 [請在此貼上問卷網址]\n\n您的寶貴意見是我們進步的動力，謝謝您！`;
+                } else if (type === 'custom') {
+                    textarea.value = `【致理科大資源教室 通知】\n同學您好：\n\n（請在此輸入自訂內容）`;
+                }
+            }
+        }
+
+        function saveLineDraft() {
+            if (!state.currentAdminEventId) return;
+            const type = document.getElementById('line-template-select').value;
+            const text = document.getElementById('line-preview-text').value;
+            localStorage.setItem(`chihlee_line_draft_${state.currentAdminEventId}_${type}`, text);
+            const typeName = document.getElementById('line-template-select').options[document.getElementById('line-template-select').selectedIndex].text;
+            showToast(`已暫存專屬「${typeName.replace(' 範本：', '')}」文案！`, 'success');
+            changeLineTemplate(); 
+        }
+
+        function clearLineDraft() {
+            if (!state.currentAdminEventId) return;
+            const type = document.getElementById('line-template-select').value;
+            localStorage.removeItem(`chihlee_line_draft_${state.currentAdminEventId}_${type}`);
+            showToast('已清除暫存，恢復預設文案', 'info');
+            changeLineTemplate();
+        }
+
+        async function confirmSendLine() {
+            const checkboxes = document.querySelectorAll('.notify-checkbox:checked'); 
+            const msg = document.getElementById('line-preview-text').value.trim(); 
+            const notifyType = document.getElementById('line-template-select').value;
+            
+            if (checkboxes.length === 0) return showToast('請在下方名單中，至少勾選一名學生！', 'error');
+            if (!msg) return showToast('推播文案不可為空！', 'error');
+
+            const sendBtn = document.getElementById('btn-confirm-send-line');
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                sendBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>發送中...';
+            }
+
+            let targetRegIds = [];
+            checkboxes.forEach(cb => targetRegIds.push(cb.value));
+
+            showGlobalLoading(true, `正在發送給 ${targetRegIds.length} 位學生...`);
+            try {
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'sendLineNotification', 
+                        regIds: targetRegIds, 
+                        message: msg, 
+                        notifyType: notifyType,
+                        adminAcc: state.adminCreds.acc,
+                        adminPwd: state.adminCreds.pwd
+                    }) 
+                });
+                const res = await response.json();
+                if (res.success) {
+                    if (res.failCount > 0 && res.failedStudents && res.failedStudents.length > 0) {
+                        customConfirm(`✅ 成功: ${res.successCount} 人<br>❌ 失敗: ${res.failCount} 人<br><br>【發送失敗名單】(未綁定或發送異常):<br><div class="text-sm text-red-600 mt-2 max-h-32 overflow-y-auto text-left bg-red-50 p-2 rounded border border-red-100">${res.failedStudents.map(escapeHTML).join('<br>')}</div>`, () => {}, '發送結果與失敗清單');
+                    } else if (res.successCount > 0) {
+                        showToast(`發送完畢！成功 ${res.successCount} 人，失敗 ${res.failCount} 人`, 'success');
+                    } else {
+                        showToast(`發送失敗！成功 0 人，失敗 ${res.failCount} 人 (請檢查 LINE ID 是否正確)`, 'error');
+                    }
+                    await reloadDataSilently('更新通知狀態中...'); 
+                    openNotifyModal(state.currentAdminEventId); 
+                } else showToast('發送失敗：' + res.error, 'error');
+            } catch(e) { showToast('網路錯誤', 'error'); }
+            finally {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i>確認發送推播';
+                }
+            }
+            showGlobalLoading(false);
+        }
+
+        function openEditStudentModal(sid) {
+            const s = state.students.find(st => st && st.id != null && String(st.id).trim() === String(sid).trim()); 
+            if(!s) return;
+            document.getElementById('edit-stu-original-id').value = s.id; 
+            document.getElementById('edit-stu-id').value = s.id;
+            document.getElementById('edit-stu-name').value = s.name != null ? s.name : ''; 
+            document.getElementById('edit-stu-class').value = ((s.eduSystem != null ? s.eduSystem : '') + (s.className != null ? s.className : '')).trim();
+            document.getElementById('edit-stu-phone').value = s.phone != null ? s.phone : ''; 
+            document.getElementById('edit-stu-line').value = s.lineId != null ? s.lineId : '';
+            openModal('modal-edit-student');
+        }
+
+        async function saveStudentData() {
+            const oldSid = document.getElementById('edit-stu-original-id').value; 
+            const newSid = document.getElementById('edit-stu-id').value.trim();
+            const name = document.getElementById('edit-stu-name').value.trim(); 
+            const fullClass = document.getElementById('edit-stu-class').value.trim();
+            const phone = document.getElementById('edit-stu-phone').value.trim(); 
+            const line = document.getElementById('edit-stu-line').value.trim();
+            
+            if(!newSid || !name) return showToast('學號與姓名不可為空', 'error'); 
+            if (newSid !== oldSid && state.students.some(st => st && st.id != null && String(st.id).trim() === newSid)) return showToast('該學號已存在', 'error');
+            
+            const match = fullClass.match(/^(.{3})(.*)$/); 
+            const eduSys = match ? match[1] : ''; 
+            const className = match ? match[2] : fullClass;
+            
+            showGlobalLoading(true, '更新學生資料...');
+            try {
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'updateStudent', 
+                        oldSid, 
+                        data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line },
+                        adminAcc: state.adminCreds.acc,
+                        adminPwd: state.adminCreds.pwd
+                    }) 
+                });
+                const res = await response.json();
+                if (res.success) {
+                    showToast('學生資料已更新', 'success'); 
+                    closeModal('modal-edit-student');
+                    await reloadDataSilently('重新載入學生名冊...');
+                } else showToast('更新失敗：' + res.error, 'error');
+            } catch (err) { showToast('網路連線異常', 'error'); }
+            showGlobalLoading(false);
+        }
+
+        function openImportStudentModal() { document.getElementById('import-students-textarea').value = ''; openModal('modal-import-students'); }
+        
+        async function processImportStudents() {
+            const dataString = document.getElementById('import-students-textarea').value; if (!dataString.trim()) return showToast('請貼上資料', 'error');
+            const lines = dataString.split('\n'); let newStudents = [];
+            lines.forEach(line => {
+                const cleanLine = line.trim(); if (!cleanLine) return;
+                let eduSystem = '', className = '', id = '', name = '', lineId = ''; 
+                
+                const tabParts = cleanLine.split(/\t+/);
+                if (tabParts.length >= 4) { 
+                    eduSystem = tabParts[0].trim(); 
+                    className = tabParts[1].trim(); 
+                    id = tabParts[2].trim(); 
+                    name = tabParts[3].trim(); 
+                    lineId = tabParts.length > 4 ? tabParts[4].trim() : ''; 
+                } 
+                else { 
+                    const spaceParts = cleanLine.split(/\s+/).filter(p => p !== '');
+                    if (spaceParts.length >= 4) {
+                        eduSystem = spaceParts[0];
+                        className = spaceParts[1];
+                        id = spaceParts[2];
+                        
+                        const lastPart = spaceParts[spaceParts.length - 1];
+                        if (lastPart.length >= 33 && lastPart.startsWith('U')) {
+                            lineId = lastPart;
+                            name = spaceParts.slice(3, spaceParts.length - 1).join(' ');
+                        } else {
+                            name = spaceParts.slice(3).join(' ');
+                        }
+                    } else {
+                        const match = cleanLine.match(/^(\S+)\s+(\S+)\s+(\d{8,})\s+(.*)$/); 
+                        if (match) { 
+                            eduSystem = match[1].trim(); 
+                            className = match[2].trim(); 
+                            id = match[3].trim(); 
+                            let remainingText = match[4].trim();
+                            const parts = remainingText.split(/\s+/);
+                            const lastP = parts[parts.length - 1];
+                            if (lastP.length >= 33 && lastP.startsWith('U')) {
+                                lineId = lastP;
+                                name = parts.slice(0, parts.length - 1).join(' ');
+                            } else {
+                                name = remainingText;
+                            }
+                        } 
+                    }
+                }
+                if (id && name) newStudents.push({ id, name, eduSystem, className, phone: '', email: '', lineId });
+            });
+            if(newStudents.length === 0) return showToast('無法解析資料，請確認格式', 'error');
+            
+            showGlobalLoading(true, `正在匯入 ${newStudents.length} 筆資料...`);
+            try {
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'batchImportStudents', 
+                        students: newStudents,
+                        adminAcc: state.adminCreds.acc,
+                        adminPwd: state.adminCreds.pwd
+                    }) 
+                });
+                const res = await response.json();
+                if (res.success) { 
+                    showToast(`匯入完成！新增/更新共 ${newStudents.length} 筆`, 'success'); 
+                    document.getElementById('import-students-textarea').value = ''; 
+                    closeModal('modal-import-students'); 
+                    await reloadDataSilently('重新載入學生名冊...');
+                } 
+                else showToast('匯入失敗：' + res.error, 'error');
+            } catch (err) { showToast('網路連線異常', 'error'); }
+            showGlobalLoading(false);
+        }
+    </script>
+</body>
+</html>
