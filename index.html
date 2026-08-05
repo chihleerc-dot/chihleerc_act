@@ -41,7 +41,7 @@
         .nav-buttons-container { min-width: max-content; }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="text-gray-800 antialiased min-h-screen flex flex-col relative">
 
     <nav class="bg-chihlee-blue text-white shadow-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -182,11 +182,11 @@
                     </button>
                 </div>
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-auto custom-scroll max-h-[70vh] relative">
-                    <table class="w-full whitespace-nowrap">
+                    <table class="w-full whitespace-nowrap min-w-[800px]">
                         <thead class="bg-gray-200 text-gray-700 text-sm shadow-sm sticky top-0 z-20">
                             <tr>
-                                <th class="px-6 py-4 text-left font-semibold">分類</th>
-                                <th class="px-6 py-4 text-left font-semibold">活動名稱 & 承辦人</th>
+                                <th class="px-6 py-4 text-left font-semibold sticky left-0 bg-gray-200 z-30">分類</th>
+                                <th class="px-6 py-4 text-left font-semibold sticky left-[80px] bg-gray-200 z-30 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">活動名稱 & 承辦人</th>
                                 <th class="px-6 py-4 text-left font-semibold">場次時間/地點</th>
                                 <th class="px-6 py-4 text-center font-semibold">報名</th>
                                 <th class="px-6 py-4 text-right font-semibold sticky right-0 bg-gray-200 z-30 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">操作</th>
@@ -674,7 +674,7 @@
             selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
             tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null, studentEditDraft: [],
             events: [], registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
-            eventCounts: new Map() // O(N) 快取Map
+            eventCounts: new Map() 
         };
 
         let isFormDirty = false;
@@ -720,7 +720,6 @@
                 const ev = eventMap.get(String(r.eventId));
                 if (!ev) return;
                 const validSessionKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
-                // 檢查是否真的存在於目前活動場次中 (防幽靈名額)
                 const hasValidAttendance = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validSessionKeys.includes(sd.date + '_' + (sd.time || '')));
                 if (hasValidAttendance) {
                     state.eventCounts.set(String(r.eventId), (state.eventCounts.get(String(r.eventId)) || 0) + 1);
@@ -728,7 +727,6 @@
             });
         }
 
-        // 強制同步清理本地端 Cache (解決幽靈殘留問題)
         function syncLocalRegisteredEvents(sid) {
             if (!sid) return [];
             const actualEventIds = [];
@@ -794,46 +792,57 @@
             if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>v.20260805.Final_Opt`;
         }
 
-        async function reloadDataSilently(loadingText = '同步最新資料中...') {
-            showGlobalLoading(true, loadingText);
-            try {
-                const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
-                const pubText = await pubRes.text();
-                try {
-                    const pubData = JSON.parse(pubText);
-                    if (pubData.success) {
-                        state.events = pubData.data.events || [];
-                        if (!state.isTeacherLoggedIn) {
-                            state.registrations = normalizeRegistrations(pubData.data.registrations || []);
-                            updateEventCounts();
-                            syncLocalRegisteredEvents(localStorage.getItem('chihlee_sid'));
-                            renderStudentEvents();
-                        }
-                    }
-                } catch(e) {}
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container'); const toast = document.createElement('div');
+            let bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800';
+            let icon = type === 'success' ? '<i class="fa-solid fa-circle-check mr-2"></i>' : type === 'error' ? '<i class="fa-solid fa-circle-exclamation mr-2"></i>' : '<i class="fa-solid fa-circle-info mr-2"></i>';
+            toast.className = `${bgColor} text-white px-5 py-3 rounded-lg shadow-xl flex items-center font-bold text-sm toast-enter pointer-events-auto mb-2`; toast.innerHTML = `${icon} ${message}`;
+            container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 100%)'; toast.style.transition = 'all 0.3s ease-in'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
 
-                if (state.isTeacherLoggedIn && state.adminCreds) {
-                    const authRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', account: state.adminCreds.acc, password: state.adminCreds.pwd }) });
-                    const authText = await authRes.text();
-                    try {
-                        const authData = JSON.parse(authText);
-                        if (authData.success) {
-                            state.registrations = normalizeRegistrations(authData.data.fullData.registrations || []);
-                            state.students = authData.data.fullData.students || [];
-                            state.logs = authData.data.fullData.logs || [];
-                            updateEventCounts();
-                            renderTeacherDashboard(); 
-                            if (state.currentAdminEventId && !document.getElementById('modal-participants').classList.contains('hidden')) {
-                                openParticipantsModal(state.currentAdminEventId);
-                            }
-                        }
-                    } catch(e) {}
-                }
-                updateVersionTime();
-            } catch (err) {
-                showToast('背景同步資料失敗', 'error');
+        // 💡 修正 1：鎖死 Modal 背景滾動
+        function openModal(id) { 
+            document.getElementById(id).classList.remove('hidden'); 
+            document.body.classList.add('overflow-hidden');
+        }
+        function closeModal(id) { 
+            document.getElementById(id).classList.add('hidden'); 
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        // 💡 修正 2：Token 過期攔截器大腦
+        function checkTokenExpiration(res) {
+            if (res && res.success === false && res.error && res.error.includes('憑證已失效或過期')) {
+                showToast('系統閒置過久或權限失效，請重新登入', 'error');
+                logoutTeacher();
+                return true; 
             }
-            showGlobalLoading(false);
+            return false;
+        }
+
+        // 💡 修正 3：背景自動同步學生的雲端真實紀錄
+        async function syncStudentDataBackground() {
+            const savedSid = localStorage.getItem('chihlee_sid');
+            const savedName = localStorage.getItem('chihlee_sname');
+            if (!savedSid || !savedName || state.isTeacherLoggedIn) return;
+            try {
+                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'queryStudent', sid: savedSid, sname: savedName, phone: '' }) });
+                const res = await response.json();
+                if (res.success) {
+                    const eventMap = new Map();
+                    state.events.forEach(e => eventMap.set(String(e.id), e));
+                    let cloudEventIds = [];
+                    res.data.forEach(r => {
+                        const ev = eventMap.get(String(r.eventId));
+                        if(!ev) return;
+                        const validKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
+                        const hasAttend = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validKeys.includes(sd.date + '_' + (sd.time || '')));
+                        if (hasAttend && !cloudEventIds.includes(String(r.eventId))) cloudEventIds.push(String(r.eventId));
+                    });
+                    localStorage.setItem('chihlee_registered_events', JSON.stringify(cloudEventIds));
+                    renderStudentEvents(); 
+                }
+            } catch(e) {}
         }
 
         async function fetchInitialData() {
@@ -864,7 +873,60 @@
             showSkeletonLoading(false);
         }
 
-        window.onload = async () => { updateVersionTime(); await fetchInitialData(); renderStudentEvents(); loadSavedStudentInfo(); switchView('student'); };
+        window.onload = async () => { 
+            updateVersionTime(); 
+            await fetchInitialData(); 
+            renderStudentEvents(); 
+            loadSavedStudentInfo(); 
+            switchView('student'); 
+            syncStudentDataBackground(); // 啟動背景同步
+        };
+
+        async function reloadDataSilently(loadingText = '同步最新資料中...') {
+            showGlobalLoading(true, loadingText);
+            try {
+                const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                const pubText = await pubRes.text();
+                try {
+                    const pubData = JSON.parse(pubText);
+                    if (pubData.success) {
+                        state.events = pubData.data.events || [];
+                        if (!state.isTeacherLoggedIn) {
+                            state.registrations = normalizeRegistrations(pubData.data.registrations || []);
+                            updateEventCounts();
+                            syncLocalRegisteredEvents(localStorage.getItem('chihlee_sid'));
+                            renderStudentEvents();
+                        }
+                    }
+                } catch(e) {}
+
+                if (state.isTeacherLoggedIn && state.adminCreds) {
+                    const authRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getAdminData', adminAcc: state.adminCreds.acc, adminToken: state.adminCreds.token }) });
+                    const authText = await authRes.text();
+                    try {
+                        const authData = JSON.parse(authText);
+                        if (authData.success) {
+                            state.registrations = normalizeRegistrations(authData.data.fullData.registrations || []);
+                            state.students = authData.data.fullData.students || [];
+                            state.logs = authData.data.fullData.logs || [];
+                            updateEventCounts();
+                            renderTeacherDashboard(); 
+                            if (state.currentAdminEventId && !document.getElementById('modal-participants').classList.contains('hidden')) {
+                                openParticipantsModal(state.currentAdminEventId);
+                            }
+                        } else if (checkTokenExpiration(authData)) {
+                             // 確保背景同步也被攔截
+                             showGlobalLoading(false);
+                             return;
+                        }
+                    } catch(e) {}
+                }
+                updateVersionTime();
+            } catch (err) {
+                showToast('背景同步資料失敗', 'error');
+            }
+            showGlobalLoading(false);
+        }
 
         function getEventRegistrationCount(eventId) { 
             return state.eventCounts.get(String(eventId)) || 0;
@@ -886,10 +948,8 @@
                     if (clean.length >= 4) return parseInt(clean.substring(0, 2), 10) * 60 + parseInt(clean.substring(2, 4), 10);
                     return 0;
                 };
-                // 加入正規化防範波浪號與全形
                 const norm1 = String(time1).replace(/[~～－—]/g, '-');
                 const norm2 = String(time2).replace(/[~～－—]/g, '-');
-                // 若無結束時間則跳過防護
                 if (!norm1.includes('-') || !norm2.includes('-')) return false;
 
                 const [s1Str, e1Str] = norm1.split('-');
@@ -904,20 +964,9 @@
 
         function customConfirm(message, onConfirm, title = '確認操作') {
             document.getElementById('confirm-title').innerText = title; document.getElementById('confirm-msg-text').innerHTML = message;
-            const modal = document.getElementById('modal-confirm'); modal.classList.remove('hidden');
-            document.getElementById('btn-confirm-cancel').onclick = () => { modal.classList.add('hidden'); }; document.getElementById('btn-confirm-ok').onclick = () => { modal.classList.add('hidden'); onConfirm(); };
+            const modal = document.getElementById('modal-confirm'); modal.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
+            document.getElementById('btn-confirm-cancel').onclick = () => { modal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }; document.getElementById('btn-confirm-ok').onclick = () => { modal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); onConfirm(); };
         }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container'); const toast = document.createElement('div');
-            let bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800';
-            let icon = type === 'success' ? '<i class="fa-solid fa-circle-check mr-2"></i>' : type === 'error' ? '<i class="fa-solid fa-circle-exclamation mr-2"></i>' : '<i class="fa-solid fa-circle-info mr-2"></i>';
-            toast.className = `${bgColor} text-white px-5 py-3 rounded-lg shadow-xl flex items-center font-bold text-sm toast-enter pointer-events-auto mb-2`; toast.innerHTML = `${icon} ${message}`;
-            container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 100%)'; toast.style.transition = 'all 0.3s ease-in'; setTimeout(() => toast.remove(), 300); }, 3000);
-        }
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         function switchView(viewName) {
             document.getElementById('view-student').classList.add('hidden'); document.getElementById('view-teacher-login').classList.add('hidden');
@@ -949,14 +998,12 @@
             if (e && e.preventDefault) e.preventDefault();
             let acc, pwd;
             if (e && e.target && e.target.tagName === 'FORM') { acc = document.getElementById('admin-account').value.trim(); pwd = document.getElementById('admin-password').value; } 
-            else if (state.adminCreds) { acc = state.adminCreds.acc; pwd = state.adminCreds.pwd; } 
             else return;
 
             const errorMsgEl = document.getElementById('login-error-msg');
             const loginBtn = document.getElementById('login-submit-btn');
             if (errorMsgEl) errorMsgEl.classList.add('hidden');
             
-            // 加入 Disabled 防護
             if (loginBtn) {
                 loginBtn.disabled = true;
                 loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -968,7 +1015,7 @@
                 const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', account: acc, password: pwd }) });
                 const res = await response.json();
                 if (res.success) {
-                    state.adminCreds = { acc, pwd }; const user = res.data; state.isTeacherLoggedIn = true; state.currentUserRole = user.role; state.currentUserName = user.name;
+                    state.adminCreds = { acc: acc, token: res.data.token }; const user = res.data; state.isTeacherLoggedIn = true; state.currentUserRole = user.role; state.currentUserName = user.name;
                     state.students = user.fullData.students || []; 
                     state.registrations = normalizeRegistrations(user.fullData.registrations || []); 
                     state.logs = user.fullData.logs || []; state.admins = user.fullData.admins || [];
@@ -978,7 +1025,7 @@
                     const pubData = await pubRes.json();
                     if(pubData.success) state.events = pubData.data.events || [];
 
-                    updateEventCounts(); // 更新後台 Map
+                    updateEventCounts(); 
 
                     document.getElementById('teacher-search-input').value = '';
                     document.getElementById('teacher-year-filter').innerHTML = '';
@@ -996,7 +1043,6 @@
                 if (errorMsgEl) { errorMsgEl.innerText = '登入連線失敗，請檢查網路'; errorMsgEl.classList.remove('hidden'); }
                 showToast('登入連線失敗，請檢查網路', 'error'); 
             } finally {
-                // 解除 Disabled 防護
                 if (loginBtn) {
                     loginBtn.disabled = false;
                     loginBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -1037,7 +1083,6 @@
 
         function toggleEventSelection(eventId, isChecked) {
             const safeId = String(eventId);
-            // 完全移除首頁防衝堂判定，將選擇權交給 Modal
             if (isChecked) { 
                 if (!state.selectedEventIds.includes(safeId)) state.selectedEventIds.push(safeId); 
             } else {
@@ -1094,7 +1139,6 @@
                 }
             }
 
-            // 同步本機 Cache，消除已刪除的幽靈紀錄
             if (savedSid && !state.isTeacherLoggedIn) {
                 mySavedEvents = syncLocalRegisteredEvents(savedSid);
             } else {
@@ -1241,7 +1285,6 @@
                 let hasConflict = false;
                 let conflictTitle = '';
 
-                // 1. 檢查當下畫面 (DOM) 勾選的其他活動是否衝堂
                 const allCheckboxes = document.querySelectorAll('input[id^="reg-chk-"]:checked');
                 for (let cb of allCheckboxes) {
                     if (cb.id === checkboxElem.id) continue;
@@ -1261,13 +1304,11 @@
                     }
                 }
 
-                // 2. 檢查「歷史報名紀錄」是否衝堂 (防止利用時間差分次報名)
                 if (!hasConflict) {
                     const sidInput = document.getElementById('reg-student-id');
                     const currentSid = (sidInput && sidInput.value.trim()) ? sidInput.value.trim() : localStorage.getItem('chihlee_sid');
                     
                     if (currentSid) {
-                        // 建立歷史時段陣列，提升效能
                         const myConflictSessions = [];
                         const historicalRegs = state.registrations.filter(r => String(r.studentId) === currentSid);
                         for (const r of historicalRegs) {
@@ -1282,7 +1323,6 @@
                             }
                         }
                         
-                        // 進行比對
                         for (const c of myConflictSessions) {
                             if (c.date === currentSess.date && checkTimeConflict(currentSess.time, c.time)) {
                                 hasConflict = true;
@@ -1317,7 +1357,6 @@
                     sel.value = '不用餐';
                 }
             } else if (!checkboxElem && sel) {
-                // 確保取消勾選時強制禁用
                 sel.disabled = true;
                 sel.value = '不用餐';
             }
@@ -1375,7 +1414,6 @@
                     const isUnavailable = isTaken || isPastSession;
                     const inputType = isOoo ? 'radio' : 'checkbox';
                     const inputName = isOoo ? `name="reg-ooo-${ev.id}"` : '';
-                    // 修正：只有系列活動預設全選，一般多場次交由學生自行打勾
                     const defaultChecked = (!isUnavailable && isSeries) ? 'checked' : '';
                     const disabledStr = isUnavailable ? 'disabled' : '';
                     
@@ -1458,7 +1496,6 @@
                 try { localStorage.setItem('chihlee_email', email); localStorage.setItem('chihlee_sid', sid); localStorage.setItem('chihlee_sname', sname); localStorage.setItem('chihlee_phone', phone); } catch (err) {}
                 showGlobalLoading(true, '同步最新名額狀態與資料安全驗證中...');
                 
-                // 1. 強制拉取最新資料庫狀態，防堵 TOCTOU 超額漏洞
                 try {
                     const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
                     const pubText = await pubRes.text();
@@ -1466,11 +1503,10 @@
                     if (pubData.success) {
                         state.events = pubData.data.events || [];
                         state.registrations = normalizeRegistrations(pubData.data.registrations || []);
-                        updateEventCounts(); // 刷新所有 Map 快取
+                        updateEventCounts(); 
                     }
                 } catch(e) {}
 
-                // 2. 二次容量驗證 (Capacity check using fresh data)
                 let isCapacityExceeded = false;
                 let exceededEventName = '';
                 for (let p of payloads) {
@@ -1491,7 +1527,6 @@
                     return showToast(`非常抱歉！「${exceededEventName}」剛剛已被搶先額滿，請關閉視窗並重新勾選。`, 'error');
                 }
 
-                // 3. 執行正式送出
                 try {
                     const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'submitRegistration', data: payloads }) });
                     const res = await response.json();
@@ -1551,7 +1586,6 @@
             const sname = document.getElementById('query-name').value.trim();
             const phone = document.getElementById('query-phone').value.trim();
             
-            // 💡 修正：移除對 phone 的判斷防呆，只要學號與姓名有填即可
             if(!sid || !sname) return showToast('請完整填寫學號與姓名', 'error');
             
             const container = document.getElementById('query-result-container'); 
@@ -1577,7 +1611,7 @@
                     localStorage.setItem('chihlee_sid', sid);
                     localStorage.setItem('chihlee_sname', sname);
                     localStorage.setItem('chihlee_phone', phone);
-                    localStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents)); // 同步覆蓋最新真實狀態
+                    localStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents)); 
                     
                     const idBar = document.getElementById('student-identity-bar');
                     if(idBar && !state.isTeacherLoggedIn) {
@@ -1614,7 +1648,6 @@
                 if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text border-cat-academic-text border-opacity-30';
 
                 const sessHtml = reg.sessionsData.map((sd, idx) => {
-                    // 複合主鍵精準匹配
                     const session = ev.sessions.find(s => s.date === sd.date && (s.time === sd.time || !sd.time)) || ev.sessions[idx]; 
                     if (!session) return '';
                     
@@ -1706,7 +1739,6 @@
                 return active ? new Date(String(active.date).replace(/-/g,'/')) : new Date(String(ev.sessions[ev.sessions.length - 1].date).replace(/-/g,'/'));
             };
 
-            // Schwartzian Transform: O(N) mapping before O(N log N) sorting
             const mappedEvents = state.events.map(ev => ({
                 ev: ev,
                 isPast: (!ev.sessions || ev.sessions.length === 0) ? true : isEventFullyExpired(ev, today),
@@ -1765,14 +1797,15 @@
                     ? `<button onclick="deleteAdminEvent('${jsSafe(ev.id)}')" title="刪除活動" class="text-red-500 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`
                     : `<button disabled title="僅管理員可刪除" class="text-gray-300 cursor-not-allowed px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`;
                 
+                // 💡 修正 4：活動列表 TD 黏滯綁定
                 const tr = document.createElement('tr');
-                tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white`;
+                tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white group`;
                 tr.innerHTML = `
-                    <td class="px-6 py-4 align-top"><span class="inline-block px-2 py-0.5 rounded text-xs font-semibold ${tagColor}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-xs font-bold bg-pink-100 text-pink-700">一對一</span>' : ''}${isSeries ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-xs font-bold bg-purple-100 text-purple-700">系列活動</span>' : ''}</td>
-                    <td class="px-6 py-4 align-top font-medium ${isPast ? 'text-gray-500' : 'text-gray-900'}"><div class="max-w-[200px] whitespace-normal break-words">${escapeHTML(ev.title)}</div> <span class="text-xs text-gray-500 block mt-2"><i class="fa-solid fa-user-tie mr-1"></i>承辦人: ${escapeHTML(ev.teacher || '未設定')}</span></td>
+                    <td class="px-6 py-4 align-top sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100"><span class="inline-block px-2 py-0.5 rounded text-xs font-semibold ${tagColor}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-xs font-bold bg-pink-100 text-pink-700">一對一</span>' : ''}${isSeries ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-xs font-bold bg-purple-100 text-purple-700">系列活動</span>' : ''}</td>
+                    <td class="px-6 py-4 align-top font-medium ${isPast ? 'text-gray-500' : 'text-gray-900'} sticky left-[90px] z-10 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100"><div class="max-w-[200px] whitespace-normal break-words">${escapeHTML(ev.title)}</div> <span class="text-xs text-gray-500 block mt-2"><i class="fa-solid fa-user-tie mr-1"></i>承辦人: ${escapeHTML(ev.teacher || '未設定')}</span></td>
                     <td class="px-6 py-4 text-sm leading-relaxed align-top">${datesHTML}</td>
                     <td class="px-6 py-4 text-center align-middle"><span class="inline-flex items-center justify-center ${isFull ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-full h-6 px-3 font-semibold text-xs whitespace-nowrap">${pCount} / ${ev.capacity}</span></td>
-                    <td class="px-6 py-4 text-right whitespace-nowrap sticky right-0 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-middle">
+                    <td class="px-6 py-4 text-right whitespace-nowrap sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-middle">
                         <button onclick="openParticipantsModal('${jsSafe(ev.id)}')" title="報名名單" class="text-chihlee-blue hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg"><i class="fa-solid fa-users"></i></button>
                         <button onclick="openNotifyModal('${jsSafe(ev.id)}')" title="發送通知" class="text-green-600 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg mx-1"><i class="fa-solid fa-comment-dots"></i></button>
                         <button onclick="openEditEventModal('${jsSafe(ev.id)}')" title="編輯活動" class="text-gray-600 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -1886,8 +1919,7 @@
                 document.getElementById('edit-modal-title').innerText = '編輯活動'; const ev = state.events.find(e => String(e.id) === String(eventId));
                 document.getElementById('edit-id').value = ev.id; 
                 document.getElementById('edit-title').value = ev.title; 
-                
-                // 💡 動態顯示警告
+
                 const currentCount = getEventRegistrationCount(eventId);
                 const warningEl = document.getElementById('edit-time-warning');
                 if (warningEl) {
@@ -1924,6 +1956,8 @@
             if(mainLocs.length === 0) return showToast('請選擇或填寫活動主地點', 'error');
 
             let finalSessions = [];
+            // 💡 修正 5：時間格式的正則表達式防呆
+            const timeRegex = /^\d{2}:\d{2}-\d{2}:\d{2}$/;
             for(let i=0; i<state.tempSessions.length; i++){
                 const dateEl = document.getElementById(`sesDate_${i}`); 
                 const t = document.getElementById(`sesTime_${i}`).value.trim(); 
@@ -1931,6 +1965,9 @@
                 
                 if(dateEl && dateEl.value) {
                     if(!t) return showToast(`第 ${i+1} 場請完整填寫時間 (如: 13:00-15:00)`, 'error');
+                    if(!timeRegex.test(t)) {
+                        return showToast(`第 ${i+1} 場時間格式錯誤！請嚴格依照 HH:MM-HH:MM 格式輸入 (例如: 09:30-12:00)`, 'error');
+                    }
                     finalSessions.push({ 
                         date: dateEl.value.replace(/-/g, '/'), 
                         time: t, 
@@ -1949,7 +1986,6 @@
             const isSeriesEvent = activityType === 'series';
             const finalCapacity = isOoo ? finalSessions.length : parseInt(document.getElementById('edit-capacity').value);
 
-            // 加入 Disabled 防護
             const submitBtn = document.getElementById('btn-submit-edit-event');
             if (submitBtn) {
                 submitBtn.disabled = true;
@@ -2006,10 +2042,11 @@
                         eventId: id || null, 
                         adminName: state.currentUserName,
                         adminAcc: state.adminCreds.acc,
-                        adminPwd: state.adminCreds.pwd
+                        adminToken: state.adminCreds.token
                     }) 
                 });
                 const res = await response.json();
+                if (checkTokenExpiration(res)) return; // 💡 攔截器
                 if (res.success) { 
                     resetDirty(); 
                     showToast('活動儲存成功！', 'success'); 
@@ -2035,10 +2072,11 @@
                             eventId: eventId, 
                             adminName: state.currentUserName,
                             adminAcc: state.adminCreds.acc,
-                            adminPwd: state.adminCreds.pwd
+                            adminToken: state.adminCreds.token
                         }) 
                     });
                     const res = await response.json();
+                    if (checkTokenExpiration(res)) return; // 💡 攔截器
                     if (res.success) { 
                         showToast('活動已刪除', 'success'); 
                         await reloadDataSilently('同步活動資料中...'); 
@@ -2061,13 +2099,13 @@
                             action: 'deleteRegistration', 
                             regId: regId, 
                             adminAcc: state.adminCreds.acc,
-                            adminPwd: state.adminCreds.pwd
+                            adminToken: state.adminCreds.token
                         }) 
                     });
                     const res = await response.json();
+                    if (checkTokenExpiration(res)) return; // 💡 攔截器
                     if (res.success) { 
                         showToast('報名紀錄已刪除，名額已釋放', 'success'); 
-                        // reloadDataSilently 內建判斷，若 modal-participants 是開啟狀態會自動重繪
                         await reloadDataSilently('同步最新報名狀態中...'); 
                     } else {
                         showToast('刪除失敗：' + (res.error || '未知錯誤'), 'error');
@@ -2093,7 +2131,6 @@
         }
 
         function openAdminAddParticipantModal() {
-            // 重置所有輸入與提示狀態，避免殘留上一次的紀錄
             document.getElementById('admin-add-sid').value = '';
             
             const infoBox = document.getElementById('admin-add-student-info');
@@ -2109,8 +2146,6 @@
             submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
             
             state.adminAddTempStudent = null;
-            
-            // 開啟手動新增的 Modal
             openModal('modal-admin-add-participant');
         }
 
@@ -2140,7 +2175,6 @@
                 const inputType = 'checkbox';
                 const inputName = '';
 
-                // O(1) Map Precompilation for Conflicts
                 const eventMapForConflicts = new Map();
                 state.events.forEach(e => eventMapForConflicts.set(String(e.id), e));
 
@@ -2233,14 +2267,14 @@
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ 
-                        action: 'submitRegistration', 
+                        action: 'adminSubmitRegistration', 
                         data: payload,
                         adminAcc: state.adminCreds.acc,
-                        adminPwd: state.adminCreds.pwd,
-                        isAdminOverride: true
+                        adminToken: state.adminCreds.token
                     }) 
                 });
                 const res = await response.json();
+                if (checkTokenExpiration(res)) return; // 💡 攔截器
                 if (res.success) { 
                     closeModal('modal-admin-add-participant'); 
                     await reloadDataSilently('同步報名資料中...');
@@ -2262,7 +2296,6 @@
             const opts = getMealOptionsHtml(ev);
             const sData = Array.isArray(reg.sessionsData) ? reg.sessionsData : [];
             
-            // O(1) Map Precompilation
             const eventMapForConflicts = new Map();
             state.events.forEach(e => eventMapForConflicts.set(String(e.id), e));
 
@@ -2388,7 +2421,6 @@
         }
 
         async function proceedSaveAdminRemark(reg, newRemark, newSessionsData) {
-            // 加入 Disabled 防護
             const saveBtn = document.getElementById('btn-save-admin-remark');
             if (saveBtn) { saveBtn.disabled = true; saveBtn.classList.add('opacity-70', 'cursor-not-allowed'); saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>儲存中...'; }
             
@@ -2402,10 +2434,11 @@
                         remark: newRemark, 
                         sessionsData: newSessionsData,
                         adminAcc: state.adminCreds.acc,
-                        adminPwd: state.adminCreds.pwd
+                        adminToken: state.adminCreds.token
                     }) 
                 });
                 const res = await response.json();
+                if (checkTokenExpiration(res)) return; // 💡 攔截器
                 if (res.success) { 
                     resetDirty(); 
                     reg.adminRemark = newRemark; reg.sessionsData = newSessionsData; 
@@ -2562,10 +2595,11 @@
                         message: msg, 
                         notifyType: notifyType,
                         adminAcc: state.adminCreds.acc,
-                        adminPwd: state.adminCreds.pwd
+                        adminToken: state.adminCreds.token
                     }) 
                 });
                 const res = await response.json();
+                if (checkTokenExpiration(res)) return; // 💡 攔截器
                 if (res.success) {
                     if (res.failCount > 0 && res.failedStudents && res.failedStudents.length > 0) {
                         customConfirm(`✅ 成功: ${res.successCount} 人<br>❌ 失敗: ${res.failCount} 人<br><br>【發送失敗名單】(未綁定或發送異常):<br><div class="text-sm text-red-600 mt-2 max-h-32 overflow-y-auto text-left bg-red-50 p-2 rounded border border-red-100">${res.failedStudents.map(escapeHTML).join('<br>')}</div>`, () => {}, '發送結果與失敗清單');
@@ -2624,10 +2658,11 @@
                         oldSid, 
                         data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line },
                         adminAcc: state.adminCreds.acc,
-                        adminPwd: state.adminCreds.pwd
+                        adminToken: state.adminCreds.token
                     }) 
                 });
                 const res = await response.json();
+                if (checkTokenExpiration(res)) return; // 💡 攔截器
                 if (res.success) {
                     showToast('學生資料已更新', 'success'); 
                     closeModal('modal-edit-student');
@@ -2698,10 +2733,11 @@
                         action: 'batchImportStudents', 
                         students: newStudents,
                         adminAcc: state.adminCreds.acc,
-                        adminPwd: state.adminCreds.pwd
+                        adminToken: state.adminCreds.token
                     }) 
                 });
                 const res = await response.json();
+                if (checkTokenExpiration(res)) return; // 💡 攔截器
                 if (res.success) { 
                     showToast(`匯入完成！新增/更新共 ${newStudents.length} 筆`, 'success'); 
                     document.getElementById('import-students-textarea').value = ''; 
@@ -2711,6 +2747,76 @@
                 else showToast('匯入失敗：' + res.error, 'error');
             } catch (err) { showToast('網路連線異常', 'error'); }
             showGlobalLoading(false);
+        }
+
+        // 💡 修正：補回遺失的 openParticipantsModal 函數
+        function openParticipantsModal(eventId) {
+            state.currentAdminEventId = String(eventId);
+            const ev = state.events.find(e => String(e.id) === state.currentAdminEventId);
+            if (!ev) return showToast('找不到活動資料', 'error');
+
+            const titleEl = document.getElementById('part-modal-title');
+            if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-users text-chihlee-blue mr-2"></i> ${escapeHTML(ev.title)} <span class="text-sm text-gray-500 ml-2 font-normal">報名名單</span>`;
+
+            const parts = state.registrations.filter(r => String(r.eventId) === state.currentAdminEventId);
+            const tbody = document.getElementById('participants-tbody');
+            const noMsg = document.getElementById('no-participants-msg');
+            const statsContainer = document.getElementById('part-modal-stats-container');
+
+            let totalAttend = 0;
+            let mealCounts = {};
+
+            if (parts.length === 0) {
+                tbody.innerHTML = '';
+                noMsg.classList.remove('hidden');
+                statsContainer.innerHTML = '';
+            } else {
+                noMsg.classList.add('hidden');
+                tbody.innerHTML = parts.map(p => {
+                    const studentGlobal = state.students.find(s => s && s.id != null && String(s.id).trim() === String(p.studentId).trim());
+                    const safeName = p.name || '未知名稱';
+                    const displayClass = studentGlobal ? `${escapeHTML(studentGlobal.eduSystem || '')}${escapeHTML(studentGlobal.className || '')}` : '-';
+                    const hasLine = studentGlobal && studentGlobal.lineId;
+
+                    let sData = Array.isArray(p.sessionsData) ? p.sessionsData : [];
+                    let hasAttend = false;
+                    let sessionDetailsHtml = sData.map(sd => {
+                        if (sd.attend) {
+                            hasAttend = true;
+                            totalAttend++;
+                            if (sd.meal && sd.meal !== '不用餐') mealCounts[sd.meal] = (mealCounts[sd.meal] || 0) + 1;
+                            return `<div class="text-xs mb-1 tabular-nums"><span class="font-bold text-gray-700">${escapeHTML(sd.date)}</span> <span class="text-blue-600 font-medium">${escapeHTML(sd.meal)}</span></div>`;
+                        }
+                        return '';
+                    }).join('');
+
+                    if (!hasAttend) sessionDetailsHtml = `<span class="text-xs text-gray-400">已取消所有場次</span>`;
+
+                    const remarkHtml = p.adminRemark ? `<div class="text-xs text-red-600 font-bold bg-red-50 p-1.5 rounded mt-1 whitespace-normal max-w-xs leading-relaxed border border-red-100">${escapeHTML(p.adminRemark).replace(/\n/g, '<br>')}</div>` : `<span class="text-xs text-gray-400">無</span>`;
+
+                    return `<tr class="hover:bg-blue-50 even:bg-slate-50 odd:bg-white transition border-b border-gray-100 group">
+                        <td class="px-6 py-3 sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-50">
+                            <div class="font-bold text-gray-900 text-sm">${escapeHTML(displayClass)}</div>
+                            <div class="text-sm text-gray-600 my-0.5">${escapeHTML(p.studentId)}</div>
+                            <div class="text-sm font-bold text-chihlee-blue flex items-center">${escapeHTML(safeName)} ${hasLine ? '<i class="fa-brands fa-line text-green-500 ml-1.5 text-base drop-shadow-sm" title="已綁定LINE"></i>' : ''}</div>
+                        </td>
+                        <td class="px-6 py-3 align-top whitespace-nowrap bg-inherit">${sessionDetailsHtml}</td>
+                        <td class="px-6 py-3 align-top bg-inherit">${remarkHtml}</td>
+                        <td class="px-6 py-3 text-right sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-middle border-l border-gray-50">
+                            <button onclick="openAdminRemarkModal('${jsSafe(p.id)}', '${jsSafe(safeName)}')" class="text-chihlee-blue bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded text-xs transition font-bold mr-2"><i class="fa-solid fa-pen mr-1"></i>備註/編輯</button>
+                            <button onclick="deleteParticipantAdmin('${jsSafe(p.id)}')" class="text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded text-xs transition font-bold"><i class="fa-solid fa-trash mr-1"></i>刪除</button>
+                        </td>
+                    </tr>`;
+                }).join('');
+
+                let statsHtml = `<div class="bg-blue-50 text-chihlee-blue px-3 py-1.5 rounded-md font-bold text-sm border border-blue-100 shadow-sm"><i class="fa-solid fa-user-check mr-1"></i>總參與人次: ${totalAttend}</div>`;
+                if (Object.keys(mealCounts).length > 0) {
+                    statsHtml += Object.entries(mealCounts).map(([m, c]) => `<div class="bg-orange-50 text-orange-700 px-3 py-1.5 rounded-md font-bold text-sm border border-orange-100 shadow-sm">${escapeHTML(m)}: ${c}</div>`).join('');
+                }
+                statsContainer.innerHTML = statsHtml;
+            }
+
+            openModal('modal-participants');
         }
     </script>
 </body>
