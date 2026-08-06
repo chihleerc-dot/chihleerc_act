@@ -257,7 +257,6 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">聯絡電話 <span class="text-red-500">*</span></label>
-                                <!-- 修改：強制手機格式並自動加橫槓 -->
                                 <input type="tel" id="reg-phone" required pattern="09\d{2}-\d{3}-\d{3}" title="請輸入格式為 09xx-xxx-xxx 的手機號碼" oninput="formatPhoneNumber(this)" placeholder="09xx-xxx-xxx" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
                             </div>
                             <div>
@@ -600,7 +599,6 @@
             <label class="block text-sm font-bold text-gray-700 mb-1">系級</label>
             <input type="text" id="edit-stu-class" placeholder="如: 資管三A" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
             <label class="block text-sm font-bold text-gray-700 mb-1">聯絡電話</label>
-            <!-- 需求二：強制手機格式並自動轉換 -->
             <input type="tel" id="edit-stu-phone" pattern="09\d{2}-\d{3}-\d{3}" title="請輸入格式為 09xx-xxx-xxx 的手機號碼" oninput="formatPhoneNumber(this)" placeholder="09xx-xxx-xxx" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
             <label class="block text-sm font-bold text-green-700 mb-1"><i class="fa-brands fa-line mr-1"></i>LINE User ID</label>
             <input type="text" id="edit-stu-line" class="w-full border border-gray-300 p-2 rounded-md focus:ring-green-500 outline-none text-sm">
@@ -838,7 +836,12 @@
             const savedName = localStorage.getItem('chihlee_sname');
             if (!savedSid || !savedName || state.isTeacherLoggedIn) return;
             try {
-                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'queryStudent', sid: savedSid, sname: savedName, phone: '' }) });
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'queryStudent', sid: savedSid, sname: savedName, phone: '' }) 
+                });
                 const res = await response.json();
                 if (res.success) {
                     const eventMap = new Map();
@@ -860,7 +863,12 @@
         async function fetchInitialData() {
             showSkeletonLoading(true);
             try {
-                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getPublicData' }) 
+                });
                 const text = await response.text(); 
                 
                 try {
@@ -910,7 +918,12 @@
         async function reloadDataSilently(loadingText = '同步最新資料中...') {
             showGlobalLoading(true, loadingText);
             try {
-                const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                const pubRes = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getPublicData' }) 
+                });
                 const pubText = await pubRes.text();
                 try {
                     const pubData = JSON.parse(pubText);
@@ -926,7 +939,12 @@
                 } catch(e) {}
 
                 if (state.isTeacherLoggedIn && state.adminCreds) {
-                    const authRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getAdminData', adminAcc: state.adminCreds.acc, adminToken: state.adminCreds.token }) });
+                    const authRes = await fetch(GAS_API_URL, { 
+                        method: 'POST', 
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'getAdminData', adminAcc: state.adminCreds.acc, adminToken: state.adminCreds.token }) 
+                    });
                     const authText = await authRes.text();
                     try {
                         const authData = JSON.parse(authText);
@@ -1020,7 +1038,6 @@
                 document.getElementById('nav-teacher-btn').className = "px-3 py-2 rounded-md text-sm font-medium bg-chihlee-red text-white shadow transition whitespace-nowrap";
             }
             
-            // 更新：根據身分動態顯示對應的徽章
             document.getElementById('nav-logout-btn').classList.toggle('hidden', !state.isTeacherLoggedIn);
             document.getElementById('nav-admin-badge').classList.toggle('hidden', state.currentUserRole !== 'admin');
             document.getElementById('nav-staff-badge').classList.toggle('hidden', state.currentUserRole !== 'staff');
@@ -1054,7 +1071,12 @@
             showGlobalLoading(true, '安全連線驗證中...');
             
             try {
-                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', account: acc, password: pwd }) });
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'login', account: acc, password: pwd }) 
+                });
                 const res = await response.json();
                 if (res.success) {
                     state.adminCreds = { acc: acc, token: res.data.token }; const user = res.data; state.isTeacherLoggedIn = true; state.currentUserRole = user.role; state.currentUserName = user.name;
@@ -1063,7 +1085,12 @@
                     state.logs = user.fullData.logs || []; state.admins = user.fullData.admins || [];
                     document.getElementById('admin-account').value = ''; document.getElementById('admin-password').value = '';
                     
-                    const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                    const pubRes = await fetch(GAS_API_URL, { 
+                        method: 'POST', 
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'getPublicData' }) 
+                    });
                     const pubData = await pubRes.json();
                     if(pubData.success) state.events = pubData.data.events || [];
 
@@ -1501,7 +1528,6 @@
                 return showToast('學號格式錯誤，請輸入 8 碼數字', 'error');
             }
 
-            // --- 需求一：前端嚴格身分檢核機制 ---
             const existingStudent = state.students.find(s => String(s.id).trim() === sid);
             if (!existingStudent) {
                 if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
@@ -1510,7 +1536,6 @@
                 if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
                 return showToast(`學號 ${sid} 與姓名不符，請確認輸入資料。`, 'error');
             }
-            // --- 防護結束 ---
 
             let duplicateEventTitles = [];
             state.selectedEventIds.forEach(eventId => {
@@ -1564,7 +1589,12 @@
                 showGlobalLoading(true, '同步最新名額狀態與資料安全驗證中...');
                 
                 try {
-                    const pubRes = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getPublicData' }) });
+                    const pubRes = await fetch(GAS_API_URL, { 
+                        method: 'POST', 
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'getPublicData' }) 
+                    });
                     const pubText = await pubRes.text();
                     const pubData = JSON.parse(pubText);
                     if (pubData.success) {
@@ -1595,7 +1625,12 @@
                 }
 
                 try {
-                    const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'submitRegistration', data: payloads }) });
+                    const response = await fetch(GAS_API_URL, { 
+                        method: 'POST', 
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'submitRegistration', data: payloads }) 
+                    });
                     const res = await response.json();
                     
                     if (res.success) {
@@ -1654,7 +1689,12 @@
             const container = document.getElementById('query-result-container'); 
             container.innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-chihlee-blue"></i><br><span class="font-bold tracking-widest">安全連線查詢中...</span></div>';
             try {
-                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'queryStudent', sid: sid, sname: sname, phone: '' }) });
+                const response = await fetch(GAS_API_URL, { 
+                    method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'queryStudent', sid: sid, sname: sname, phone: '' }) 
+                });
                 const res = await response.json();
                 if (res.success) { 
                     state.myRegistrations = res.data; 
@@ -1855,7 +1895,6 @@
                             </div>`;
                 }).join('');
                 
-                // 更新：動態判斷刪除權限
                 const deleteBtnHtml = state.currentUserRole === 'admin' 
                     ? `<button onclick="deleteAdminEvent('${jsSafe(ev.id)}')" title="刪除活動" class="text-red-500 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`
                     : `<button disabled title="僅管理員可刪除" class="text-gray-300 cursor-not-allowed px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`;
@@ -2049,7 +2088,6 @@
             }
             if(finalSessions.length === 0) return showToast('請完整填寫日期與時間', 'error');
 
-            // 雙層迴圈的時間衝突檢查 (防呆)
             for (let i = 0; i < finalSessions.length; i++) {
                 for (let j = i + 1; j < finalSessions.length; j++) {
                     if (finalSessions[i].date === finalSessions[j].date) {
@@ -2119,6 +2157,8 @@
             try {
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ 
                         action: id ? 'updateEvent' : 'addEvent', 
                         data: eventData, 
@@ -2143,11 +2183,9 @@
         }
 
         async function deleteAdminEvent(eventId) {
-            // --- 嚴格阻擋 staff 執行刪除 ---
             if (state.currentUserRole !== 'admin') {
                 return showToast('權限不足：僅系統管理員可刪除活動', 'error');
             }
-            // -----------------------------
 
             const ev = state.events.find(e => String(e.id) === String(eventId)); if (!ev) return;
             customConfirm(`確定要徹底刪除「${escapeHTML(ev.title)}」嗎？\n(相關報名紀錄也會一併移除)`, async () => {
@@ -2155,6 +2193,8 @@
                 try {
                     const response = await fetch(GAS_API_URL, { 
                         method: 'POST', 
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ 
                             action: 'deleteEvent', 
                             eventId: eventId, 
@@ -2183,6 +2223,8 @@
                 try {
                     const response = await fetch(GAS_API_URL, { 
                         method: 'POST', 
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ 
                             action: 'deleteRegistration', 
                             regId: regId, 
@@ -2354,6 +2396,8 @@
             try {
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ 
                         action: 'adminSubmitRegistration', 
                         data: payload,
@@ -2516,6 +2560,8 @@
             try {
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ 
                         action: 'updateRegistration', 
                         regId: reg.id, 
@@ -2677,6 +2723,8 @@
             try {
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ 
                         action: 'sendLineNotification', 
                         regIds: targetRegIds, 
@@ -2727,7 +2775,7 @@
             const newSid = document.getElementById('edit-stu-id').value.trim();
             const name = document.getElementById('edit-stu-name').value.trim(); 
             const fullClass = document.getElementById('edit-stu-class').value.trim();
-            const phone = document.getElementById('edit-stu-phone').value.trim(); // 已經被前端格式化為 09xx-xxx-xxx
+            const phone = document.getElementById('edit-stu-phone').value.trim(); 
             const line = document.getElementById('edit-stu-line').value.trim();
             
             if(!newSid || !name) return showToast('學號與姓名不可為空', 'error'); 
@@ -2741,10 +2789,12 @@
             try {
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ 
                         action: 'updateStudent', 
                         oldSid, 
-                        data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line }, // 送出 09xx-xxx-xxx 給後端儲存
+                        data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line }, 
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
                     }) 
@@ -2817,6 +2867,8 @@
             try {
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ 
                         action: 'batchImportStudents', 
                         students: newStudents,
