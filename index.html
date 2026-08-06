@@ -257,7 +257,8 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">聯絡電話 <span class="text-red-500">*</span></label>
-                                <input type="tel" id="reg-phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
+                                <!-- 修改：強制手機格式並自動加橫槓 -->
+                                <input type="tel" id="reg-phone" required pattern="09\d{2}-\d{3}-\d{3}" title="請輸入格式為 09xx-xxx-xxx 的手機號碼" oninput="formatPhoneNumber(this)" placeholder="09xx-xxx-xxx" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">學號 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal ml-1">限8碼數字</span></label>
@@ -599,7 +600,8 @@
             <label class="block text-sm font-bold text-gray-700 mb-1">系級</label>
             <input type="text" id="edit-stu-class" placeholder="如: 資管三A" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
             <label class="block text-sm font-bold text-gray-700 mb-1">聯絡電話</label>
-            <input type="text" id="edit-stu-phone" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
+            <!-- 需求二：強制手機格式並自動轉換 -->
+            <input type="tel" id="edit-stu-phone" pattern="09\d{2}-\d{3}-\d{3}" title="請輸入格式為 09xx-xxx-xxx 的手機號碼" oninput="formatPhoneNumber(this)" placeholder="09xx-xxx-xxx" class="w-full border border-gray-300 p-2 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-sm">
             <label class="block text-sm font-bold text-green-700 mb-1"><i class="fa-brands fa-line mr-1"></i>LINE User ID</label>
             <input type="text" id="edit-stu-line" class="w-full border border-gray-300 p-2 rounded-md focus:ring-green-500 outline-none text-sm">
             <div class="flex justify-end space-x-3 mt-6">
@@ -666,6 +668,20 @@
             if (isNaN(d.getTime())) return String(dateInput); 
             const pad = (n) => String(n).padStart(2, '0');
             return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        // 需求二：強制手機格式與自動轉換
+        function formatPhoneNumber(input) {
+            let value = input.value.replace(/\D/g, ''); // 移除所有非數字字元
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            if (value.length > 7) {
+                value = value.replace(/^(\d{4})(\d{3})(\d+)$/, '$1-$2-$3');
+            } else if (value.length > 4) {
+                value = value.replace(/^(\d{4})(\d+)$/, '$1-$2');
+            }
+            input.value = value;
         }
 
         let state = {
@@ -788,7 +804,7 @@
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
-            if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>2026/08/06 00:35`;
+            if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>2026/08/06 12:22`;
         }
 
         function showToast(message, type = 'info') {
@@ -1478,14 +1494,24 @@
             const email = document.getElementById('reg-email').value.trim();
             let sid = toHalfWidth(document.getElementById('reg-student-id').value.trim()).replace(/\s+/g, '');
             const sname = document.getElementById('reg-name').value.trim();
-            let phone = toHalfWidth(document.getElementById('reg-phone').value.trim()).replace(/[-\s]/g, '');
+            let phone = toHalfWidth(document.getElementById('reg-phone').value.trim()).replace(/\s+/g, ''); // 這裡會是轉換後的 09xx-xxx-xxx
 
             if (!/^\d{8}$/.test(sid)) {
                 if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
                 return showToast('學號格式錯誤，請輸入 8 碼數字', 'error');
             }
 
-            // 新增：防重複報名檢查 (第二道防線，送出前直接阻擋)
+            // --- 需求一：前端嚴格身分檢核機制 ---
+            const existingStudent = state.students.find(s => String(s.id).trim() === sid);
+            if (!existingStudent) {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
+                return showToast(`查無學號 ${sid}，請先聯繫資源教室建檔。`, 'error');
+            } else if (String(existingStudent.name).trim() !== sname) {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
+                return showToast(`學號 ${sid} 與姓名不符，請確認輸入資料。`, 'error');
+            }
+            // --- 防護結束 ---
+
             let duplicateEventTitles = [];
             state.selectedEventIds.forEach(eventId => {
                 const isDup = state.registrations.some(r => String(r.eventId) === String(eventId) && String(r.studentId) === sid);
@@ -1512,7 +1538,7 @@
                     } else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false }); 
                 });
                 
-                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, email, phone, sessionsData: sessData });
+                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, email, phone, sessionsData: sessData }); // phone 為 09xx-xxx-xxx
                 else droppedEvents.push(ev.title); 
             });
             
@@ -2701,7 +2727,7 @@
             const newSid = document.getElementById('edit-stu-id').value.trim();
             const name = document.getElementById('edit-stu-name').value.trim(); 
             const fullClass = document.getElementById('edit-stu-class').value.trim();
-            const phone = document.getElementById('edit-stu-phone').value.trim(); 
+            const phone = document.getElementById('edit-stu-phone').value.trim(); // 已經被前端格式化為 09xx-xxx-xxx
             const line = document.getElementById('edit-stu-line').value.trim();
             
             if(!newSid || !name) return showToast('學號與姓名不可為空', 'error'); 
@@ -2718,7 +2744,7 @@
                     body: JSON.stringify({ 
                         action: 'updateStudent', 
                         oldSid, 
-                        data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line },
+                        data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line }, // 送出 09xx-xxx-xxx 給後端儲存
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
                     }) 
