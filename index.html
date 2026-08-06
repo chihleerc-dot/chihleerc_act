@@ -2002,6 +2002,20 @@
                 }
             }
             if(finalSessions.length === 0) return showToast('請完整填寫日期與時間', 'error');
+
+            for (let i = 0; i < finalSessions.length; i++) {
+                for (let j = i + 1; j < finalSessions.length; j++) {
+                    if (finalSessions[i].date === finalSessions[j].date) {
+                        if (checkTimeConflict(finalSessions[i].time, finalSessions[j].time)) {
+                            if (finalSessions[i].time === finalSessions[j].time) {
+                                return showToast(`場次重複！第 ${i+1} 場與第 ${j+1} 場完全相同 (${finalSessions[i].date} ${finalSessions[i].time})，請刪除多餘場次。`, 'error');
+                            } else {
+                                return showToast(`場次時間衝突！第 ${i+1} 場與第 ${j+1} 場的時間重疊，請修正。`, 'error');
+                            }
+                        }
+                    }
+                }
+            }
             
             const activityType = document.querySelector('input[name="edit-activity-type"]:checked').value;
             const isOoo = activityType === 'ooo';
@@ -2082,13 +2096,14 @@
         }
 
         async function deleteAdminEvent(eventId) {
+            // --- 嚴格阻擋 staff 執行刪除 ---
+            if (state.currentUserRole !== 'admin') {
+                return showToast('權限不足：僅系統管理員可刪除活動', 'error');
+            }
+            // -----------------------------
+
             const ev = state.events.find(e => String(e.id) === String(eventId)); if (!ev) return;
             customConfirm(`確定要徹底刪除「${escapeHTML(ev.title)}」嗎？\n(相關報名紀錄也會一併移除)`, async () => {
-                let staffPwd = '';
-                if (state.currentUserRole === 'staff') { 
-                    staffPwd = prompt('請輸入密碼以確認刪除操作：'); 
-                    if (!staffPwd) return showToast('已取消刪除操作', 'info'); 
-                }
                 showGlobalLoading(true, '刪除中...');
                 try {
                     const response = await fetch(GAS_API_URL, { 
@@ -2098,8 +2113,7 @@
                             eventId: eventId, 
                             adminName: state.currentUserName,
                             adminAcc: state.adminCreds.acc,
-                            adminToken: state.adminCreds.token,
-                            staffPwd: staffPwd
+                            adminToken: state.adminCreds.token
                         }) 
                     });
                     const res = await response.json();
