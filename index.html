@@ -298,7 +298,7 @@
         </div>
     </div>
 
-    <!-- Modal: 學生查詢/修改 (已移除電話欄位) -->
+    <!-- Modal: 學生查詢/修改 -->
     <div id="modal-query" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col relative animate-fade-in">
             <button onclick="closeQueryModalSafe()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl z-10"><i class="fa-solid fa-xmark"></i></button>
@@ -540,7 +540,6 @@
                     <button onclick="saveLineDraft()" class="bg-white border border-green-600 text-green-700 px-3 py-2 rounded-md hover:bg-green-100 transition text-sm font-bold shadow-sm flex items-center" title="將目前文字儲存到瀏覽器，下次開啟會自動載入">
                         <i class="fa-solid fa-floppy-disk md:mr-1"></i><span class="hidden md:inline">暫存文案</span>
                     </button>
-                    <!-- 新增：清除暫存按鈕 (動態顯示) -->
                     <button id="btn-clear-line-draft" onclick="clearLineDraft()" class="hidden bg-red-50 border border-red-300 text-red-600 px-2 py-2 rounded-md hover:bg-red-100 transition text-sm font-bold shadow-sm items-center" title="清除暫存並恢復預設範本">
                         <i class="fa-solid fa-rotate-left"></i>
                     </button>
@@ -550,7 +549,6 @@
                 <div>
                     <div class="flex justify-between items-end mb-2">
                         <label class="block text-sm font-bold text-gray-700">推播文案內容編輯</label>
-                        <!-- 修正：加入明顯的橘色警告標語，防止時空膠囊風險 -->
                         <span id="line-draft-warning" class="text-xs text-orange-600 font-bold hidden animate-pulse bg-orange-50 px-2 py-1 rounded shadow-sm border border-orange-200"><i class="fa-solid fa-triangle-exclamation mr-1"></i>⚠️ 載入暫存文案 (發送前請確認時間/地點是否需修改)</span>
                         <span id="line-draft-hint" class="text-xs text-gray-500"><i class="fa-solid fa-circle-info mr-1"></i>尚未有名單也可先行編輯暫存</span>
                     </div>
@@ -1038,6 +1036,7 @@
                 document.getElementById('nav-teacher-btn').className = "px-3 py-2 rounded-md text-sm font-medium bg-chihlee-red text-white shadow transition whitespace-nowrap";
             }
             
+            // 更新：根據身分動態顯示對應的徽章
             document.getElementById('nav-logout-btn').classList.toggle('hidden', !state.isTeacherLoggedIn);
             document.getElementById('nav-admin-badge').classList.toggle('hidden', state.currentUserRole !== 'admin');
             document.getElementById('nav-staff-badge').classList.toggle('hidden', state.currentUserRole !== 'staff');
@@ -1469,7 +1468,7 @@
 
                 let seriesHintHtml = '';
                 if (isSeries) {
-                    seriesHintHtml = `<div class="mb-3 px-3 py-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-700 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>此為系列活動，系統已為您預設勾選所有場次，請盡量全程參與。若有無法出席的場次可手掌握取消。</div>`;
+                    seriesHintHtml = `<div class="mb-3 px-3 py-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-700 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>此為系列活動，系統已為您預設勾選所有場次，請盡量全程參與。若有無法出席的場次可手動取消。</div>`;
                 }
 
                 let sessionsHtml = ev.sessions.map((s, idx) => {
@@ -1521,20 +1520,11 @@
             const email = document.getElementById('reg-email').value.trim();
             let sid = toHalfWidth(document.getElementById('reg-student-id').value.trim()).replace(/\s+/g, '');
             const sname = document.getElementById('reg-name').value.trim();
-            let phone = toHalfWidth(document.getElementById('reg-phone').value.trim()).replace(/\s+/g, ''); // 這裡會是轉換後的 09xx-xxx-xxx
+            let phone = toHalfWidth(document.getElementById('reg-phone').value.trim()).replace(/[-\s]/g, '');
 
             if (!/^\d{8}$/.test(sid)) {
                 if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
                 return showToast('學號格式錯誤，請輸入 8 碼數字', 'error');
-            }
-
-            const existingStudent = state.students.find(s => String(s.id).trim() === sid);
-            if (!existingStudent) {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
-                return showToast(`查無學號 ${sid}，請先聯繫資源教室建檔。`, 'error');
-            } else if (String(existingStudent.name).trim() !== sname) {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出報名'; }
-                return showToast(`學號 ${sid} 與姓名不符，請確認輸入資料。`, 'error');
             }
 
             let duplicateEventTitles = [];
@@ -1563,7 +1553,7 @@
                     } else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false }); 
                 });
                 
-                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, email, phone, sessionsData: sessData }); // phone 為 09xx-xxx-xxx
+                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, email, phone, sessionsData: sessData }); 
                 else droppedEvents.push(ev.title); 
             });
             
@@ -1895,6 +1885,7 @@
                             </div>`;
                 }).join('');
                 
+                // 更新：動態判斷刪除權限
                 const deleteBtnHtml = state.currentUserRole === 'admin' 
                     ? `<button onclick="deleteAdminEvent('${jsSafe(ev.id)}')" title="刪除活動" class="text-red-500 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`
                     : `<button disabled title="僅管理員可刪除" class="text-gray-300 cursor-not-allowed px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`;
@@ -2088,6 +2079,7 @@
             }
             if(finalSessions.length === 0) return showToast('請完整填寫日期與時間', 'error');
 
+            // 雙層迴圈的時間衝突檢查 (防呆)
             for (let i = 0; i < finalSessions.length; i++) {
                 for (let j = i + 1; j < finalSessions.length; j++) {
                     if (finalSessions[i].date === finalSessions[j].date) {
