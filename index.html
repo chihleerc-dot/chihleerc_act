@@ -302,14 +302,13 @@
     <div id="modal-query" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col relative animate-fade-in">
             <button onclick="closeQueryModalSafe()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl z-10"><i class="fa-solid fa-xmark"></i></button>
-                            <div class="p-6 md:p-8 border-b border-gray-100 flex-shrink-0">
+            <div class="p-6 md:p-8 border-b border-gray-100 flex-shrink-0">
                 <h3 class="text-2xl font-bold text-chihlee-blue mb-2">查詢我的報名紀錄</h3>
-                <p class="text-sm text-gray-500 mb-4">已報名的活動，若於活動48小時前需取消或修改報名，請直接聯繫資源教室輔導員辦理。</p>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <p class="text-sm text-gray-500 mb-4">已報名的活動，若需取消或修改報名，請直接聯繫資源教室輔導員辦理。</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input type="text" id="query-student-id" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-sm transition">
                     <input type="text" id="query-name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-sm transition">
-                    <input type="tel" id="query-phone" placeholder="請輸入聯絡電話" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-sm transition">
-                    <button onclick="checkUnsavedChanges(executeStudentQuery)" class="w-full px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>雲端安全查詢</button>
+                    <button onclick="executeStudentQuery()" class="w-full px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>雲端安全查詢</button>
                 </div>
             </div>
             <div class="p-6 overflow-y-auto flex-grow bg-gray-50 custom-scroll">
@@ -631,17 +630,17 @@
         </div>
     </div>
 
-    <!-- Modal: 確認操作 -->
+    <!-- Modal: 確認操作 (更新為圖片樣式) -->
     <div id="modal-confirm" class="fixed inset-0 bg-black bg-opacity-60 z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm animate-fade-in border-t-4 border-red-500 mx-4">
-            <div class="text-center mb-4">
-                <i class="fa-solid fa-triangle-exclamation text-4xl text-red-500 mb-2"></i>
-                <h4 class="font-bold text-xl text-gray-800" id="confirm-title">確認操作</h4>
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-md animate-fade-in border-t-8 border-red-500 mx-4">
+            <div class="text-center mb-6">
+                <i class="fa-solid fa-triangle-exclamation text-5xl text-red-500 mb-4 drop-shadow-sm"></i>
+                <h4 class="font-bold text-2xl text-gray-800 tracking-wide" id="confirm-title">確認操作</h4>
             </div>
-            <div class="text-sm text-gray-600 mb-6 bg-red-50 p-3 rounded-lg border border-red-100 leading-relaxed" id="confirm-msg-text"></div>
-            <div class="flex justify-center space-x-3">
-                <button id="btn-confirm-cancel" class="px-5 py-2 bg-gray-100 text-gray-700 font-bold rounded-md hover:bg-gray-200 transition">取消</button>
-                <button id="btn-confirm-ok" class="px-5 py-2 bg-red-600 text-white font-bold rounded-md hover:bg-red-700 transition shadow">確定</button>
+            <div class="text-sm text-gray-700 mb-8 bg-[#fff0f0] p-5 rounded-xl border border-red-100 leading-relaxed" id="confirm-msg-text"></div>
+            <div class="flex justify-center space-x-4">
+                <button id="btn-confirm-cancel" class="px-8 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition text-lg tracking-wide">取消</button>
+                <button id="btn-confirm-ok" class="px-8 py-2.5 bg-[#da292e] text-white font-bold rounded-xl hover:bg-red-700 transition shadow-md text-lg tracking-wide">確定</button>
             </div>
         </div>
     </div>
@@ -789,7 +788,7 @@
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
-            if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>v.20260805.Final_Opt`;
+            if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>2026/08/06 00:35`;
         }
 
         function showToast(message, type = 'info') {
@@ -800,7 +799,6 @@
             container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 100%)'; toast.style.transition = 'all 0.3s ease-in'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // 💡 修正 1：鎖死 Modal 背景滾動
         function openModal(id) { 
             document.getElementById(id).classList.remove('hidden'); 
             document.body.classList.add('overflow-hidden');
@@ -810,7 +808,6 @@
             document.body.classList.remove('overflow-hidden');
         }
 
-        // 💡 修正 2：Token 過期攔截器大腦
         function checkTokenExpiration(res) {
             if (res && res.success === false && res.error && res.error.includes('憑證已失效或過期')) {
                 showToast('系統閒置過久或權限失效，請重新登入', 'error');
@@ -820,7 +817,6 @@
             return false;
         }
 
-        // 💡 修正 3：背景自動同步學生的雲端真實紀錄
         async function syncStudentDataBackground() {
             const savedSid = localStorage.getItem('chihlee_sid');
             const savedName = localStorage.getItem('chihlee_sname');
@@ -867,7 +863,21 @@
                         updateVersionTime();
                     } else showToast('資料庫讀取失敗：' + res.error, 'error');
                 } catch (parseErr) {
-                    customConfirm('⛔ <b>系統連線遭 Google 阻擋！</b><br><br>請通知系統管理員回到 GAS 編輯器執行以下步驟：<br><br>1. 點擊「部署」➔「管理部署」<br>2. 編輯目前的部署<br>3. 執行身分設為「我(Me)」<br>4. 誰可以存取設為「所有人(Anyone)」<br>5. 儲存部署。', () => {}, 'API 權限設定錯誤');
+                    // 更新：呼叫自訂 Confirm UI 符合圖片設計
+                    const errorHtml = `
+                        <div class="flex items-center text-[#da292e] font-bold text-base mb-4">
+                            <i class="fa-solid fa-circle-minus text-xl mr-2"></i>系統連線遭 Google 阻擋！
+                        </div>
+                        <p class="text-gray-600 mb-6 text-sm">請通知系統管理員回到 GAS 編輯器執行以下步驟：</p>
+                        <ol class="text-gray-700 text-sm space-y-2.5 pl-1 font-medium">
+                            <li>1. 點擊「部署」➔「管理部署」</li>
+                            <li>2. 編輯目前的部署</li>
+                            <li>3. 執行身分設為「我(Me)」</li>
+                            <li>4. 誰可以存取設為「所有人(Anyone)」</li>
+                            <li>5. 儲存部署。</li>
+                        </ol>
+                    `;
+                    customConfirm(errorHtml, () => {}, 'API 權限設定錯誤');
                 }
             } catch (err) { showToast('網路連線異常，無法取得資料', 'error'); }
             showSkeletonLoading(false);
@@ -879,7 +889,7 @@
             renderStudentEvents(); 
             loadSavedStudentInfo(); 
             switchView('student'); 
-            syncStudentDataBackground(); // 啟動背景同步
+            syncStudentDataBackground(); 
         };
 
         async function reloadDataSilently(loadingText = '同步最新資料中...') {
@@ -915,7 +925,6 @@
                                 openParticipantsModal(state.currentAdminEventId);
                             }
                         } else if (checkTokenExpiration(authData)) {
-                             // 確保背景同步也被攔截
                              showGlobalLoading(false);
                              return;
                         }
@@ -963,9 +972,22 @@
         }
 
         function customConfirm(message, onConfirm, title = '確認操作') {
-            document.getElementById('confirm-title').innerText = title; document.getElementById('confirm-msg-text').innerHTML = message;
-            const modal = document.getElementById('modal-confirm'); modal.classList.remove('hidden'); document.body.classList.add('overflow-hidden');
-            document.getElementById('btn-confirm-cancel').onclick = () => { modal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }; document.getElementById('btn-confirm-ok').onclick = () => { modal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); onConfirm(); };
+            document.getElementById('confirm-title').innerText = title; 
+            document.getElementById('confirm-msg-text').innerHTML = message;
+            const modal = document.getElementById('modal-confirm'); 
+            modal.classList.remove('hidden'); 
+            document.body.classList.add('overflow-hidden');
+            
+            document.getElementById('btn-confirm-cancel').onclick = () => { 
+                modal.classList.add('hidden'); 
+                document.body.classList.remove('overflow-hidden'); 
+            }; 
+            
+            document.getElementById('btn-confirm-ok').onclick = () => { 
+                modal.classList.add('hidden'); 
+                document.body.classList.remove('overflow-hidden'); 
+                onConfirm(); 
+            };
         }
 
         function switchView(viewName) {
@@ -1566,17 +1588,14 @@
             }
         }
 
-        function checkUnsavedChanges(callback) { if (state.editingRegId !== null) customConfirm('您有尚未儲存的變更，確定要放棄並離開嗎？', () => { state.editingRegId = null; state.studentEditDraft = []; callback(); }); else callback(); }
-        function closeQueryModalSafe() { checkUnsavedChanges(() => { closeModal('modal-query'); }); }
+        function closeQueryModalSafe() { closeModal('modal-query'); }
         
         function openQueryModal() {
             switchView('student'); 
             const savedSid = localStorage.getItem('chihlee_sid'); 
             const savedName = localStorage.getItem('chihlee_sname');
-            const savedPhone = localStorage.getItem('chihlee_phone');
             document.getElementById('query-student-id').value = savedSid || ''; 
             document.getElementById('query-name').value = savedName || '';
-            document.getElementById('query-phone').value = savedPhone || '';
             document.getElementById('query-result-container').innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-shield-halved text-4xl mb-3 text-gray-300"></i><br>請輸入驗證資料以查詢您的報名</div>';
             openModal('modal-query'); setTimeout(() => document.getElementById('query-student-id').focus(), 100);
         }
@@ -1584,14 +1603,13 @@
         async function executeStudentQuery() {
             const sid = document.getElementById('query-student-id').value.trim(); 
             const sname = document.getElementById('query-name').value.trim();
-            const phone = document.getElementById('query-phone').value.trim();
             
             if(!sid || !sname) return showToast('請完整填寫學號與姓名', 'error');
             
             const container = document.getElementById('query-result-container'); 
             container.innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-chihlee-blue"></i><br><span class="font-bold tracking-widest">安全連線查詢中...</span></div>';
             try {
-                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'queryStudent', sid: sid, sname: sname, phone: phone }) });
+                const response = await fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: 'queryStudent', sid: sid, sname: sname, phone: '' }) });
                 const res = await response.json();
                 if (res.success) { 
                     state.myRegistrations = res.data; 
@@ -1610,7 +1628,6 @@
                     
                     localStorage.setItem('chihlee_sid', sid);
                     localStorage.setItem('chihlee_sname', sname);
-                    localStorage.setItem('chihlee_phone', phone);
                     localStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents)); 
                     
                     const idBar = document.getElementById('student-identity-bar');
@@ -1797,7 +1814,6 @@
                     ? `<button onclick="deleteAdminEvent('${jsSafe(ev.id)}')" title="刪除活動" class="text-red-500 hover:bg-gray-200 px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`
                     : `<button disabled title="僅管理員可刪除" class="text-gray-300 cursor-not-allowed px-2 py-1.5 rounded transition text-lg ml-1"><i class="fa-solid fa-trash"></i></button>`;
                 
-                // 💡 修正 4：活動列表 TD 黏滯綁定
                 const tr = document.createElement('tr');
                 tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white group`;
                 tr.innerHTML = `
@@ -1912,8 +1928,15 @@
             resetDirty(); 
             document.getElementById('edit-event-form').reset(); document.querySelectorAll('input[name="edit-loc-quick"]').forEach(cb => cb.checked = false);
             const teacherSelect = document.getElementById('edit-teacher'); teacherSelect.innerHTML = '<option value="">請選擇承辦人...</option>';
-            let adminList = state.admins && state.admins.length > 0 ? state.admins : [{name: '黃筱喬'}, {name: '王汶尹'}, {name: '李佩純'}, {name: '梁楒侑'}, {name: '張維萱'}];
-            adminList.forEach(a => { if (a.name) teacherSelect.innerHTML += `<option value="${escapeHTML(a.name)}">${escapeHTML(a.name)}</option>`; });
+            
+            let adminList = [];
+            if (state.admins && state.admins.length > 0) {
+                adminList = state.admins;
+                adminList.forEach(a => { if (a.name) teacherSelect.innerHTML += `<option value="${escapeHTML(a.name)}">${escapeHTML(a.name)}</option>`; });
+            } else {
+                showToast('無法取得系統承辦人名單，請重新整理網頁！', 'error');
+                teacherSelect.innerHTML += `<option value="" disabled>(系統異常，無承辦人資料)</option>`;
+            }
 
             if (eventId) {
                 document.getElementById('edit-modal-title').innerText = '編輯活動'; const ev = state.events.find(e => String(e.id) === String(eventId));
@@ -1956,7 +1979,6 @@
             if(mainLocs.length === 0) return showToast('請選擇或填寫活動主地點', 'error');
 
             let finalSessions = [];
-            // 💡 修正 5：時間格式的正則表達式防呆
             const timeRegex = /^\d{2}:\d{2}-\d{2}:\d{2}$/;
             for(let i=0; i<state.tempSessions.length; i++){
                 const dateEl = document.getElementById(`sesDate_${i}`); 
@@ -2046,7 +2068,7 @@
                     }) 
                 });
                 const res = await response.json();
-                if (checkTokenExpiration(res)) return; // 💡 攔截器
+                if (checkTokenExpiration(res)) return;
                 if (res.success) { 
                     resetDirty(); 
                     showToast('活動儲存成功！', 'success'); 
@@ -2062,7 +2084,11 @@
         async function deleteAdminEvent(eventId) {
             const ev = state.events.find(e => String(e.id) === String(eventId)); if (!ev) return;
             customConfirm(`確定要徹底刪除「${escapeHTML(ev.title)}」嗎？\n(相關報名紀錄也會一併移除)`, async () => {
-                if (state.currentUserRole === 'staff') { const password = prompt('請輸入密碼以確認刪除操作：'); if (password !== '33503708') return showToast('密碼錯誤，取消刪除操作', 'error'); }
+                let staffPwd = '';
+                if (state.currentUserRole === 'staff') { 
+                    staffPwd = prompt('請輸入密碼以確認刪除操作：'); 
+                    if (!staffPwd) return showToast('已取消刪除操作', 'info'); 
+                }
                 showGlobalLoading(true, '刪除中...');
                 try {
                     const response = await fetch(GAS_API_URL, { 
@@ -2072,11 +2098,12 @@
                             eventId: eventId, 
                             adminName: state.currentUserName,
                             adminAcc: state.adminCreds.acc,
-                            adminToken: state.adminCreds.token
+                            adminToken: state.adminCreds.token,
+                            staffPwd: staffPwd
                         }) 
                     });
                     const res = await response.json();
-                    if (checkTokenExpiration(res)) return; // 💡 攔截器
+                    if (checkTokenExpiration(res)) return;
                     if (res.success) { 
                         showToast('活動已刪除', 'success'); 
                         await reloadDataSilently('同步活動資料中...'); 
@@ -2103,7 +2130,7 @@
                         }) 
                     });
                     const res = await response.json();
-                    if (checkTokenExpiration(res)) return; // 💡 攔截器
+                    if (checkTokenExpiration(res)) return; 
                     if (res.success) { 
                         showToast('報名紀錄已刪除，名額已釋放', 'success'); 
                         await reloadDataSilently('同步最新報名狀態中...'); 
@@ -2274,7 +2301,7 @@
                     }) 
                 });
                 const res = await response.json();
-                if (checkTokenExpiration(res)) return; // 💡 攔截器
+                if (checkTokenExpiration(res)) return;
                 if (res.success) { 
                     closeModal('modal-admin-add-participant'); 
                     await reloadDataSilently('同步報名資料中...');
@@ -2438,7 +2465,7 @@
                     }) 
                 });
                 const res = await response.json();
-                if (checkTokenExpiration(res)) return; // 💡 攔截器
+                if (checkTokenExpiration(res)) return;
                 if (res.success) { 
                     resetDirty(); 
                     reg.adminRemark = newRemark; reg.sessionsData = newSessionsData; 
@@ -2599,7 +2626,7 @@
                     }) 
                 });
                 const res = await response.json();
-                if (checkTokenExpiration(res)) return; // 💡 攔截器
+                if (checkTokenExpiration(res)) return;
                 if (res.success) {
                     if (res.failCount > 0 && res.failedStudents && res.failedStudents.length > 0) {
                         customConfirm(`✅ 成功: ${res.successCount} 人<br>❌ 失敗: ${res.failCount} 人<br><br>【發送失敗名單】(未綁定或發送異常):<br><div class="text-sm text-red-600 mt-2 max-h-32 overflow-y-auto text-left bg-red-50 p-2 rounded border border-red-100">${res.failedStudents.map(escapeHTML).join('<br>')}</div>`, () => {}, '發送結果與失敗清單');
@@ -2662,7 +2689,7 @@
                     }) 
                 });
                 const res = await response.json();
-                if (checkTokenExpiration(res)) return; // 💡 攔截器
+                if (checkTokenExpiration(res)) return;
                 if (res.success) {
                     showToast('學生資料已更新', 'success'); 
                     closeModal('modal-edit-student');
@@ -2737,7 +2764,7 @@
                     }) 
                 });
                 const res = await response.json();
-                if (checkTokenExpiration(res)) return; // 💡 攔截器
+                if (checkTokenExpiration(res)) return;
                 if (res.success) { 
                     showToast(`匯入完成！新增/更新共 ${newStudents.length} 筆`, 'success'); 
                     document.getElementById('import-students-textarea').value = ''; 
@@ -2749,7 +2776,6 @@
             showGlobalLoading(false);
         }
 
-        // 💡 修正：補回遺失的 openParticipantsModal 函數
         function openParticipantsModal(eventId) {
             state.currentAdminEventId = String(eventId);
             const ev = state.events.find(e => String(e.id) === state.currentAdminEventId);
@@ -2792,7 +2818,7 @@
 
                     if (!hasAttend) sessionDetailsHtml = `<span class="text-xs text-gray-400">已取消所有場次</span>`;
 
-                    const remarkHtml = p.adminRemark ? `<div class="text-xs text-red-600 font-bold bg-red-50 p-1.5 rounded mt-1 whitespace-normal max-w-xs leading-relaxed border border-red-100">${escapeHTML(p.adminRemark).replace(/\n/g, '<br>')}</div>` : `<span class="text-xs text-gray-400">無</span>`;
+                    const remarkHtml = p.adminRemark ? `<div class="text-xs text-red-600 font-bold bg-red-50 p-1.5 rounded mt-1 whitespace-normal max-w-xs leading-relaxed border border-red-100">${escapeHTML(p.adminRemark).replace(/\n/g, '<br>')}</div>` : `<span class="text-gray-400 text-xs">無</span>`;
 
                     return `<tr class="hover:bg-blue-50 even:bg-slate-50 odd:bg-white transition border-b border-gray-100 group">
                         <td class="px-6 py-3 sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-50">
