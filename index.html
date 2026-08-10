@@ -25,6 +25,7 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
         body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
@@ -51,7 +52,6 @@
     <nav class="bg-chihlee-blue text-white shadow-md sticky top-0 z-40 w-full">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-auto py-3 md:py-0 md:h-16 gap-2 md:gap-3">
-                <!-- 調整 Logo 區塊，避免小螢幕過度擠壓 -->
                 <div class="flex items-center cursor-pointer flex-shrink-0 min-w-0 flex-1 md:flex-none" onclick="switchView('student')">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-white text-chihlee-blue font-bold mr-2 md:mr-3 border-2 border-chihlee-gold flex-shrink-0">致</div>
                     <div class="flex flex-col md:flex-row md:items-end whitespace-nowrap min-w-0 truncate">
@@ -61,7 +61,6 @@
                         </span>
                     </div>
                 </div>
-                <!-- 調整按鈕區塊，加入 flex-wrap 以應對極小螢幕，並強化 flex-shrink-0 -->
                 <div class="flex items-center space-x-1.5 md:space-x-4 overflow-x-auto no-scrollbar pb-1 md:pb-0 justify-end min-w-0 flex-shrink-0">
                     <button onclick="switchView('student')" id="nav-student-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0">報名專區</button>
                     <button onclick="openQueryModal()" id="nav-query-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0"><i class="fa-solid fa-magnifying-glass md:mr-1"></i> <span class="hidden sm:inline">查詢/修改</span><span class="sm:hidden">查詢</span></button>
@@ -167,7 +166,6 @@
             </div>
 
             <div id="adminActivitySection" class="hidden w-full">
-                <!-- 工具列：改為 flex-col 在小螢幕，強化適應性 -->
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 md:mb-6 gap-3 md:gap-4 w-full">
                     <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 md:gap-3 w-full lg:w-auto flex-grow">
                         <div class="relative flex-grow sm:max-w-xs w-full">
@@ -187,23 +185,24 @@
                         </div>
                         <select id="teacher-name-filter" onchange="renderTeacherDashboard(1)" class="w-full sm:w-auto border border-gray-300 rounded-md px-2 py-2 text-sm font-medium text-gray-700 focus:ring-chihlee-blue outline-none bg-white shadow-sm"></select>
                     </div>
-                    <button onclick="openEditEventModal()" class="w-full lg:w-auto bg-chihlee-blue text-white px-5 py-2.5 rounded-lg shadow hover:bg-opacity-90 transition flex items-center justify-center text-sm font-bold flex-shrink-0">
-                        <i class="fa-solid fa-plus mr-2"></i> 新增活動
-                    </button>
+                    <div class="flex gap-2 w-full lg:w-auto flex-shrink-0">
+                        <button onclick="reloadDataSilently('手動更新資料...')" class="w-full lg:w-auto bg-white text-gray-700 px-4 py-2.5 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center justify-center text-sm font-bold flex-shrink-0 border border-gray-200">
+                            <i class="fa-solid fa-rotate mr-2"></i>重整
+                        </button>
+                        <button onclick="openEditEventModal()" class="w-full lg:w-auto bg-chihlee-blue text-white px-5 py-2.5 rounded-lg shadow hover:bg-opacity-90 transition flex items-center justify-center text-sm font-bold flex-shrink-0">
+                            <i class="fa-solid fa-plus mr-2"></i>新增活動
+                        </button>
+                    </div>
                 </div>
                 
-                <!-- 解決表格跑版的關鍵：確保外層容器具有完整的 w-full 和 overflow-x-auto，並以 block 顯示 -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-x-auto w-full block custom-scroll max-h-[70vh] relative">
                     <table class="w-full whitespace-nowrap min-w-[700px] md:min-w-[800px] text-left">
                         <thead class="bg-gray-200 text-gray-700 text-sm shadow-sm sticky top-0 z-20">
                             <tr>
-                                <!-- 第一欄在手機版依然 Sticky -->
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold sticky left-0 bg-gray-200 z-30 w-24 border-r border-gray-300">分類</th>
-                                <!-- 第二欄在手機版取消 Sticky，避免佔據過多寬度導致無法滑動 -->
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold md:sticky md:left-[96px] bg-gray-200 md:z-30 shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-gray-300">活動名稱 & 承辦人</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold">場次時間/地點</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-center font-semibold">報名狀態</th>
-                                <!-- 動作欄位 Sticky 固定在右側 -->
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-right font-semibold sticky right-0 bg-gray-200 z-30 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">操作管理</th>
                             </tr>
                         </thead>
@@ -239,7 +238,6 @@
                     </div>
                 </div>
                 
-                <!-- 修正學生資料表跑版 -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-x-auto w-full block custom-scroll max-h-[70vh] relative">
                     <table class="w-full whitespace-nowrap text-left text-sm min-w-[700px]">
                         <thead class="bg-gray-200 text-gray-700 shadow-sm">
@@ -261,7 +259,6 @@
 
     <!-- Modal: 填寫報名資料 -->
     <div id="modal-register" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-2 md:p-4">
-        <!-- 加入 m-2 確保在極小螢幕不會貼齊邊緣，w-full 確保自動撐開 -->
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto relative animate-fade-in custom-scroll m-2">
             <button type="button" onclick="closeModal('modal-register')" class="absolute top-3 right-3 md:top-4 md:right-4 text-gray-400 hover:text-gray-700 text-2xl md:text-xl w-10 h-10 flex items-center justify-center z-10 bg-white rounded-full bg-opacity-80 backdrop-blur"><i class="fa-solid fa-xmark"></i></button>
             <div class="p-4 md:p-8 pt-8">
@@ -478,17 +475,20 @@
                     <h3 id="part-modal-title" class="text-lg md:text-2xl font-bold text-chihlee-blue mb-2 flex items-center flex-wrap leading-snug"></h3>
                     <div id="part-modal-stats-container" class="flex flex-wrap gap-2 md:gap-4 mb-2 md:mb-0"></div>
                 </div>
-                <button onclick="openAdminAddParticipantModal()" class="w-full md:w-auto bg-chihlee-gold text-white px-4 py-2.5 rounded-lg shadow hover:bg-opacity-90 transition flex justify-center items-center text-sm font-bold flex-shrink-0">
-                    <i class="fa-solid fa-user-plus mr-2"></i> 輔導員新增
-                </button>
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto mt-2 md:mt-0 flex-shrink-0">
+                    <button onclick="reloadDataSilently('同步最新報名狀態...'); setTimeout(()=>openParticipantsModal(state.currentAdminEventId), 1500);" class="w-full md:w-auto bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-200 transition flex justify-center items-center text-sm font-bold flex-shrink-0">
+                        <i class="fa-solid fa-rotate mr-2"></i> 重新整理
+                    </button>
+                    <button onclick="openAdminAddParticipantModal()" class="w-full md:w-auto bg-chihlee-gold text-white px-4 py-2.5 rounded-lg shadow hover:bg-opacity-90 transition flex justify-center items-center text-sm font-bold flex-shrink-0">
+                        <i class="fa-solid fa-user-plus mr-2"></i> 輔導員新增
+                    </button>
+                </div>
             </div>
             
-            <!-- 修正報名名單表格跑版 -->
             <div class="p-0 overflow-x-auto flex-grow bg-gray-50 border-t border-gray-200 custom-scroll relative w-full block">
                 <table class="w-full text-left text-sm whitespace-nowrap min-w-[700px] md:min-w-[800px]">
                     <thead class="bg-gray-200 text-gray-700 shadow-sm sticky top-0 z-20">
                         <tr>
-                            <!-- 改變 Sticky 策略：手機上移除不必要的 sticky -->
                             <th class="px-4 md:px-6 py-3 font-semibold sticky left-0 z-30 bg-gray-200 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-gray-300 w-48">系級 / 學號 / 姓名</th>
                             <th class="px-4 md:px-6 py-3 font-semibold bg-gray-200">場次參與狀態</th>
                             <th class="px-4 md:px-6 py-3 font-semibold bg-gray-200 w-48">輔導員備註</th>
@@ -585,7 +585,6 @@
                         <label class="block text-sm font-bold text-gray-700">發送對象清單</label>
                         <span id="line-recipient-count" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-200 shadow-sm whitespace-nowrap">即將發送: 0 人</span>
                     </div>
-                    <!-- 通知表格水平捲動處理 -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto w-full block custom-scroll relative">
                         <table class="w-full text-left text-sm whitespace-nowrap min-w-[500px]">
                             <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10 shadow-sm border-b border-gray-200">
@@ -684,9 +683,6 @@
     </div>
 
     <script>
-        // 大多數的 JavaScript 邏輯保持不變，因為這主要是 CSS/HTML 排版問題
-        // 只有少數負責生成 HTML 的函數需要配合 Tailwind 的響應式更新
-        
         window.addEventListener('storage', function(e) {
             if (e.key === 'chihlee_registered_events' && !state.isTeacherLoggedIn) {
                 renderStudentEvents();
@@ -711,12 +707,15 @@
             input.value = value;
         }
 
-        // 新增：自動帶入學生姓名並鎖定
+        // 自動帶入學生姓名並鎖定
         function autoFillStudentName() {
             const sidInput = document.getElementById('reg-student-id');
             const nameInput = document.getElementById('reg-name');
             const sid = sidInput.value.trim();
             
+            // 備註：在一般學生未登入後台的狀態下，為了資安，state.students 會是空的。
+            // 這裡的自動帶入機制主要在「老師/管理員登入後台時幫忙測試/報名」時作動。
+            // 真實學生端會完美依賴 loadSavedStudentInfo() 從 localStorage 帶入先前的紀錄。
             if (sid.length === 8 && state.students && state.students.length > 0) {
                 const student = state.students.find(s => s && s.id != null && String(s.id).trim() === sid);
                 if (student && student.name) {
@@ -856,7 +855,7 @@
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
-            if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>2026/08/10 11:33`; // 根據指示更新
+            if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>2026/08/10 12:26`; 
         }
 
         function showToast(message, type = 'info') {
@@ -1008,9 +1007,6 @@
                             state.logs = authData.data.fullData.logs || [];
                             updateEventCounts();
                             renderTeacherDashboard(); 
-                            if (state.currentAdminEventId && !document.getElementById('modal-participants').classList.contains('hidden')) {
-                                openParticipantsModal(state.currentAdminEventId);
-                            }
                         } else if (checkTokenExpiration(authData)) {
                              showGlobalLoading(false);
                              return;
@@ -1307,7 +1303,6 @@
             document.getElementById('no-events-msg').classList.add('hidden'); container.parentElement.classList.remove('hidden');
             visibleEvents.sort((a, b) => new Date(String(a.sessions[0].date).replace(/-/g,'/')) - new Date(String(b.sessions[0].date).replace(/-/g,'/')));
 
-            // 優化這段產生 HTML 的字串，加入響應式調整
             visibleEvents.forEach(ev => {
                 let tagColor = 'bg-gray-100 text-gray-600 border-gray-200';
                 if(ev.category === '職涯') tagColor = 'bg-cat-career-bg text-cat-career-text border-cat-career-text border-opacity-30';
@@ -1363,7 +1358,6 @@
                     label.className = `flex items-start p-3 md:p-5 ${bgClass} group transition duration-150 w-full cursor-pointer border-l-4 ${borderClass}`;
                 }
 
-                // 核心修復：加入 w-full，讓右側區塊在手機上延展，避免被擠壓
                 label.innerHTML = `
                     <div class="flex-shrink-0 mr-3 md:mr-4 mt-1">${checkboxHTML}</div>
                     <div class="flex-grow flex flex-col md:flex-row gap-3 md:gap-4 w-full justify-between overflow-hidden">
@@ -1395,7 +1389,6 @@
                 document.getElementById('reg-email').value = localStorage.getItem('chihlee_email') || ''; document.getElementById('reg-student-id').value = localStorage.getItem('chihlee_sid') || '';
                 document.getElementById('reg-name').value = localStorage.getItem('chihlee_sname') || ''; document.getElementById('reg-phone').value = localStorage.getItem('chihlee_phone') || '';
                 
-                // 載入暫存紀錄後，也觸發一次自動帶入判斷
                 autoFillStudentName();
             } catch(e) {}
         }
@@ -1534,7 +1527,6 @@
                     seriesHintHtml = `<div class="mb-3 px-3 py-2 bg-purple-50 border border-purple-200 rounded text-xs md:text-sm text-purple-700 font-medium leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i>此為系列活動，系統已預設勾選所有場次，建議全程參與。若有無法出席的場次可手動取消。</div>`;
                 }
 
-                // 修改 Session HTML 以在手機端有更好的斷行與配置
                 let sessionsHtml = ev.sessions.map((s, idx) => {
                     const isTaken = isOoo && takenSessions.includes(s.date + '_' + (s.time || '')); 
                     
@@ -1924,7 +1916,6 @@
             if (state.adminCurrentPage > totalPages) state.adminCurrentPage = totalPages;
             const startIndex = (state.adminCurrentPage - 1) * itemsPerPage; const paginatedEvents = filteredEvents.slice(startIndex, startIndex + itemsPerPage);
 
-            // 優化表格內容，避免跑版並增加 md: 等響應式前綴
             paginatedEvents.forEach(ev => {
                 if(!ev.sessions || ev.sessions.length === 0) return;
                 const isPast = isEventFullyExpired(ev, today);
@@ -2310,7 +2301,6 @@
                     if (res.success) { 
                         showToast('已刪除，名額釋放', 'success'); 
                         await reloadDataSilently('同步中...'); 
-                        // 動態更新名單視窗內的內容，若它還開著
                         if (!document.getElementById('modal-participants').classList.contains('hidden')) {
                             openParticipantsModal(state.currentAdminEventId);
                         }
@@ -2456,7 +2446,7 @@
 
         async function proceedAdminAddParticipant(eventId, student, sessData) {
             const payload = [{ eventId: eventId, studentId: student.id, name: student.name, email: student.email || '', phone: student.phone || '', sessionsData: sessData }];
-            showGlobalLoading(true, '新增報名中...');
+            showGlobalLoading(true, '新增報名資料中...');
             try {
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
@@ -2465,6 +2455,7 @@
                     body: JSON.stringify({ 
                         action: 'adminSubmitRegistration', 
                         data: payload,
+                        adminName: state.currentUserName,
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
                     }) 
@@ -2660,7 +2651,6 @@
                     closeModal('modal-remark'); 
                     showToast('資料已更新', 'success');
                     await reloadDataSilently('同步資料狀態...'); 
-                    // 動態更新名單視窗內的內容
                     if (!document.getElementById('modal-participants').classList.contains('hidden')) {
                         openParticipantsModal(state.currentAdminEventId);
                     }
@@ -2718,7 +2708,9 @@
                         const surveyTime = p.surveyNotifiedAt ? `<span class="text-blue-600 text-[10px] md:text-xs font-bold bg-blue-100 px-2 py-1 rounded shadow-sm whitespace-nowrap"><i class="fa-solid fa-check mr-1 hidden sm:inline"></i>${escapeHTML(formatSafeDate(p.surveyNotifiedAt))}</span>` : `<span class="text-gray-400 text-xs">未發送</span>`;
 
                         return `<tr class="hover:bg-green-50 even:bg-slate-50 odd:bg-white transition border-b border-gray-100 last:border-0">
-                            <td class="px-3 md:px-4 py-3 text-center sticky left-0 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100"><input type="checkbox" onchange="updateSelectAllState()" class="notify-checkbox w-4 h-4 cursor-pointer text-green-600 rounded border-gray-300 focus:ring-green-500" value="${p.id}" ${hasLine ? '' : 'disabled'}></td>
+                            <td class="px-3 md:px-4 py-3 text-center sticky left-0 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-200">
+                                <input type="checkbox" onchange="updateSelectAllState()" class="notify-checkbox w-4 h-4 cursor-pointer rounded text-green-600 focus:ring-green-600 border-gray-300" value="${p.id}" ${hasLine ? '' : 'disabled'}>
+                            </td>
                             <td class="px-3 md:px-4 py-3 font-medium text-gray-900 flex items-center whitespace-normal break-words min-w-[120px]">${escapeHTML(safeName)} ${hasLine ? '<i class="fa-brands fa-line text-green-500 text-lg ml-2 drop-shadow-sm flex-shrink-0" title="已綁定"></i>' : '<i class="fa-brands fa-line text-gray-300 text-lg ml-2 flex-shrink-0" title="未綁定"></i>'}</td>
                             <td class="px-3 md:px-4 py-3 whitespace-nowrap align-middle">${preEventTime}</td>
                             <td class="px-3 md:px-4 py-3 whitespace-nowrap align-middle">${surveyTime}</td>
@@ -2806,6 +2798,7 @@
 
             showGlobalLoading(true, `發送給 ${targetRegIds.length} 位學生中...`);
             try {
+                // 這裡正確使用 targetRegIds 作為陣列，不使用 payloads
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
                     redirect: 'follow',
@@ -2974,7 +2967,7 @@
             showGlobalLoading(false);
         }
 
-        function openParticipantsModal(eventId) {
+        window.openParticipantsModal = function(eventId) {
             state.currentAdminEventId = String(eventId);
             const ev = state.events.find(e => String(e.id) === state.currentAdminEventId);
             if (!ev) return showToast('找不到活動', 'error');
