@@ -2751,7 +2751,7 @@
                 document.getElementById('line-draft-hint').classList.remove('hidden');
                 
                 if (type === 'pre_event') {
-                    textarea.value = `【致理科大資源教室 活動提醒】\n同學您好！您報名的活動即將開始囉：\n\n📌 活動名稱：${ev.title}\n📅 活動時間：\n${sessionsStr}\n📍 地點：${ev.location}\n\n💡 小提醒：請留意當天是否有供餐，若臨時不克前來，請於活動前兩天至系統取消，或直接聯繫輔導員喔！期待您的參與！`;
+                    textarea.value = `【致理科大資源教室 活動提醒】\n同學您好！提醒您有報名以下活動：\n\n📌 活動名稱：${ev.title}\n📅 活動時間：\n${sessionsStr}\n📍 地點：${ev.location}\n\n💡 小提醒：請留意當天是否有供餐，若有用餐需求變更或臨時不克前來，請直接聯繫輔導老師喔！期待您的參與！`;
                 } else if (type === 'feedback') {
                     textarea.value = `【致理科大資源教室 滿意度調查】\n同學您好！感謝您參與「${ev.title}」。\n\n為了提供更好的活動品質，邀請您花 1 分鐘填寫回饋問卷：\n👉 [請貼上問卷網址]\n\n您的寶貴意見是我們進步的動力，謝謝您！`;
                 } else if (type === 'custom') {
