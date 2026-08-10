@@ -691,6 +691,19 @@
 
         const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwcGcSGodBzE5EjYHvNoVjxAsWnyB5D53cB-JGc7IFoT8zmmosdenW9BsOSdCbHMS6vRg/exec';
 
+        let state = {
+            isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
+            selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
+            tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null, studentEditDraft: [],
+            events: [], registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
+            eventCounts: new Map() 
+        };
+
+        let isFormDirty = false;
+        function markDirty() { isFormDirty = true; }
+        function resetDirty() { isFormDirty = false; }
+        window.addEventListener('beforeunload', function (e) { if (isFormDirty) { e.preventDefault(); e.returnValue = ''; } });
+
         function formatSafeDate(dateInput) {
             if (!dateInput) return '';
             const d = new Date(dateInput);
@@ -707,15 +720,21 @@
             input.value = value;
         }
 
-        // 自動帶入學生姓名並鎖定
+        const escapeHTML = (str) => { 
+            if (str === null || str === undefined) return ''; 
+            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); 
+        };
+        
+        const jsSafe = (str) => {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+        };
+
         function autoFillStudentName() {
             const sidInput = document.getElementById('reg-student-id');
             const nameInput = document.getElementById('reg-name');
             const sid = sidInput.value.trim();
             
-            // 備註：在一般學生未登入後台的狀態下，為了資安，state.students 會是空的。
-            // 這裡的自動帶入機制主要在「老師/管理員登入後台時幫忙測試/報名」時作動。
-            // 真實學生端會完美依賴 loadSavedStudentInfo() 從 localStorage 帶入先前的紀錄。
             if (sid.length === 8 && state.students && state.students.length > 0) {
                 const student = state.students.find(s => s && s.id != null && String(s.id).trim() === sid);
                 if (student && student.name) {
@@ -734,28 +753,6 @@
                 nameInput.title = "";
             }
         }
-
-        let state = {
-            isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
-            selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
-            tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null, studentEditDraft: [],
-            events: [], registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
-            eventCounts: new Map() 
-        };
-
-        let isFormDirty = false;
-        function markDirty() { isFormDirty = true; }
-        function resetDirty() { isFormDirty = false; }
-        window.addEventListener('beforeunload', function (e) { if (isFormDirty) { e.preventDefault(); e.returnValue = ''; } });
-
-        const escapeHTML = (str) => { 
-            if (str === null || str === undefined) return ''; 
-            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); 
-        };
-        const jsSafe = (str) => {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
-        };
 
         function normalizeRegistrations(regs) {
             if (!regs || !Array.isArray(regs)) return [];
@@ -2798,7 +2795,6 @@
 
             showGlobalLoading(true, `發送給 ${targetRegIds.length} 位學生中...`);
             try {
-                // 這裡正確使用 targetRegIds 作為陣列，不使用 payloads
                 const response = await fetch(GAS_API_URL, { 
                     method: 'POST', 
                     redirect: 'follow',
