@@ -2,23 +2,23 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>致理科大資源教室 - 活動報名系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>致理．心夥伴 - 活動報名系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'chihlee-blue': '#002855',
-                        'chihlee-red': '#A81D33',
-                        'chihlee-gold': '#A38B59',
-                        'cat-career-bg': '#f8e5b2',
-                        'cat-career-text': '#c39a2e',
-                        'cat-academic-bg': '#f7c6d7',
-                        'cat-academic-text': '#c12c4e',
-                        'cat-inter-bg': '#e2f2d4',
-                        'cat-inter-text': '#3a9d51'
+                        'chihlee-blue': '#0B2D4D',
+                        'chihlee-red': '#9D1833',
+                        'chihlee-gold': '#765300',
+                        'cat-career-bg': '#FFF1C2',
+                        'cat-career-text': '#684800',
+                        'cat-academic-bg': '#FBE6EC',
+                        'cat-academic-text': '#86152E',
+                        'cat-inter-bg': '#DDF3EC',
+                        'cat-inter-text': '#0E604C'
                     }
                 }
             }
@@ -45,24 +45,220 @@
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 2026 UI refresh: sharp, calm and accessible */
+        :root {
+            --ink: #142231;
+            --muted: #526273;
+            --canvas: #F4F7FA;
+            --surface: #FFFFFF;
+            --line: #C9D3DC;
+            --line-strong: #8FA0AE;
+            --primary: #0B2D4D;
+            --primary-hover: #061F36;
+            --accent: #765300;
+            --danger: #9D1833;
+            --focus: #0076A8;
+            --success: #116149;
+        }
+
+        html { color-scheme: light; scroll-behavior: smooth; }
+        body {
+            background: var(--canvas);
+            color: var(--ink);
+            line-height: 1.65;
+            letter-spacing: .01em;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: 240px;
+            background: linear-gradient(180deg, #E9F0F6 0%, rgba(244,247,250,0) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        nav {
+            background: var(--primary) !important;
+            border-bottom: 3px solid #B58A27;
+            box-shadow: 0 2px 8px rgba(6, 31, 54, .18) !important;
+        }
+        nav button { min-height: 44px; }
+        main { isolation: isolate; }
+        h1, h2, h3, h4 { letter-spacing: -.02em; text-wrap: balance; }
+        p { text-wrap: pretty; }
+
+        button, a, input, select, textarea { transition-duration: 140ms !important; }
+        button { min-height: 44px; border-radius: 8px !important; }
+        button:not(:disabled):active { transform: translateY(1px); }
+        button:disabled { opacity: .58; }
+        input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+            border-color: var(--line) !important;
+            border-radius: 8px !important;
+            background-color: #fff !important;
+            color: var(--ink) !important;
+            min-height: 44px;
+        }
+        input::placeholder, textarea::placeholder { color: #718090 !important; opacity: 1; }
+        input[type="checkbox"], input[type="radio"] { min-width: 20px; min-height: 20px; }
+        :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+            outline: 3px solid var(--focus) !important;
+            outline-offset: 3px !important;
+            box-shadow: none !important;
+        }
+        ::selection { color: #fff; background: #0B5682; }
+
+        #view-student > div:first-child {
+            text-align: left !important;
+            max-width: 56rem;
+            margin-inline: auto;
+            padding: 24px 28px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-left: 6px solid var(--primary);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(11, 45, 77, .07);
+        }
+        .student-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-size: .78rem;
+            font-weight: 800;
+            letter-spacing: .12em;
+        }
+        .student-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            margin-top: 16px;
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 650;
+        }
+        .student-steps span { display: inline-flex; align-items: center; gap: 7px; }
+        .student-steps b {
+            display: inline-grid;
+            place-items: center;
+            width: 24px;
+            height: 24px;
+            color: #fff;
+            background: var(--primary);
+            border-radius: 50%;
+            font-size: .75rem;
+        }
+        #student-identity-bar { margin-left: 0 !important; }
+        #category-filters { justify-content: flex-start !important; max-width: 56rem; margin-inline: auto; }
+        #category-filters::before {
+            content: "活動分類";
+            display: flex;
+            align-items: center;
+            width: 100%;
+            color: var(--ink);
+            font-size: .82rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+        }
+        #category-filters button {
+            min-height: 40px;
+            border-radius: 999px !important;
+            font-weight: 750 !important;
+        }
+        #student-main-content > .bg-white {
+            max-width: 56rem;
+            margin-inline: auto;
+            overflow: visible !important;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+        }
+        #student-events-container { display: grid; gap: 14px; }
+        #student-events-container > label {
+            border: 1px solid var(--line) !important;
+            border-left-width: 5px !important;
+            border-radius: 10px;
+            background: var(--surface);
+            box-shadow: 0 4px 14px rgba(11, 45, 77, .05);
+        }
+        #student-events-container > label:hover {
+            border-color: var(--line-strong) !important;
+            box-shadow: 0 7px 20px rgba(11, 45, 77, .10);
+        }
+        #student-events-container > label:has(input:checked) {
+            border-color: var(--primary) !important;
+            background: #EEF5FA !important;
+            box-shadow: 0 0 0 2px rgba(11, 45, 77, .10);
+        }
+        #student-events-container h3 { color: var(--ink) !important; }
+        #student-events-container .bg-gray-50 { background: #F5F8FA !important; }
+
+        #bulk-action-bar {
+            border: 2px solid var(--primary) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 14px 34px rgba(6, 31, 54, .24) !important;
+        }
+        #bulk-action-bar button { background: var(--primary) !important; }
+
+        [id^="modal-"] { background-color: rgba(6, 24, 39, .72) !important; backdrop-filter: blur(3px); }
+        [id^="modal-"] > div {
+            border: 1px solid var(--line);
+            border-radius: 12px !important;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, .28) !important;
+        }
+        [id^="modal-"] h3, [id^="modal-"] h4 { color: var(--primary); }
+        table { border-collapse: separate; border-spacing: 0; }
+        thead, thead th { background: #E7EDF2 !important; color: #243646 !important; }
+        tbody tr:hover { background: #EEF5FA !important; }
+        .custom-scroll::-webkit-scrollbar-track { background: #E8EDF1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #8394A3; }
+
+        #toast-container { pointer-events: none; }
+        #toast-container > div { border: 1px solid rgba(255,255,255,.25); border-radius: 8px !important; }
+        #global-loader { background: rgba(244,247,250,.92) !important; }
+
+        @media (max-width: 767px) {
+            nav > div { padding-inline: 12px !important; }
+            nav .h-auto { align-items: flex-start !important; flex-wrap: wrap; }
+            nav .overflow-x-auto { width: 100%; justify-content: flex-start !important; padding-bottom: 2px; }
+            main { padding-top: 16px !important; }
+            #view-student > div:first-child { padding: 20px 18px; border-left-width: 5px; }
+            .student-steps { display: grid; grid-template-columns: 1fr; gap: 8px; }
+            #category-filters { overflow-x: auto; flex-wrap: nowrap !important; justify-content: flex-start !important; padding-bottom: 8px; }
+            #category-filters::before { position: sticky; left: 0; min-width: 72px; background: var(--canvas); z-index: 1; }
+            #category-filters button { flex: 0 0 auto; }
+            #student-events-container > label { padding: 16px !important; }
+            #student-events-container > label > div:first-child { margin-right: 12px !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+        }
+        @media (prefers-contrast: more) {
+            :root { --line: #687786; --muted: #354452; }
+            #student-events-container > label { border-width: 2px !important; border-left-width: 6px !important; }
+        }
     </style>
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden w-full">
 
-    <nav class="bg-chihlee-blue text-white shadow-md sticky top-0 z-40 w-full">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:bg-white focus:text-chihlee-blue focus:px-4 focus:py-3 focus:rounded-lg focus:font-bold">跳到主要內容</a>
+    <nav aria-label="主要導覽" class="bg-chihlee-blue text-white shadow-md sticky top-0 z-40 w-full">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-auto py-3 md:py-0 md:h-16 gap-2 md:gap-3">
                 <div class="flex items-center cursor-pointer flex-shrink-0 min-w-0 flex-1 md:flex-none" onclick="switchView('student')">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-white text-chihlee-blue font-bold mr-2 md:mr-3 border-2 border-chihlee-gold flex-shrink-0">致</div>
                     <div class="flex flex-col md:flex-row md:items-end whitespace-nowrap min-w-0 truncate">
-                        <span class="font-bold text-base md:text-xl tracking-wider leading-none truncate">資源教室活動報名系統</span>
+                        <span class="font-bold text-base md:text-xl tracking-wider leading-none truncate">致理．心夥伴 - 活動報名系統</span>
                         <span id="version-display" class="text-[10px] md:text-xs text-blue-200 md:ml-3 mt-1 md:mt-0 font-mono tracking-tighter opacity-80 truncate hidden sm:block" title="最後更新時間">
                             <i class="fa-solid fa-clock mr-1"></i>載入中...
                         </span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-1.5 md:space-x-4 overflow-x-auto no-scrollbar pb-1 md:pb-0 justify-end min-w-0 flex-shrink-0">
-                    <button onclick="switchView('student')" id="nav-student-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0">報名專區</button>
+                    <button onclick="switchView('student')" id="nav-student-btn" aria-current="page" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0">報名專區</button>
                     <button onclick="openQueryModal()" id="nav-query-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0"><i class="fa-solid fa-magnifying-glass md:mr-1"></i> <span class="hidden sm:inline">查詢/修改</span><span class="sm:hidden">查詢</span></button>
                     <button onclick="switchView('teacherLogin')" id="nav-teacher-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap shrink-0"><i class="fa-solid fa-user-tie md:mr-1"></i> <span class="hidden sm:inline">系統後台</span><span class="sm:hidden">後台</span></button>
                     <div id="nav-admin-badge" class="hidden items-center px-2 py-1 rounded bg-yellow-500 text-yellow-900 text-xs font-bold shadow-sm whitespace-nowrap shrink-0"><i class="fa-solid fa-crown md:mr-1"></i><span class="hidden sm:inline">系統管理員</span><span class="sm:hidden">管理員</span></div>
@@ -73,13 +269,17 @@
         </div>
     </nav>
 
-    <main class="flex-grow w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 md:py-8 relative pb-24 overflow-x-hidden">
+    <main id="main-content" tabindex="-1" class="flex-grow w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 md:py-8 relative pb-24 overflow-x-hidden">
         
         <!-- 學生端：報名專區 -->
         <div id="view-student" class="block animate-fade-in w-full">
             <div class="mb-6 md:mb-8 text-center relative px-2">
-                <h1 class="text-2xl md:text-3xl font-bold text-chihlee-blue mb-2">近期活動</h1>
-                <p class="text-sm md:text-base text-gray-500">勾選您想參加的活動，一次完成報名手續！</p>
+                <span class="student-kicker"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> RESOURCE CLASSROOM</span>
+                <h1 class="text-2xl md:text-3xl font-bold text-chihlee-blue mb-2">選擇近期活動</h1>
+                <p class="text-sm md:text-base text-gray-600">查看日期與剩餘名額，勾選活動後即可一次完成報名。</p>
+                <div class="student-steps" aria-label="報名流程">
+                    <span><b>1</b>瀏覽並勾選活動</span><span><b>2</b>填寫基本資料</span><span><b>3</b>確認送出報名</span>
+                </div>
                 <div id="student-identity-bar" class="hidden mx-auto mt-4 px-3 md:px-4 py-2 bg-red-50 border border-red-100 rounded-lg text-xs md:text-sm text-red-800 flex justify-center items-center gap-2 md:gap-3 shadow-sm transition-all w-fit max-w-full flex-wrap">
                     <span class="whitespace-nowrap"><i class="fa-solid fa-user-shield mr-1"></i>綁定學號：<span id="current-sid-display" class="font-bold text-red-600"></span></span>
                     <button onclick="clearStudentData()" class="bg-white border border-red-200 text-red-600 hover:bg-red-600 hover:text-white transition px-2 py-1 md:px-3 md:py-1 rounded-md text-[10px] md:text-xs font-bold shadow-sm shrink-0">清除本機紀錄</button>
@@ -101,10 +301,10 @@
 
             <div id="student-main-content" class="w-full">
                 <div class="flex flex-wrap justify-center gap-2 mb-6 px-2" id="category-filters">
-                    <button id="filter-btn-all" onclick="filterEvents('全部')" data-category="全部" class="filter-btn active px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-chihlee-blue bg-chihlee-blue text-white text-xs md:text-sm font-medium transition shadow-sm">全部</button>
-                    <button id="filter-btn-inter" onclick="filterEvents('人際')" data-category="人際" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-inter-text hover:text-cat-inter-text text-xs md:text-sm font-medium transition">人際</button>
-                    <button id="filter-btn-academic" onclick="filterEvents('課業')" data-category="課業" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-academic-text hover:text-cat-academic-text text-xs md:text-sm font-medium transition">課業</button>
-                    <button id="filter-btn-career" onclick="filterEvents('職涯')" data-category="職涯" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-career-text hover:text-cat-career-text text-xs md:text-sm font-medium transition">職涯</button>
+                    <button id="filter-btn-all" onclick="filterEvents('全部')" data-category="全部" aria-pressed="true" class="filter-btn active px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-chihlee-blue bg-chihlee-blue text-white text-xs md:text-sm font-medium transition shadow-sm">全部</button>
+                    <button id="filter-btn-inter" onclick="filterEvents('人際')" data-category="人際" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-inter-text hover:text-cat-inter-text text-xs md:text-sm font-medium transition">人際</button>
+                    <button id="filter-btn-academic" onclick="filterEvents('課業')" data-category="課業" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-academic-text hover:text-cat-academic-text text-xs md:text-sm font-medium transition">課業</button>
+                    <button id="filter-btn-career" onclick="filterEvents('職涯')" data-category="職涯" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-career-text hover:text-cat-career-text text-xs md:text-sm font-medium transition">職涯</button>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 w-full">
@@ -141,10 +341,12 @@
                 </div>
                 <form onsubmit="handleLogin(event)">
                     <div class="mb-4">
-                        <input type="text" id="admin-account" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chihlee-blue focus:border-chihlee-blue transition outline-none text-base" required placeholder="請輸入帳號">
+                        <label for="admin-account" class="block text-sm font-bold text-gray-700 mb-1.5">帳號</label>
+                        <input type="text" id="admin-account" autocomplete="username" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chihlee-blue focus:border-chihlee-blue transition outline-none text-base" required placeholder="請輸入帳號">
                     </div>
                     <div class="mb-6">
-                        <input type="password" id="admin-password" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chihlee-blue focus:border-chihlee-blue transition outline-none text-base" required placeholder="請輸入密碼">
+                        <label for="admin-password" class="block text-sm font-bold text-gray-700 mb-1.5">密碼</label>
+                        <input type="password" id="admin-password" autocomplete="current-password" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chihlee-blue focus:border-chihlee-blue transition outline-none text-base" required placeholder="請輸入密碼">
                     </div>
                     <button type="submit" id="login-submit-btn" class="w-full bg-chihlee-blue text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition shadow-md flex justify-center items-center">登入</button>
                 </form>
@@ -675,9 +877,9 @@
         </div>
     </div>
 
-    <div id="toast-container" class="fixed bottom-16 md:bottom-5 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none w-[90%] md:w-11/12 max-w-sm transition-all"></div>
+    <div id="toast-container" aria-live="polite" aria-atomic="true" class="fixed bottom-16 md:bottom-5 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none w-[90%] md:w-11/12 max-w-sm transition-all"></div>
     
-    <div id="global-loader" class="fixed inset-0 bg-white bg-opacity-80 backdrop-blur-sm z-[200] hidden flex flex-col items-center justify-center transition-opacity">
+    <div id="global-loader" role="status" aria-live="polite" aria-hidden="true" class="fixed inset-0 bg-white bg-opacity-80 backdrop-blur-sm z-[200] hidden flex flex-col items-center justify-center transition-opacity">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl md:text-5xl text-chihlee-blue mb-4"></i>
         <div id="loader-text" class="text-base md:text-lg font-bold text-gray-700 tracking-wider bg-white px-4 py-1.5 rounded-full shadow-sm text-center mx-4 border border-gray-100">系統處理中...</div>
     </div>
@@ -700,9 +902,52 @@
         };
 
         let isFormDirty = false;
+        let lastFocusedElement = null;
         function markDirty() { isFormDirty = true; }
         function resetDirty() { isFormDirty = false; }
         window.addEventListener('beforeunload', function (e) { if (isFormDirty) { e.preventDefault(); e.returnValue = ''; } });
+
+        function enhanceAccessibility() {
+            document.querySelectorAll('[id^="modal-"]').forEach(modal => {
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-modal', 'true');
+                modal.setAttribute('aria-hidden', modal.classList.contains('hidden') ? 'true' : 'false');
+                const heading = modal.querySelector('h2, h3, h4');
+                if (heading) {
+                    if (!heading.id) heading.id = `${modal.id}-title`;
+                    modal.setAttribute('aria-labelledby', heading.id);
+                }
+                modal.querySelectorAll('button').forEach(button => {
+                    if (!button.getAttribute('aria-label') && button.querySelector('.fa-xmark')) {
+                        button.setAttribute('aria-label', '關閉視窗');
+                    }
+                });
+            });
+            document.querySelectorAll('i[class*="fa-"]').forEach(icon => icon.setAttribute('aria-hidden', 'true'));
+        }
+
+        document.addEventListener('keydown', event => {
+            const openModals = [...document.querySelectorAll('[id^="modal-"]:not(.hidden)')];
+            const modal = openModals.at(-1);
+            if (!modal) return;
+
+            if (event.key === 'Escape') {
+                if (modal.id === 'modal-edit-event') safeCloseEditEvent();
+                else if (modal.id === 'modal-remark') safeCloseRemark();
+                else closeModal(modal.id);
+                return;
+            }
+
+            if (event.key === 'Tab') {
+                const focusable = [...modal.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [href], [tabindex]:not([tabindex="-1"])')]
+                    .filter(element => element.offsetParent !== null);
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+            }
+        });
 
         function formatSafeDate(dateInput) {
             if (!dateInput) return '';
@@ -837,6 +1082,7 @@
 
         function showGlobalLoading(show, text = '處理中...') {
             const loader = document.getElementById('global-loader'); document.getElementById('loader-text').innerText = text;
+            loader.setAttribute('aria-hidden', show ? 'false' : 'true');
             if (show) loader.classList.remove('hidden'); else loader.classList.add('hidden');
         }
 
@@ -859,17 +1105,28 @@
             const container = document.getElementById('toast-container'); const toast = document.createElement('div');
             let bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800';
             let icon = type === 'success' ? '<i class="fa-solid fa-circle-check mr-2 text-lg"></i>' : type === 'error' ? '<i class="fa-solid fa-circle-exclamation mr-2 text-lg"></i>' : '<i class="fa-solid fa-circle-info mr-2 text-lg"></i>';
+            toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
             toast.className = `${bgColor} text-white px-4 md:px-5 py-3 rounded-lg shadow-xl flex items-center font-bold text-sm toast-enter pointer-events-auto mb-2`; toast.innerHTML = `${icon} <span>${message}</span>`;
             container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 100%)'; toast.style.transition = 'all 0.3s ease-in'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
         function openModal(id) { 
-            document.getElementById(id).classList.remove('hidden'); 
+            const modal = document.getElementById(id);
+            lastFocusedElement = document.activeElement;
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
             document.body.classList.add('overflow-hidden');
+            requestAnimationFrame(() => {
+                const focusTarget = modal.querySelector('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [href], [tabindex]:not([tabindex="-1"])');
+                if (focusTarget) focusTarget.focus();
+            });
         }
         function closeModal(id) { 
-            document.getElementById(id).classList.add('hidden'); 
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('overflow-hidden');
+            if (lastFocusedElement && document.contains(lastFocusedElement)) lastFocusedElement.focus();
         }
 
         function checkTokenExpiration(res) {
@@ -957,6 +1214,7 @@
         }
 
         window.onload = async () => { 
+            enhanceAccessibility();
             updateVersionTime(); 
             await fetchInitialData(); 
             renderStudentEvents(); 
@@ -1077,15 +1335,19 @@
             const btnClassNormal = "px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0";
             document.getElementById('nav-student-btn').className = btnClassNormal;
             document.getElementById('nav-teacher-btn').className = btnClassNormal;
+            document.getElementById('nav-student-btn').removeAttribute('aria-current');
+            document.getElementById('nav-teacher-btn').removeAttribute('aria-current');
 
             if (viewName === 'student') {
                 document.getElementById('view-student').classList.remove('hidden'); 
                 document.getElementById('nav-student-btn').className = "px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0";
+                document.getElementById('nav-student-btn').setAttribute('aria-current', 'page');
                 updateBulkActionBar();
             } else if (viewName === 'teacherLogin' || viewName === 'teacherDashboard') {
                 if (state.isTeacherLoggedIn) { document.getElementById('view-teacher-dashboard').classList.remove('hidden'); switchAdminTab('list'); renderTeacherDashboard(); } 
                 else document.getElementById('view-teacher-login').classList.remove('hidden');
                 document.getElementById('nav-teacher-btn').className = "px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-red text-white shadow transition whitespace-nowrap shrink-0";
+                document.getElementById('nav-teacher-btn').setAttribute('aria-current', 'page');
             }
             
             document.getElementById('nav-logout-btn').classList.toggle('hidden', !state.isTeacherLoggedIn);
@@ -1182,6 +1444,7 @@
             state.currentFilter = category;
             document.querySelectorAll('#category-filters button').forEach(btn => {
                 const cat = btn.getAttribute('data-category');
+                btn.setAttribute('aria-pressed', cat === category ? 'true' : 'false');
                 if(cat === category) {
                     btn.className = "filter-btn active px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-chihlee-blue bg-chihlee-blue text-white text-xs md:text-sm font-medium transition shadow-sm";
                 } else {
@@ -1351,7 +1614,7 @@
                     checkboxHTML = `<input type="checkbox" disabled class="w-5 h-5 text-gray-300 border-gray-300 rounded cursor-not-allowed">`; 
                     label.className = `flex items-start p-3 md:p-5 hover:bg-gray-50 bg-gray-50/50 border-l-4 border-l-gray-300 group transition w-full cursor-not-allowed opacity-75`;
                 } else {
-                    checkboxHTML = `<input type="checkbox" id="chk-evt-${safeEvId}" value="${safeEvId}" onchange="toggleEventSelection('${jsSafe(safeEvId)}', this.checked)" class="w-5 h-5 text-chihlee-blue border-gray-300 rounded focus:ring-chihlee-blue cursor-pointer" ${isChecked ? 'checked' : ''}>`; 
+                    checkboxHTML = `<input type="checkbox" id="chk-evt-${safeEvId}" value="${safeEvId}" aria-label="選擇活動：${escapeHTML(ev.title)}" onchange="toggleEventSelection('${jsSafe(safeEvId)}', this.checked)" class="w-5 h-5 text-chihlee-blue border-gray-300 rounded focus:ring-chihlee-blue cursor-pointer" ${isChecked ? 'checked' : ''}>`; 
                     label.className = `flex items-start p-3 md:p-5 ${bgClass} group transition duration-150 w-full cursor-pointer border-l-4 ${borderClass}`;
                 }
 
