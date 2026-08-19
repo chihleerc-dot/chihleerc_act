@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- 致理．心夥伴 - 活動報名系統｜分類配色無障礙版 V4｜2026-08-19 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -10,15 +11,15 @@
             theme: {
                 extend: {
                     colors: {
-                        'chihlee-blue': '#0B2D4D',
-                        'chihlee-red': '#9D1833',
-                        'chihlee-gold': '#765300',
-                        'cat-career-bg': '#FFF1C2',
-                        'cat-career-text': '#684800',
-                        'cat-academic-bg': '#FBE6EC',
-                        'cat-academic-text': '#86152E',
-                        'cat-inter-bg': '#DDF3EC',
-                        'cat-inter-text': '#0E604C'
+                        'chihlee-blue': '#0057B8',
+                        'chihlee-red': '#C2185B',
+                        'chihlee-gold': '#F4B400',
+                        'cat-career-bg': '#FFF4BF',
+                        'cat-career-text': '#6A4200',
+                        'cat-academic-bg': '#FFE7EF',
+                        'cat-academic-text': '#97123D',
+                        'cat-inter-bg': '#E0FFF2',
+                        'cat-inter-text': '#006B4F'
                     }
                 }
             }
@@ -46,20 +47,24 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* 2026 UI refresh: sharp, calm and accessible */
+        /* 2026 UI refresh: category-aware, sharp and accessible */
         :root {
-            --ink: #142231;
-            --muted: #526273;
-            --canvas: #F4F7FA;
+            --ink: #102A43;
+            --muted: #41576D;
+            --canvas: #F3F9FF;
             --surface: #FFFFFF;
-            --line: #C9D3DC;
-            --line-strong: #8FA0AE;
-            --primary: #0B2D4D;
-            --primary-hover: #061F36;
-            --accent: #765300;
-            --danger: #9D1833;
-            --focus: #0076A8;
-            --success: #116149;
+            --line: #B8D3EA;
+            --line-strong: #4D8FC7;
+            --primary: #0057B8;
+            --primary-bright: #00A6D6;
+            --primary-soft: #DFF2FF;
+            --primary-hover: #003E87;
+            --accent: #F4B400;
+            --danger: #C2185B;
+            --focus: #0077B6;
+            --success: #007A55;
+            --cyan: #00A6D6;
+            --sky: #DDF3FF;
         }
 
         html { color-scheme: light; scroll-behavior: smooth; }
@@ -74,15 +79,26 @@
             position: fixed;
             inset: 0 0 auto 0;
             height: 240px;
-            background: linear-gradient(180deg, #E9F0F6 0%, rgba(244,247,250,0) 100%);
+            background: linear-gradient(180deg, #D8F0FF 0%, rgba(243,249,255,0) 100%);
             pointer-events: none;
             z-index: -1;
         }
         nav {
+            color: #FFFFFF !important;
             background: var(--primary) !important;
-            border-bottom: 3px solid #B58A27;
-            box-shadow: 0 2px 8px rgba(6, 31, 54, .18) !important;
+            border-bottom: 4px solid var(--accent);
+            box-shadow: 0 3px 10px rgba(0, 87, 184, .22) !important;
+            backdrop-filter: none;
         }
+        nav > div > div:first-child > div:first-child > div:first-child {
+            color: var(--primary) !important;
+            background: #FFFFFF !important;
+            border-color: var(--accent) !important;
+        }
+        #version-display { color: #B9DEFF !important; }
+        nav .text-gray-300 { color: #D7E9FA !important; }
+        nav button:not(.bg-chihlee-gold) { color: #D7E9FA !important; }
+        nav button:not(.bg-chihlee-gold):hover { color: #FFFFFF !important; background: rgba(255,255,255,.14) !important; }
         nav button { min-height: 44px; }
         main { isolation: isolate; }
         h1, h2, h3, h4 { letter-spacing: -.02em; text-wrap: balance; }
@@ -107,17 +123,20 @@
             box-shadow: none !important;
         }
         ::selection { color: #fff; background: #0B5682; }
+        .bg-chihlee-gold { color: #102A43 !important; background-color: var(--accent) !important; }
+        .text-chihlee-gold { color: #8A5600 !important; }
 
         #view-student > div:first-child {
             text-align: left !important;
             max-width: 56rem;
             margin-inline: auto;
             padding: 24px 28px;
-            background: var(--surface);
+            background: #FFFFFF;
             border: 1px solid var(--line);
-            border-left: 6px solid var(--primary);
+            border-top: 1px solid var(--line);
+            border-left: 6px solid var(--primary-bright);
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(11, 45, 77, .07);
+            box-shadow: 0 8px 24px rgba(16, 24, 40, .08);
         }
         .student-kicker {
             display: inline-flex;
@@ -163,9 +182,22 @@
         }
         #category-filters button {
             min-height: 40px;
+            border-width: 2px !important;
             border-radius: 999px !important;
             font-weight: 750 !important;
         }
+        #category-filters button[aria-pressed="true"] {
+            color: #FFFFFF !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 4px 10px rgba(0, 87, 184, .22) !important;
+        }
+        #filter-btn-inter[aria-pressed="false"] { color: #006B4F !important; background: #E0FFF2 !important; border-color: #00A86B !important; }
+        #filter-btn-academic[aria-pressed="false"] { color: #97123D !important; background: #FFE7EF !important; border-color: #E91E63 !important; }
+        #filter-btn-career[aria-pressed="false"] { color: #6A4200 !important; background: #FFF4BF !important; border-color: #E09A00 !important; }
+        #category-filters #filter-btn-inter[aria-pressed="true"] { color: #FFFFFF !important; background: #007A55 !important; border-color: #007A55 !important; }
+        #category-filters #filter-btn-academic[aria-pressed="true"] { color: #FFFFFF !important; background: #C2185B !important; border-color: #C2185B !important; }
+        #category-filters #filter-btn-career[aria-pressed="true"] { color: #102A43 !important; background: #F4B400 !important; border-color: #B97800 !important; }
         #student-main-content > .bg-white {
             max-width: 56rem;
             margin-inline: auto;
@@ -180,19 +212,29 @@
             border-left-width: 5px !important;
             border-radius: 10px;
             background: var(--surface);
-            box-shadow: 0 4px 14px rgba(11, 45, 77, .05);
+            box-shadow: 0 3px 12px rgba(16, 24, 40, .06);
         }
+        #student-events-container > label[data-category="人際"] { border-left-color: #00A86B !important; }
+        #student-events-container > label[data-category="課業"] { border-left-color: #E91E63 !important; }
+        #student-events-container > label[data-category="職涯"] { border-left-color: #F4B400 !important; }
         #student-events-container > label:hover {
             border-color: var(--line-strong) !important;
-            box-shadow: 0 7px 20px rgba(11, 45, 77, .10);
+            border-color: var(--line-strong) !important;
+            box-shadow: 0 8px 22px rgba(16, 24, 40, .10);
         }
         #student-events-container > label:has(input:checked) {
             border-color: var(--primary) !important;
-            background: #EEF5FA !important;
-            box-shadow: 0 0 0 2px rgba(11, 45, 77, .10);
+            background: var(--primary-soft) !important;
+            box-shadow: 0 0 0 3px rgba(0, 87, 184, .14);
         }
+        #student-events-container > label[data-category="人際"]:hover,
+        #student-events-container > label[data-category="人際"]:has(input:checked) { border-left-color: #00A86B !important; }
+        #student-events-container > label[data-category="課業"]:hover,
+        #student-events-container > label[data-category="課業"]:has(input:checked) { border-left-color: #E91E63 !important; }
+        #student-events-container > label[data-category="職涯"]:hover,
+        #student-events-container > label[data-category="職涯"]:has(input:checked) { border-left-color: #F4B400 !important; }
         #student-events-container h3 { color: var(--ink) !important; }
-        #student-events-container .bg-gray-50 { background: #F5F8FA !important; }
+        #student-events-container .bg-gray-50 { background: #EEF8FF !important; }
 
         #bulk-action-bar {
             border: 2px solid var(--primary) !important;
@@ -207,7 +249,85 @@
             border-radius: 12px !important;
             box-shadow: 0 24px 70px rgba(0, 0, 0, .28) !important;
         }
-        [id^="modal-"] h3, [id^="modal-"] h4 { color: var(--primary); }
+        /* Do not globally recolor modal headings: some use white text on a color block. */
+        #modal-query > div { border: 3px solid var(--primary); }
+        #modal-query > div > div:first-of-type {
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--line) !important;
+        }
+        .query-titlebar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 44px;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 10px 10px 16px;
+            margin-bottom: 12px;
+            color: #FFFFFF !important;
+            background: var(--primary) !important;
+            border-left: 7px solid var(--accent);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 103, 197, .18);
+        }
+        #modal-query .query-titlebar h3 {
+            width: auto;
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            color: #FFFFFF !important;
+            background: transparent !important;
+            border: 0;
+            line-height: 1.35;
+            text-shadow: 0 1px 1px rgba(0,0,0,.18);
+        }
+        .query-close-button {
+            position: static !important;
+            display: inline-grid !important;
+            place-items: center;
+            width: 44px !important;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 !important;
+            color: var(--primary) !important;
+            background: #FFFFFF !important;
+            border: 2px solid #FFFFFF !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,.16) !important;
+        }
+        .query-close-button:hover { color: #FFFFFF !important; background: var(--primary-hover) !important; }
+        .query-titlebar + p { color: #344E65 !important; font-weight: 600; }
+        #modal-query > div > div:last-child { background: #F7F8FA !important; }
+        #modal-query #query-result-container > div { color: #334E68 !important; }
+        #modal-query button[onclick="executeStudentQuery()"] {
+            background: var(--primary) !important;
+            color: #FFFFFF !important;
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 103, 197, .18) !important;
+        }
+        #modal-register > div { border-top: 6px solid var(--cyan); }
+        #modal-register h3 { color: var(--primary) !important; }
+        .session-edit-row {
+            display: grid;
+            grid-template-columns: minmax(0, .9fr) minmax(0, 1.15fr) minmax(0, 1.45fr) 48px;
+            gap: .5rem;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+        }
+        .session-edit-row > input {
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        .session-delete-button {
+            display: inline-grid !important;
+            place-items: center;
+            justify-self: end;
+            width: 44px !important;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 !important;
+        }
+        .session-delete-label { display: none; }
         table { border-collapse: separate; border-spacing: 0; }
         thead, thead th { background: #E7EDF2 !important; color: #243646 !important; }
         tbody tr:hover { background: #EEF5FA !important; }
@@ -230,6 +350,15 @@
             #category-filters button { flex: 0 0 auto; }
             #student-events-container > label { padding: 16px !important; }
             #student-events-container > label > div:first-child { margin-right: 12px !important; }
+            .session-edit-row { grid-template-columns: 1fr; }
+            .session-delete-button {
+                display: flex !important;
+                justify-content: center;
+                gap: .45rem;
+                justify-self: stretch;
+                width: 100% !important;
+            }
+            .session-delete-label { display: inline; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -520,13 +649,15 @@
     <!-- Modal: 學生查詢/修改 -->
     <div id="modal-query" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col relative animate-fade-in m-2">
-            <button onclick="closeQueryModalSafe()" class="absolute top-3 right-3 md:top-4 md:right-4 text-gray-400 hover:text-gray-700 text-2xl md:text-xl w-10 h-10 flex items-center justify-center z-10 bg-white rounded-full"><i class="fa-solid fa-xmark"></i></button>
             <div class="p-5 md:p-8 border-b border-gray-100 flex-shrink-0 pt-8">
-                <h3 class="text-xl md:text-2xl font-bold text-chihlee-blue mb-2">查詢我的報名紀錄</h3>
+                <div class="query-titlebar" style="background:#0057B8 !important;color:#FFFFFF !important;">
+                    <h3 class="text-xl md:text-2xl font-bold" style="color:#FFFFFF !important;background:transparent !important;">查詢我的報名紀錄</h3>
+                    <button type="button" onclick="closeQueryModalSafe()" aria-label="關閉查詢視窗" class="query-close-button text-xl" style="position:static !important;color:#0057B8 !important;background:#FFFFFF !important;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
                 <p class="text-xs md:text-sm text-gray-500 mb-4">若需取消或修改報名，請直接聯繫資源教室辦理。</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-                    <input type="text" id="query-student-id" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
-                    <input type="text" id="query-name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
+                    <input type="text" id="query-student-id" aria-label="學號（8碼）" inputmode="numeric" autocomplete="off" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
+                    <input type="text" id="query-name" aria-label="姓名" autocomplete="name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
                     <button onclick="executeStudentQuery()" class="w-full sm:col-span-2 md:col-span-1 px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>安全查詢</button>
                 </div>
             </div>
@@ -1600,6 +1731,7 @@
                 
                 const label = document.createElement('label'); 
                 label.id = `event-card-${safeEvId}`; 
+                label.dataset.category = ev.category || '';
                 let checkboxHTML = '';
                 
                 let borderClass = 'border-transparent';
@@ -2323,11 +2455,11 @@
         
         function renderTempSessions() {
             document.getElementById('edit-sessions-container').innerHTML = state.tempSessions.map((s, idx) => `
-                <div class="flex flex-col sm:flex-row gap-2 items-center bg-white p-2.5 rounded-md border border-gray-200">
-                    <input type="date" id="sesDate_${idx}" value="${String(s.date).replace(/\//g, '-')}" onchange="markDirty()" class="w-full sm:w-auto flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
-                    <input type="text" id="sesTime_${idx}" value="${escapeHTML(s.time)}" oninput="markDirty()" onblur="formatTimeRange(this); syncTempSessions();" class="w-full sm:w-auto flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm" placeholder="如 18:00-20:00">
-                    <input type="text" id="sesLoc_${idx}" value="${escapeHTML(s.location || '')}" oninput="markDirty()" class="w-full sm:w-auto flex-[2] px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-yellow-50 placeholder-gray-400" placeholder="獨立地點(選填)">
-                    <button type="button" onclick="removeTempSession(${idx}); markDirty();" class="text-red-500 bg-red-50 hover:bg-red-100 hover:text-red-700 px-3 py-2 w-full sm:w-auto rounded-md transition text-sm font-bold shadow-sm"><i class="fa-solid fa-trash sm:mr-0 mr-1"></i><span class="sm:hidden">刪除</span></button>
+                <div class="session-edit-row bg-white p-2.5 rounded-md border border-gray-200">
+                    <input type="date" id="sesDate_${idx}" value="${String(s.date).replace(/\//g, '-')}" onchange="markDirty()" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
+                    <input type="text" id="sesTime_${idx}" value="${escapeHTML(s.time)}" oninput="markDirty()" onblur="formatTimeRange(this); syncTempSessions();" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm" placeholder="如 18:00-20:00">
+                    <input type="text" id="sesLoc_${idx}" value="${escapeHTML(s.location || '')}" oninput="markDirty()" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-yellow-50 placeholder-gray-400" placeholder="獨立地點(選填)">
+                    <button type="button" aria-label="刪除第 ${idx + 1} 場" onclick="removeTempSession(${idx}); markDirty();" class="session-delete-button text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-800 rounded-md transition text-sm font-bold shadow-sm"><i class="fa-solid fa-trash"></i><span class="session-delete-label">刪除</span></button>
                 </div>`).join('');
         }
         function addSessionField() { syncTempSessions(); state.tempSessions.push({date:'', time:'', location:''}); renderTempSessions(); handleActivityTypeChange(); }
