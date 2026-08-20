@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜分類配色無障礙版 V4｜2026-08-19 -->
+<!-- 致理．心夥伴 - 活動報名系統｜分類配色無障礙版 V5｜2026-08-20 14:39 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -304,8 +304,50 @@
             border: 2px solid var(--primary);
             box-shadow: 0 4px 12px rgba(0, 103, 197, .18) !important;
         }
-        #modal-register > div { border-top: 6px solid var(--cyan); }
-        #modal-register h3 { color: var(--primary) !important; }
+        #modal-register > div {
+            overflow-x: hidden;
+            border: 3px solid var(--primary);
+        }
+        .register-titlebar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 44px;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 12px 12px 20px;
+            color: #FFFFFF !important;
+            background: var(--primary) !important;
+            border-bottom: 4px solid var(--accent);
+            border-radius: 9px 9px 0 0;
+        }
+        #modal-register .register-titlebar h3 {
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            color: #FFFFFF !important;
+            background: transparent !important;
+            line-height: 1.35;
+            text-shadow: 0 1px 1px rgba(0,0,0,.22);
+        }
+        .register-close-button {
+            position: static !important;
+            display: inline-grid !important;
+            place-items: center;
+            width: 44px !important;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 !important;
+            color: var(--primary) !important;
+            background: #FFFFFF !important;
+            border: 2px solid #FFFFFF !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,.18) !important;
+        }
+        .register-close-button:hover {
+            color: var(--ink) !important;
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+        }
         .session-edit-row {
             display: grid;
             grid-template-columns: minmax(0, .9fr) minmax(0, 1.15fr) minmax(0, 1.45fr) 48px;
@@ -381,8 +423,8 @@
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-white text-chihlee-blue font-bold mr-2 md:mr-3 border-2 border-chihlee-gold flex-shrink-0">致</div>
                     <div class="flex flex-col md:flex-row md:items-end whitespace-nowrap min-w-0 truncate">
                         <span class="font-bold text-base md:text-xl tracking-wider leading-none truncate">致理．心夥伴 - 活動報名系統</span>
-                        <span id="version-display" class="text-[10px] md:text-xs text-blue-200 md:ml-3 mt-1 md:mt-0 font-mono tracking-tighter opacity-80 truncate hidden sm:block" title="最後更新時間">
-                            <i class="fa-solid fa-clock mr-1"></i>載入中...
+                        <span id="version-display" class="text-[10px] md:text-xs text-blue-200 md:ml-3 mt-1 md:mt-0 font-mono tracking-tighter opacity-80 truncate hidden sm:block" title="版本更新時間">
+                            <i class="fa-solid fa-clock mr-1" aria-hidden="true"></i>載入中...
                         </span>
                     </div>
                 </div>
@@ -590,10 +632,12 @@
 
     <!-- Modal: 填寫報名資料 -->
     <div id="modal-register" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-2 md:p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto relative animate-fade-in custom-scroll m-2">
-            <button type="button" onclick="closeModal('modal-register')" class="absolute top-3 right-3 md:top-4 md:right-4 text-gray-400 hover:text-gray-700 text-2xl md:text-xl w-10 h-10 flex items-center justify-center z-10 bg-white rounded-full bg-opacity-80 backdrop-blur"><i class="fa-solid fa-xmark"></i></button>
-            <div class="p-4 md:p-8 pt-8">
-                <h3 class="text-xl md:text-2xl font-bold text-chihlee-blue mb-4">填寫報名資料</h3>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto relative animate-fade-in custom-scroll m-2" style="overflow-x:hidden !important;border:3px solid #0057B8 !important;border-top:3px solid #0057B8 !important;">
+            <div class="register-titlebar" style="display:grid !important;grid-template-columns:minmax(0,1fr) 44px !important;align-items:center !important;gap:12px !important;width:100% !important;padding:12px 12px 12px 20px !important;background:#0057B8 !important;color:#FFFFFF !important;border-bottom:5px solid #F4B400 !important;border-radius:9px 9px 0 0 !important;">
+                <h3 id="register-modal-title" class="text-xl md:text-2xl font-bold" style="margin:0 !important;padding:0 !important;color:#FFFFFF !important;background:transparent !important;line-height:1.35 !important;">填寫報名資料</h3>
+                <button type="button" onclick="closeModal('modal-register')" aria-label="關閉報名資料視窗" class="register-close-button text-xl" style="position:static !important;display:inline-grid !important;place-items:center !important;width:44px !important;min-width:44px !important;height:44px !important;padding:0 !important;color:#0057B8 !important;background:#FFFFFF !important;border:2px solid #FFFFFF !important;border-radius:8px !important;"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <div class="p-4 md:p-8">
                 <form onsubmit="submitRegistration(event)">
                     <div class="space-y-3 mb-6 bg-gray-50 p-3 md:p-4 rounded-lg border border-gray-200">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
@@ -1227,9 +1271,16 @@
             }
         }
 
+        // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
+        const VERSION_UPDATED_AT = '2026/08/20 14:39';
+        const VERSION_UPDATED_AT_ISO = '2026-08-20T14:39:00+08:00';
+
         function updateVersionTime() {
             const el = document.getElementById('version-display');
-            if (el) el.innerHTML = `<i class="fa-solid fa-code-commit mr-1"></i>2026/08/20 14:36`; 
+            if (el) {
+                el.setAttribute('title', `版本更新時間：${VERSION_UPDATED_AT}`);
+                el.innerHTML = `<i class="fa-solid fa-code-commit mr-1" aria-hidden="true"></i><span class="sr-only">版本更新時間：</span><time datetime="${VERSION_UPDATED_AT_ISO}">${VERSION_UPDATED_AT}</time>`;
+            }
         }
 
         function showToast(message, type = 'info') {
