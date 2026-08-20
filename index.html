@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜分類配色無障礙版 V5｜2026-08-20 14:39 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V6｜2026-08-20 22:03 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -26,14 +26,14 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
         body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        
+
         /* 避免 iOS 輸入框縮放 */
         input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"], select, textarea {
-            font-size: 16px !important; 
+            font-size: 16px !important;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -441,7 +441,7 @@
     </nav>
 
     <main id="main-content" tabindex="-1" class="flex-grow w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 md:py-8 relative pb-24 overflow-x-hidden">
-        
+
         <!-- 學生端：報名專區 -->
         <div id="view-student" class="block animate-fade-in w-full">
             <div class="mb-6 md:mb-8 text-center relative px-2">
@@ -481,7 +481,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 w-full">
                     <div id="student-events-container" class="divide-y divide-gray-200"></div>
                 </div>
-                
+
                 <div id="no-events-msg" class="hidden text-center text-gray-500 mt-10 py-10 bg-white rounded-xl shadow-sm border border-gray-200 mx-2">
                     <i class="fa-regular fa-folder-open text-3xl md:text-4xl mb-3 text-gray-300"></i>
                     <p class="text-sm md:text-base">目前沒有可報名的活動喔！</p>
@@ -567,7 +567,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-x-auto w-full block custom-scroll max-h-[70vh] relative">
                     <table class="w-full whitespace-nowrap min-w-[700px] md:min-w-[800px] text-left">
                         <thead class="bg-gray-200 text-gray-700 text-sm shadow-sm sticky top-0 z-20">
@@ -610,7 +610,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-x-auto w-full block custom-scroll max-h-[70vh] relative">
                     <table class="w-full whitespace-nowrap text-left text-sm min-w-[700px]">
                         <thead class="bg-gray-200 text-gray-700 shadow-sm">
@@ -659,11 +659,11 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <h4 class="font-bold text-gray-700 mb-2 border-b pb-1 text-sm md:text-base">活動場次勾選與用餐選擇</h4>
                     <p class="text-xs md:text-sm text-gray-500 mb-3">請確認您可以出席的場次並選擇用餐。一對一活動僅限單選。</p>
                     <div id="dynamic-meal-section" class="space-y-4 mb-6"></div>
-                    
+
                     <div class="mt-6 md:mt-8 flex justify-end space-x-3 pb-2">
                         <button type="button" onclick="closeModal('modal-register')" class="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition font-medium w-full md:w-auto text-sm md:text-base">取消</button>
                         <button type="submit" id="btn-submit-registration" class="px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-md hover:bg-yellow-600 transition shadow w-full md:w-auto flex items-center justify-center text-sm md:text-base">確認送出</button>
@@ -699,9 +699,10 @@
                     <button type="button" onclick="closeQueryModalSafe()" aria-label="關閉查詢視窗" class="query-close-button text-xl" style="position:static !important;color:#0057B8 !important;background:#FFFFFF !important;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <p class="text-xs md:text-sm text-gray-500 mb-4">若需取消或修改報名，請直接聯繫資源教室辦理。</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
                     <input type="text" id="query-student-id" aria-label="學號（8碼）" inputmode="numeric" autocomplete="off" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
                     <input type="text" id="query-name" aria-label="姓名" autocomplete="name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
+                    <input type="tel" id="query-phone" aria-label="手機號碼" inputmode="tel" autocomplete="tel" placeholder="請輸入建檔手機號碼" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
                     <button onclick="executeStudentQuery()" class="w-full sm:col-span-2 md:col-span-1 px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>安全查詢</button>
                 </div>
             </div>
@@ -861,7 +862,7 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="p-0 overflow-x-auto flex-grow bg-gray-50 border-t border-gray-200 custom-scroll relative w-full block">
                 <table class="w-full text-left text-sm whitespace-nowrap min-w-[700px] md:min-w-[800px]">
                     <thead class="bg-gray-200 text-gray-700 shadow-sm sticky top-0 z-20">
@@ -946,7 +947,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="flex-grow overflow-y-auto bg-gray-50 flex flex-col p-4 md:p-6 gap-4 md:gap-6 custom-scroll">
                 <div>
                     <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-2 gap-1">
@@ -956,7 +957,7 @@
                     </div>
                     <textarea class="w-full bg-white p-3 md:p-4 rounded-xl shadow-sm border border-gray-300 font-sans text-gray-800 leading-relaxed text-base md:text-sm h-40 md:h-48 focus:ring-green-500 outline-none resize-y" id="line-preview-text"></textarea>
                 </div>
-                
+
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-sm font-bold text-gray-700">發送對象清單</label>
@@ -979,7 +980,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="p-4 md:p-5 border-t flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 bg-white rounded-b-xl flex-shrink-0">
                 <button onclick="closeModal('modal-notify')" class="w-full sm:w-auto px-5 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-md hover:bg-gray-200 transition text-sm md:text-base">取消關閉</button>
                 <button id="btn-confirm-send-line" onclick="confirmSendLine()" class="w-full sm:w-auto px-6 py-2.5 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 transition shadow flex items-center justify-center text-sm md:text-base">
@@ -994,22 +995,22 @@
         <div class="bg-white p-5 md:p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in custom-scroll mx-2">
             <h4 class="font-bold text-lg md:text-xl text-chihlee-blue mb-4">編輯學生與 LINE 綁定</h4>
             <input type="hidden" id="edit-stu-original-id">
-            
+
             <label class="block text-sm font-bold text-gray-700 mb-1">學號 (8碼) <span class="text-red-500">*</span></label>
             <input type="text" id="edit-stu-id" pattern="\d{8}" inputmode="numeric" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-            
+
             <label class="block text-sm font-bold text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
             <input type="text" id="edit-stu-name" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-            
+
             <label class="block text-sm font-bold text-gray-700 mb-1">系級</label>
             <input type="text" id="edit-stu-class" placeholder="如: 資管三A" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-            
+
             <label class="block text-sm font-bold text-gray-700 mb-1">聯絡電話</label>
             <input type="tel" id="edit-stu-phone" pattern="09\d{2}-\d{3}-\d{3}" title="請輸入格式為 09xx-xxx-xxx 的手機號碼" oninput="formatPhoneNumber(this)" placeholder="09xx-xxx-xxx" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-            
+
             <label class="block text-sm font-bold text-green-700 mb-1"><i class="fa-brands fa-line mr-1"></i>LINE User ID</label>
             <input type="text" id="edit-stu-line" class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-green-500 outline-none text-base md:text-sm">
-            
+
             <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-6">
                 <button onclick="closeModal('modal-edit-student')" class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
                 <button onclick="saveStudentData()" class="w-full sm:w-auto px-6 py-2.5 bg-chihlee-blue text-white font-bold rounded-md hover:bg-opacity-90 shadow">儲存</button>
@@ -1053,7 +1054,7 @@
     </div>
 
     <div id="toast-container" aria-live="polite" aria-atomic="true" class="fixed bottom-16 md:bottom-5 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none w-[90%] md:w-11/12 max-w-sm transition-all"></div>
-    
+
     <div id="global-loader" role="status" aria-live="polite" aria-hidden="true" class="fixed inset-0 bg-white bg-opacity-80 backdrop-blur-sm z-[200] hidden flex flex-col items-center justify-center transition-opacity">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl md:text-5xl text-chihlee-blue mb-4"></i>
         <div id="loader-text" class="text-base md:text-lg font-bold text-gray-700 tracking-wider bg-white px-4 py-1.5 rounded-full shadow-sm text-center mx-4 border border-gray-100">系統處理中...</div>
@@ -1072,8 +1073,8 @@
             isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
             selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
             tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null, studentEditDraft: [],
-            events: [], registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
-            eventCounts: new Map() 
+            events: [], eventStats: {}, registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
+            eventCounts: new Map()
         };
 
         let isFormDirty = false;
@@ -1127,7 +1128,7 @@
         function formatSafeDate(dateInput) {
             if (!dateInput) return '';
             const d = new Date(dateInput);
-            if (isNaN(d.getTime())) return String(dateInput); 
+            if (isNaN(d.getTime())) return String(dateInput);
             const pad = (n) => String(n).padStart(2, '0');
             return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
         }
@@ -1140,11 +1141,11 @@
             input.value = value;
         }
 
-        const escapeHTML = (str) => { 
-            if (str === null || str === undefined) return ''; 
-            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); 
+        const escapeHTML = (str) => {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         };
-        
+
         const jsSafe = (str) => {
             if (str === null || str === undefined) return '';
             return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
@@ -1154,7 +1155,7 @@
             const sidInput = document.getElementById('reg-student-id');
             const nameInput = document.getElementById('reg-name');
             const sid = sidInput.value.trim();
-            
+
             if (sid.length === 8 && state.students && state.students.length > 0) {
                 const student = state.students.find(s => s && s.id != null && String(s.id).trim() === sid);
                 if (student && student.name) {
@@ -1196,51 +1197,31 @@
 
         function updateEventCounts() {
             state.eventCounts.clear();
-            const eventMap = new Map();
-            state.events.forEach(e => eventMap.set(String(e.id), e));
-
-            state.registrations.forEach(r => {
-                const ev = eventMap.get(String(r.eventId));
-                if (!ev) return;
-                const validSessionKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
-                const hasValidAttendance = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validSessionKeys.includes(sd.date + '_' + (sd.time || '')));
-                if (hasValidAttendance) {
-                    state.eventCounts.set(String(r.eventId), (state.eventCounts.get(String(r.eventId)) || 0) + 1);
-                }
+            Object.entries(state.eventStats || {}).forEach(([eventId, stats]) => {
+                const count = Number(stats && stats.registrationCount);
+                state.eventCounts.set(String(eventId), Number.isFinite(count) && count >= 0 ? count : 0);
             });
         }
 
         function syncLocalRegisteredEvents(sid) {
             if (!sid) return [];
-            const actualEventIds = [];
-            const eventMap = new Map();
-            state.events.forEach(e => eventMap.set(String(e.id), e));
-
-            const myRegs = state.registrations.filter(r => String(r.studentId) === String(sid));
-            myRegs.forEach(r => {
-                const ev = eventMap.get(String(r.eventId));
-                if (!ev) return;
-                const validKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
-                const hasAttend = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validKeys.includes(sd.date + '_' + (sd.time || '')));
-                if (hasAttend && !actualEventIds.includes(String(r.eventId))) {
-                    actualEventIds.push(String(r.eventId));
-                }
-            });
-            localStorage.setItem('chihlee_registered_events', JSON.stringify(actualEventIds));
-            return actualEventIds;
+            let savedEventIds = [];
+            try { savedEventIds = JSON.parse(sessionStorage.getItem('chihlee_registered_events')) || []; } catch (error) {}
+            const validEventIds = new Set(state.events.map(event => String(event.id)));
+            return savedEventIds.map(String).filter(eventId => validEventIds.has(eventId));
         }
 
         function clearStudentData() {
-            localStorage.removeItem('chihlee_sid');
-            localStorage.removeItem('chihlee_sname');
-            localStorage.removeItem('chihlee_email');
-            localStorage.removeItem('chihlee_phone');
-            localStorage.removeItem('chihlee_registered_events');
+            sessionStorage.removeItem('chihlee_sid');
+            sessionStorage.removeItem('chihlee_sname');
+            sessionStorage.removeItem('chihlee_email');
+            sessionStorage.removeItem('chihlee_phone');
+            sessionStorage.removeItem('chihlee_registered_events');
             state.myRegistrations = [];
             state.selectedEventIds = [];
             document.getElementById('student-identity-bar').classList.add('hidden');
             showToast('本機綁定狀態已清除', 'success');
-            renderStudentEvents(); 
+            renderStudentEvents();
             loadSavedStudentInfo();
         }
 
@@ -1272,8 +1253,8 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_UPDATED_AT = '2026/08/20 14:39';
-        const VERSION_UPDATED_AT_ISO = '2026-08-20T14:39:00+08:00';
+        const VERSION_UPDATED_AT = '2026/08/20 22:03';
+        const VERSION_UPDATED_AT_ISO = '2026-08-20T22:03:00+08:00';
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
@@ -1288,11 +1269,15 @@
             let bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800';
             let icon = type === 'success' ? '<i class="fa-solid fa-circle-check mr-2 text-lg"></i>' : type === 'error' ? '<i class="fa-solid fa-circle-exclamation mr-2 text-lg"></i>' : '<i class="fa-solid fa-circle-info mr-2 text-lg"></i>';
             toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
-            toast.className = `${bgColor} text-white px-4 md:px-5 py-3 rounded-lg shadow-xl flex items-center font-bold text-sm toast-enter pointer-events-auto mb-2`; toast.innerHTML = `${icon} <span>${message}</span>`;
+            toast.className = `${bgColor} text-white px-4 md:px-5 py-3 rounded-lg shadow-xl flex items-center font-bold text-sm toast-enter pointer-events-auto mb-2`;
+            toast.innerHTML = icon;
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = String(message == null ? '' : message);
+            toast.appendChild(messageSpan);
             container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 100%)'; toast.style.transition = 'all 0.3s ease-in'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        function openModal(id) { 
+        function openModal(id) {
             const modal = document.getElementById(id);
             lastFocusedElement = document.activeElement;
             modal.classList.remove('hidden');
@@ -1303,7 +1288,7 @@
                 if (focusTarget) focusTarget.focus();
             });
         }
-        function closeModal(id) { 
+        function closeModal(id) {
             const modal = document.getElementById(id);
             modal.classList.add('hidden');
             modal.setAttribute('aria-hidden', 'true');
@@ -1315,21 +1300,22 @@
             if (res && res.success === false && res.error && res.error.includes('憑證已失效或過期')) {
                 showToast('系統閒置過久或權限失效，請重新登入', 'error');
                 logoutTeacher();
-                return true; 
+                return true;
             }
             return false;
         }
 
         async function syncStudentDataBackground() {
-            const savedSid = localStorage.getItem('chihlee_sid');
-            const savedName = localStorage.getItem('chihlee_sname');
-            if (!savedSid || !savedName || state.isTeacherLoggedIn) return;
+            const savedSid = sessionStorage.getItem('chihlee_sid');
+            const savedName = sessionStorage.getItem('chihlee_sname');
+            const savedPhone = sessionStorage.getItem('chihlee_phone');
+            if (!savedSid || !savedName || !savedPhone || state.isTeacherLoggedIn) return;
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'queryStudent', sid: savedSid, sname: savedName, phone: '' }) 
+                    body: JSON.stringify({ action: 'queryStudent', sid: savedSid, sname: savedName, phone: savedPhone })
                 });
                 const res = await response.json();
                 if (res.success) {
@@ -1343,8 +1329,8 @@
                         const hasAttend = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validKeys.includes(sd.date + '_' + (sd.time || '')));
                         if (hasAttend && !cloudEventIds.includes(String(r.eventId))) cloudEventIds.push(String(r.eventId));
                     });
-                    localStorage.setItem('chihlee_registered_events', JSON.stringify(cloudEventIds));
-                    renderStudentEvents(); 
+                    sessionStorage.setItem('chihlee_registered_events', JSON.stringify(cloudEventIds));
+                    renderStudentEvents();
                 }
             } catch(e) {}
         }
@@ -1352,26 +1338,27 @@
         async function fetchInitialData() {
             showSkeletonLoading(true);
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'getPublicData' }) 
+                    body: JSON.stringify({ action: 'getPublicData' })
                 });
-                const text = await response.text(); 
-                
+                const text = await response.text();
+
                 try {
-                    const res = JSON.parse(text); 
+                    const res = JSON.parse(text);
                     if (res.success) {
                         state.events = res.data.events || [];
-                        state.registrations = normalizeRegistrations(res.data.registrations || []); 
-                        state.admins = res.data.admins || [];
+                        state.eventStats = res.data.eventStats || {};
                         if (!state.isTeacherLoggedIn) {
-                            state.students = res.data.students || []; 
-                            state.logs = []; 
+                            state.registrations = [];
+                            state.students = [];
+                            state.admins = [];
+                            state.logs = [];
                             updateEventCounts();
-                            syncLocalRegisteredEvents(localStorage.getItem('chihlee_sid'));
-                            renderStudentEvents(); 
+                            syncLocalRegisteredEvents(sessionStorage.getItem('chihlee_sid'));
+                            renderStudentEvents();
                         }
                         updateVersionTime();
                     } else showToast('資料庫讀取失敗：' + res.error, 'error');
@@ -1395,45 +1382,46 @@
             showSkeletonLoading(false);
         }
 
-        window.onload = async () => { 
+        window.onload = async () => {
             enhanceAccessibility();
-            updateVersionTime(); 
-            await fetchInitialData(); 
-            renderStudentEvents(); 
-            loadSavedStudentInfo(); 
-            switchView('student'); 
-            syncStudentDataBackground(); 
+            updateVersionTime();
+            await fetchInitialData();
+            renderStudentEvents();
+            loadSavedStudentInfo();
+            switchView('student');
+            syncStudentDataBackground();
         };
 
         async function reloadDataSilently(loadingText = '同步最新資料中...') {
             showGlobalLoading(true, loadingText);
             try {
-                const pubRes = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const pubRes = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'getPublicData' }) 
+                    body: JSON.stringify({ action: 'getPublicData' })
                 });
                 const pubText = await pubRes.text();
                 try {
                     const pubData = JSON.parse(pubText);
                     if (pubData.success) {
                         state.events = pubData.data.events || [];
+                        state.eventStats = pubData.data.eventStats || {};
                         if (!state.isTeacherLoggedIn) {
-                            state.registrations = normalizeRegistrations(pubData.data.registrations || []);
+                            state.registrations = [];
                             updateEventCounts();
-                            syncLocalRegisteredEvents(localStorage.getItem('chihlee_sid'));
+                            syncLocalRegisteredEvents(sessionStorage.getItem('chihlee_sid'));
                             renderStudentEvents();
                         }
                     }
                 } catch(e) {}
 
                 if (state.isTeacherLoggedIn && state.adminCreds) {
-                    const authRes = await fetch(GAS_API_URL, { 
-                        method: 'POST', 
+                    const authRes = await fetch(GAS_API_URL, {
+                        method: 'POST',
                         redirect: 'follow',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'getAdminData', adminAcc: state.adminCreds.acc, adminToken: state.adminCreds.token }) 
+                        body: JSON.stringify({ action: 'getAdminData', adminAcc: state.adminCreds.acc, adminToken: state.adminCreds.token })
                     });
                     const authText = await authRes.text();
                     try {
@@ -1443,7 +1431,7 @@
                             state.students = authData.data.fullData.students || [];
                             state.logs = authData.data.fullData.logs || [];
                             updateEventCounts();
-                            renderTeacherDashboard(); 
+                            renderTeacherDashboard();
                         } else if (checkTokenExpiration(authData)) {
                              showGlobalLoading(false);
                              return;
@@ -1457,7 +1445,7 @@
             showGlobalLoading(false);
         }
 
-        function getEventRegistrationCount(eventId) { 
+        function getEventRegistrationCount(eventId) {
             return state.eventCounts.get(String(eventId)) || 0;
         }
 
@@ -1467,11 +1455,11 @@
         }
         function getTodayStart() { let d = new Date(); d.setHours(0, 0, 0, 0); return d; }
         function formatTimeRange(input) { let val = String(input.value).trim(); let match = val.match(/^(\d{1,2})(\d{2})-(\d{1,2})(\d{2})$/); if (match) input.value = `${match[1].padStart(2, '0')}:${match[2]}-${match[3].padStart(2, '0')}:${match[4]}`; }
-        
+
         function checkTimeConflict(time1, time2) {
             if (!time1 || !time2) return false;
             try {
-                const parseM = (t) => { 
+                const parseM = (t) => {
                     let clean = String(t).replace(/:/g, '');
                     if (clean.length === 3) clean = '0' + clean;
                     if (clean.length >= 4) return parseInt(clean.substring(0, 2), 10) * 60 + parseInt(clean.substring(2, 4), 10);
@@ -1486,34 +1474,34 @@
                 const s1 = parseM(s1Str), e1 = parseM(e1Str);
                 const s2 = parseM(s2Str), e2 = parseM(e2Str);
                 if (isNaN(s1) || isNaN(e1) || isNaN(s2) || isNaN(e2)) return false;
-                
+
                 return (s1 < e2) && (s2 < e1);
             } catch(e) { return false; }
         }
 
         function customConfirm(message, onConfirm, title = '確認操作') {
-            document.getElementById('confirm-title').innerText = title; 
+            document.getElementById('confirm-title').innerText = title;
             document.getElementById('confirm-msg-text').innerHTML = message;
-            const modal = document.getElementById('modal-confirm'); 
-            modal.classList.remove('hidden'); 
+            const modal = document.getElementById('modal-confirm');
+            modal.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
-            
-            document.getElementById('btn-confirm-cancel').onclick = () => { 
-                modal.classList.add('hidden'); 
-                document.body.classList.remove('overflow-hidden'); 
-            }; 
-            
-            document.getElementById('btn-confirm-ok').onclick = () => { 
-                modal.classList.add('hidden'); 
-                document.body.classList.remove('overflow-hidden'); 
-                onConfirm(); 
+
+            document.getElementById('btn-confirm-cancel').onclick = () => {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            document.getElementById('btn-confirm-ok').onclick = () => {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                onConfirm();
             };
         }
 
         function switchView(viewName) {
             document.getElementById('view-student').classList.add('hidden'); document.getElementById('view-teacher-login').classList.add('hidden');
             document.getElementById('view-teacher-dashboard').classList.add('hidden'); document.getElementById('bulk-action-bar').classList.add('hidden');
-            
+
             const btnClassNormal = "px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0";
             document.getElementById('nav-student-btn').className = btnClassNormal;
             document.getElementById('nav-teacher-btn').className = btnClassNormal;
@@ -1521,25 +1509,25 @@
             document.getElementById('nav-teacher-btn').removeAttribute('aria-current');
 
             if (viewName === 'student') {
-                document.getElementById('view-student').classList.remove('hidden'); 
+                document.getElementById('view-student').classList.remove('hidden');
                 document.getElementById('nav-student-btn').className = "px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0";
                 document.getElementById('nav-student-btn').setAttribute('aria-current', 'page');
                 updateBulkActionBar();
             } else if (viewName === 'teacherLogin' || viewName === 'teacherDashboard') {
-                if (state.isTeacherLoggedIn) { document.getElementById('view-teacher-dashboard').classList.remove('hidden'); switchAdminTab('list'); renderTeacherDashboard(); } 
+                if (state.isTeacherLoggedIn) { document.getElementById('view-teacher-dashboard').classList.remove('hidden'); switchAdminTab('list'); renderTeacherDashboard(); }
                 else document.getElementById('view-teacher-login').classList.remove('hidden');
                 document.getElementById('nav-teacher-btn').className = "px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-red text-white shadow transition whitespace-nowrap shrink-0";
                 document.getElementById('nav-teacher-btn').setAttribute('aria-current', 'page');
             }
-            
+
             document.getElementById('nav-logout-btn').classList.toggle('hidden', !state.isTeacherLoggedIn);
             document.getElementById('nav-admin-badge').classList.toggle('hidden', state.currentUserRole !== 'admin');
             document.getElementById('nav-staff-badge').classList.toggle('hidden', state.currentUserRole !== 'staff');
-            
+
             if (state.isTeacherLoggedIn && state.currentUserRole === 'staff') {
                 document.getElementById('nav-staff-badge').innerHTML = `<i class="fa-solid fa-user-shield mr-1"></i><span class="hidden sm:inline">${escapeHTML(state.currentUserName)}</span>`;
             }
-            
+
             const importBtn = document.getElementById('btn-batch-import');
             if (importBtn) {
                 if (state.currentUserRole === 'admin') { importBtn.disabled = false; importBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
@@ -1550,61 +1538,64 @@
         async function handleLogin(e) {
             if (e && e.preventDefault) e.preventDefault();
             let acc, pwd;
-            if (e && e.target && e.target.tagName === 'FORM') { acc = document.getElementById('admin-account').value.trim(); pwd = document.getElementById('admin-password').value; } 
+            if (e && e.target && e.target.tagName === 'FORM') { acc = document.getElementById('admin-account').value.trim(); pwd = document.getElementById('admin-password').value; }
             else return;
 
             const errorMsgEl = document.getElementById('login-error-msg');
             const loginBtn = document.getElementById('login-submit-btn');
             if (errorMsgEl) errorMsgEl.classList.add('hidden');
-            
+
             if (loginBtn) {
                 loginBtn.disabled = true;
                 loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 loginBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>登入中...';
             }
             showGlobalLoading(true, '安全連線驗證中...');
-            
+
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'login', account: acc, password: pwd }) 
+                    body: JSON.stringify({ action: 'login', account: acc, password: pwd })
                 });
                 const res = await response.json();
                 if (res.success) {
                     state.adminCreds = { acc: acc, token: res.data.token }; const user = res.data; state.isTeacherLoggedIn = true; state.currentUserRole = user.role; state.currentUserName = user.name;
-                    state.students = user.fullData.students || []; 
-                    state.registrations = normalizeRegistrations(user.fullData.registrations || []); 
+                    state.students = user.fullData.students || [];
+                    state.registrations = normalizeRegistrations(user.fullData.registrations || []);
                     state.logs = user.fullData.logs || []; state.admins = user.fullData.admins || [];
                     document.getElementById('admin-account').value = ''; document.getElementById('admin-password').value = '';
-                    
-                    const pubRes = await fetch(GAS_API_URL, { 
-                        method: 'POST', 
+
+                    const pubRes = await fetch(GAS_API_URL, {
+                        method: 'POST',
                         redirect: 'follow',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'getPublicData' }) 
+                        body: JSON.stringify({ action: 'getPublicData' })
                     });
                     const pubData = await pubRes.json();
-                    if(pubData.success) state.events = pubData.data.events || [];
+                    if(pubData.success) {
+                        state.events = pubData.data.events || [];
+                        state.eventStats = pubData.data.eventStats || {};
+                    }
 
-                    updateEventCounts(); 
+                    updateEventCounts();
 
                     document.getElementById('teacher-search-input').value = '';
                     document.getElementById('teacher-year-filter').innerHTML = '';
                     document.getElementById('teacher-category-filter').value = 'all';
                     document.getElementById('teacher-name-filter').innerHTML = '';
 
-                    if (e && e.target && e.target.tagName === 'FORM') showToast(`${user.name} 登入成功！`, 'success'); 
+                    if (e && e.target && e.target.tagName === 'FORM') showToast(`${user.name} 登入成功！`, 'success');
                     updateVersionTime(); switchView('teacherDashboard');
                 } else {
                     if (errorMsgEl) { errorMsgEl.innerText = res.error || '帳號或密碼錯誤，請重新確認'; errorMsgEl.classList.remove('hidden'); }
                     showToast(res.error || '帳號或密碼錯誤', 'error');
                     if (!e || !(e.target && e.target.tagName === 'FORM')) logoutTeacher();
                 }
-            } catch (err) { 
+            } catch (err) {
                 if (errorMsgEl) { errorMsgEl.innerText = '登入連線失敗，請檢查網路'; errorMsgEl.classList.remove('hidden'); }
-                showToast('登入連線失敗，請檢查網路', 'error'); 
+                showToast('登入連線失敗，請檢查網路', 'error');
             } finally {
                 if (loginBtn) {
                     loginBtn.disabled = false;
@@ -1615,10 +1606,10 @@
             }
         }
 
-        async function logoutTeacher() { 
+        async function logoutTeacher() {
             state.adminCreds = null; state.isTeacherLoggedIn = false; state.currentUserRole = null; state.currentUserName = null;
-            state.students = []; state.logs = []; state.admins = []; 
-            showToast('已安全登出', 'info'); switchView('student'); 
+            state.students = []; state.logs = []; state.admins = [];
+            showToast('已安全登出', 'info'); switchView('student');
             await fetchInitialData(); renderStudentEvents();
         }
 
@@ -1647,12 +1638,12 @@
 
         function toggleEventSelection(eventId, isChecked) {
             const safeId = String(eventId);
-            if (isChecked) { 
-                if (!state.selectedEventIds.includes(safeId)) state.selectedEventIds.push(safeId); 
+            if (isChecked) {
+                if (!state.selectedEventIds.includes(safeId)) state.selectedEventIds.push(safeId);
             } else {
                 state.selectedEventIds = state.selectedEventIds.filter(id => String(id) !== safeId);
             }
-            
+
             const labelEl = document.getElementById(`event-card-${safeId}`);
             if (labelEl) {
                 if (isChecked) {
@@ -1670,7 +1661,7 @@
                             const sDateTime = new Date(sDateTimeStr);
                             return !isNaN(sDateTime.getTime()) ? sDateTime >= now : new Date(String(s.date).replace(/-/g, '/')) >= getTodayStart();
                         }) || ev.sessions[0];
-                        
+
                         let sessionDateTimeStr = String(activeSession.date).replace(/-/g, '/');
                         if (activeSession.time) sessionDateTimeStr += ' ' + String(activeSession.time).split('-')[0];
                         const activeSessionDateTime = new Date(sessionDateTimeStr);
@@ -1684,15 +1675,15 @@
                     }
                 }
             }
-            updateBulkActionBar(); 
+            updateBulkActionBar();
         }
 
         function renderStudentEvents() {
             const container = document.getElementById('student-events-container'); container.innerHTML = '';
-            
+
             let mySavedEvents = [];
-            const savedSid = localStorage.getItem('chihlee_sid');
-            
+            const savedSid = sessionStorage.getItem('chihlee_sid');
+
             const idBar = document.getElementById('student-identity-bar');
             if (idBar) {
                 if (savedSid && !state.isTeacherLoggedIn) {
@@ -1706,7 +1697,7 @@
             if (savedSid && !state.isTeacherLoggedIn) {
                 mySavedEvents = syncLocalRegisteredEvents(savedSid);
             } else {
-                try { mySavedEvents = JSON.parse(localStorage.getItem('chihlee_registered_events')) || []; } catch(e){}
+                try { mySavedEvents = JSON.parse(sessionStorage.getItem('chihlee_registered_events')) || []; } catch(e){}
             }
 
             const now = new Date();
@@ -1741,7 +1732,7 @@
             if (visibleEvents.length === 0) {
                 document.getElementById('no-events-msg').classList.remove('hidden'); container.parentElement.classList.add('hidden');
                 updateBulkActionBar(); return;
-            } 
+            }
             document.getElementById('no-events-msg').classList.add('hidden'); container.parentElement.classList.remove('hidden');
             visibleEvents.sort((a, b) => new Date(String(a.sessions[0].date).replace(/-/g,'/')) - new Date(String(b.sessions[0].date).replace(/-/g,'/')));
 
@@ -1752,12 +1743,12 @@
                 if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text border-cat-academic-text border-opacity-30';
 
                 const safeEvId = String(ev.id);
-                const currentCount = getEventRegistrationCount(ev.id); 
+                const currentCount = getEventRegistrationCount(ev.id);
                 const isFull = ev.capacity && currentCount >= ev.capacity;
                 const isAlreadyRegistered = mySavedEvents.some(id => String(id) === safeEvId);
                 let isChecked = state.selectedEventIds.includes(safeEvId);
                 const isOoo = ev.isOneOnOne === true;
-                const isSeries = ev.isSeries === true; 
+                const isSeries = ev.isSeries === true;
 
                 let activeSession = ev.sessions.find(s => {
                     let sDateTimeStr = String(s.date).replace(/-/g, '/');
@@ -1765,7 +1756,7 @@
                     const sDateTime = new Date(sDateTimeStr);
                     return !isNaN(sDateTime.getTime()) ? sDateTime >= now : new Date(String(s.date).replace(/-/g, '/')) >= getTodayStart();
                 }) || ev.sessions[0];
-                
+
                 let sessionDateTimeStr = String(activeSession.date).replace(/-/g, '/');
                 if (activeSession.time) sessionDateTimeStr += ' ' + String(activeSession.time).split('-')[0];
                 const activeSessionDateTime = new Date(sessionDateTimeStr);
@@ -1774,30 +1765,30 @@
                 let mealTags = []; if(ev.hasMeal) mealTags.push('附餐'); if(ev.hasSnack) mealTags.push('附點心');
                 const mealStr = mealTags.length > 0 ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded bg-orange-100 text-orange-700 border border-orange-200">${mealTags.join('+')}</span>` : `<span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded bg-gray-100 text-gray-600 border border-gray-200">無供餐</span>`;
                 const hashtags = (ev.tags || []).map(t => `<span class="inline-block text-[10px] md:text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full mr-1.5 mb-1">${escapeHTML(t)}</span>`).join('');
-                
+
                 const sessionsHTML = ev.sessions.map((s, i) => {
                     const prefix = isSeries ? `<span class="inline-block w-12 text-right mr-1.5 flex-shrink-0 text-gray-400">第${i+1}場:</span>` : '';
                     return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums"><div class="flex items-center text-chihlee-gold font-medium text-xs md:text-sm whitespace-nowrap"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-20 text-center inline-block font-bold text-gray-600">${escapeHTML(s.time)}</span></div><span class="text-[10px] md:text-xs text-gray-500 mt-0.5 ml-6 pl-1 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(s.location || ev.location)}</span></div>`;
                 }).join('');
-                
-                const label = document.createElement('label'); 
-                label.id = `event-card-${safeEvId}`; 
+
+                const label = document.createElement('label');
+                label.id = `event-card-${safeEvId}`;
                 label.dataset.category = ev.category || '';
                 let checkboxHTML = '';
-                
+
                 let borderClass = 'border-transparent';
                 let bgClass = 'hover:bg-gray-50';
                 if (isChecked) { borderClass = 'border-chihlee-blue'; bgClass = 'bg-blue-50/30 hover:bg-blue-50/50'; }
                 else if (isWithinOneMonth && !isAlreadyRegistered && !isFull) { borderClass = 'border-chihlee-gold'; bgClass = 'bg-yellow-50/20 hover:bg-yellow-50/50'; }
 
                 if (isAlreadyRegistered) {
-                    checkboxHTML = `<i class="fa-solid fa-circle-check text-green-500 text-xl" title="您已報名"></i>`; 
+                    checkboxHTML = `<i class="fa-solid fa-circle-check text-green-500 text-xl" title="您已報名"></i>`;
                     label.className = `flex items-start p-3 md:p-5 bg-green-50/30 border-l-4 border-l-green-400 group transition w-full cursor-not-allowed opacity-80`;
                 } else if (isFull) {
-                    checkboxHTML = `<input type="checkbox" disabled class="w-5 h-5 text-gray-300 border-gray-300 rounded cursor-not-allowed">`; 
+                    checkboxHTML = `<input type="checkbox" disabled class="w-5 h-5 text-gray-300 border-gray-300 rounded cursor-not-allowed">`;
                     label.className = `flex items-start p-3 md:p-5 hover:bg-gray-50 bg-gray-50/50 border-l-4 border-l-gray-300 group transition w-full cursor-not-allowed opacity-75`;
                 } else {
-                    checkboxHTML = `<input type="checkbox" id="chk-evt-${safeEvId}" value="${safeEvId}" aria-label="選擇活動：${escapeHTML(ev.title)}" onchange="toggleEventSelection('${jsSafe(safeEvId)}', this.checked)" class="w-5 h-5 text-chihlee-blue border-gray-300 rounded focus:ring-chihlee-blue cursor-pointer" ${isChecked ? 'checked' : ''}>`; 
+                    checkboxHTML = `<input type="checkbox" id="chk-evt-${safeEvId}" value="${safeEvId}" aria-label="選擇活動：${escapeHTML(ev.title)}" onchange="toggleEventSelection('${jsSafe(safeEvId)}', this.checked)" class="w-5 h-5 text-chihlee-blue border-gray-300 rounded focus:ring-chihlee-blue cursor-pointer" ${isChecked ? 'checked' : ''}>`;
                     label.className = `flex items-start p-3 md:p-5 ${bgClass} group transition duration-150 w-full cursor-pointer border-l-4 ${borderClass}`;
                 }
 
@@ -1829,9 +1820,9 @@
 
         function loadSavedStudentInfo() {
             try {
-                document.getElementById('reg-email').value = localStorage.getItem('chihlee_email') || ''; document.getElementById('reg-student-id').value = localStorage.getItem('chihlee_sid') || '';
-                document.getElementById('reg-name').value = localStorage.getItem('chihlee_sname') || ''; document.getElementById('reg-phone').value = localStorage.getItem('chihlee_phone') || '';
-                
+                document.getElementById('reg-email').value = sessionStorage.getItem('chihlee_email') || ''; document.getElementById('reg-student-id').value = sessionStorage.getItem('chihlee_sid') || '';
+                document.getElementById('reg-name').value = sessionStorage.getItem('chihlee_sname') || ''; document.getElementById('reg-phone').value = sessionStorage.getItem('chihlee_phone') || '';
+
                 autoFillStudentName();
             } catch(e) {}
         }
@@ -1846,7 +1837,7 @@
 
         function handleRegSessionChange(eventId, idx, isOoo, checkboxElem) {
             const ev = state.events.find(e => String(e.id) === String(eventId));
-            
+
             if (checkboxElem && checkboxElem.checked && ev) {
                 const currentSess = ev.sessions[idx];
                 let hasConflict = false;
@@ -1873,8 +1864,8 @@
 
                 if (!hasConflict) {
                     const sidInput = document.getElementById('reg-student-id');
-                    const currentSid = (sidInput && sidInput.value.trim()) ? sidInput.value.trim() : localStorage.getItem('chihlee_sid');
-                    
+                    const currentSid = (sidInput && sidInput.value.trim()) ? sidInput.value.trim() : sessionStorage.getItem('chihlee_sid');
+
                     if (currentSid) {
                         const myConflictSessions = [];
                         const historicalRegs = state.registrations.filter(r => String(r.studentId) === currentSid);
@@ -1889,7 +1880,7 @@
                                 }
                             }
                         }
-                        
+
                         for (const c of myConflictSessions) {
                             if (c.date === currentSess.date && checkTimeConflict(currentSess.time, c.time)) {
                                 hasConflict = true;
@@ -1905,7 +1896,7 @@
                     checkboxElem.checked = false;
                     const sel = document.getElementById(`reg-meal-${eventId}-${idx}`);
                     if (sel) { sel.disabled = true; sel.value = '不用餐'; }
-                    return; 
+                    return;
                 }
             }
 
@@ -1916,9 +1907,9 @@
                 });
             }
             const sel = document.getElementById(`reg-meal-${eventId}-${idx}`);
-            if (checkboxElem && sel && ev && (ev.hasMeal || ev.hasSnack)) { 
+            if (checkboxElem && sel && ev && (ev.hasMeal || ev.hasSnack)) {
                 if (checkboxElem.checked) {
-                    sel.disabled = false; 
+                    sel.disabled = false;
                 } else {
                     sel.disabled = true;
                     sel.value = '不用餐';
@@ -1939,13 +1930,13 @@
             state.selectedEventIds.forEach(eventId => {
                 const ev = state.events.find(e => String(e.id) === String(eventId));
                 if (!ev) return;
-                const currentCount = getEventRegistrationCount(ev.id); 
-                if (ev.capacity && currentCount >= ev.capacity) { hasFullError = true; showToast(`「${ev.title}」剛剛已額滿，已為您取消勾選。`, 'error'); } 
+                const currentCount = getEventRegistrationCount(ev.id);
+                if (ev.capacity && currentCount >= ev.capacity) { hasFullError = true; showToast(`「${ev.title}」剛剛已額滿，已為您取消勾選。`, 'error'); }
                 else finalValidIds.push(eventId);
             });
 
             state.selectedEventIds = finalValidIds; if (hasFullError) renderStudentEvents(); if (state.selectedEventIds.length === 0) return;
-            
+
             const mealSection = document.getElementById('dynamic-meal-section'); mealSection.innerHTML = '';
             state.selectedEventIds.forEach(eventId => {
                 const ev = state.events.find(e => String(e.id) === String(eventId));
@@ -1953,16 +1944,12 @@
                 const opts = getMealOptionsHtml(ev);
                 const isOoo = ev.isOneOnOne === true;
                 const isSeries = ev.isSeries === true;
-                
+
                 let takenSessions = [];
                 if (isOoo) {
-                    state.registrations.forEach(r => {
-                        if (String(r.eventId) === String(ev.id)) {
-                            (Array.isArray(r.sessionsData) ? r.sessionsData : []).forEach(sd => { 
-                                if (sd.attend) takenSessions.push(sd.date + '_' + (sd.time || '')); 
-                            }); 
-                        }
-                    });
+                    const stats = state.eventStats && state.eventStats[String(ev.id)];
+                    takenSessions = (stats && Array.isArray(stats.occupiedSessions) ? stats.occupiedSessions : [])
+                        .map(slot => String(slot.date || '') + '_' + String(slot.time || ''));
                 }
 
                 let seriesHintHtml = '';
@@ -1971,8 +1958,8 @@
                 }
 
                 let sessionsHtml = ev.sessions.map((s, idx) => {
-                    const isTaken = isOoo && takenSessions.includes(s.date + '_' + (s.time || '')); 
-                    
+                    const isTaken = isOoo && takenSessions.includes(s.date + '_' + (s.time || ''));
+
                     let sDateTimeStr = String(s.date).replace(/-/g, '/');
                     if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
                     const sDateTime = new Date(sDateTimeStr);
@@ -1983,7 +1970,7 @@
                     const inputName = isOoo ? `name="reg-ooo-${ev.id}"` : '';
                     const defaultChecked = (!isUnavailable && isSeries) ? 'checked' : '';
                     const disabledStr = isUnavailable ? 'disabled' : '';
-                    
+
                     let tagHtml = '';
                     if (isTaken) tagHtml = '<span class="text-red-500 text-xs ml-2 font-bold bg-red-100 px-1 rounded">(已被預約)</span>';
                     else if (isPastSession) tagHtml = '<span class="text-gray-500 text-[10px] md:text-xs ml-2 font-bold bg-gray-200 px-1 rounded">(已過期)</span>';
@@ -2007,8 +1994,8 @@
         }
 
         async function submitRegistration(e) {
-            e.preventDefault(); 
-            
+            e.preventDefault();
+
             const submitBtn = document.getElementById('btn-submit-registration');
             if (submitBtn) {
                 submitBtn.disabled = true;
@@ -2027,8 +2014,10 @@
             }
 
             let duplicateEventTitles = [];
+            let locallyRegisteredEvents = [];
+            try { locallyRegisteredEvents = JSON.parse(sessionStorage.getItem('chihlee_registered_events')) || []; } catch (error) {}
             state.selectedEventIds.forEach(eventId => {
-                const isDup = state.registrations.some(r => String(r.eventId) === String(eventId) && String(r.studentId) === sid);
+                const isDup = locallyRegisteredEvents.some(savedEventId => String(savedEventId) === String(eventId));
                 if (isDup) {
                     const ev = state.events.find(e => String(e.id) === String(eventId));
                     if (ev && !duplicateEventTitles.includes(ev.title)) duplicateEventTitles.push(ev.title);
@@ -2047,15 +2036,15 @@
                 ev.sessions.forEach((s, idx) => {
                     const chk = document.getElementById(`reg-chk-${eventId}-${idx}`); const mealSel = document.getElementById(`reg-meal-${eventId}-${idx}`);
                     if(chk && chk.checked) {
-                        sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true }); 
+                        sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true });
                         allCheckedSessions.push({ event: ev, sessionDate: s.date, sessionTime: s.time, sessionLoc: s.location || ev.location }); hasAttendThisEvent = true; hasAnyAttend = true;
-                    } else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false }); 
+                    } else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false });
                 });
-                
-                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, email, phone, sessionsData: sessData }); 
-                else droppedEvents.push(ev.title); 
+
+                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, email, phone, sessionsData: sessData });
+                else droppedEvents.push(ev.title);
             });
-            
+
             if(!hasAnyAttend) {
                 if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
                 return showToast('您尚未勾選任何預約場次！', 'error');
@@ -2068,28 +2057,28 @@
                     const attendCount = p.sessionsData.filter(sd => sd.attend).length;
                     if (attendCount > 0 && attendCount < (ev.sessions.length / 2)) {
                         seriesWarningMsg = `<div class="text-left text-purple-700">您在<span class="font-bold">「${escapeHTML(ev.title)}」</span>取消了過多場次。<br><br>為確保活動成效，建議盡量全程參與。確定只報名您勾選的場次嗎？</div>`;
-                        break; 
+                        break;
                     }
                 }
             }
 
             const proceedSubmit = async () => {
-                try { localStorage.setItem('chihlee_email', email); localStorage.setItem('chihlee_sid', sid); localStorage.setItem('chihlee_sname', sname); localStorage.setItem('chihlee_phone', phone); } catch (err) {}
+                try { sessionStorage.setItem('chihlee_email', email); sessionStorage.setItem('chihlee_sid', sid); sessionStorage.setItem('chihlee_sname', sname); sessionStorage.setItem('chihlee_phone', phone); } catch (err) {}
                 showGlobalLoading(true, '安全驗證與資料處理中...');
-                
+
                 try {
-                    const pubRes = await fetch(GAS_API_URL, { 
-                        method: 'POST', 
+                    const pubRes = await fetch(GAS_API_URL, {
+                        method: 'POST',
                         redirect: 'follow',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'getPublicData' }) 
+                        body: JSON.stringify({ action: 'getPublicData' })
                     });
                     const pubText = await pubRes.text();
                     const pubData = JSON.parse(pubText);
                     if (pubData.success) {
                         state.events = pubData.data.events || [];
-                        state.registrations = normalizeRegistrations(pubData.data.registrations || []);
-                        updateEventCounts(); 
+                        state.eventStats = pubData.data.eventStats || {};
+                        updateEventCounts();
                     }
                 } catch(e) {}
 
@@ -2114,32 +2103,32 @@
                 }
 
                 try {
-                    const response = await fetch(GAS_API_URL, { 
-                        method: 'POST', 
+                    const response = await fetch(GAS_API_URL, {
+                        method: 'POST',
                         redirect: 'follow',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'submitRegistration', data: payloads }) 
+                        body: JSON.stringify({ action: 'submitRegistration', data: payloads })
                     });
                     const res = await response.json();
-                    
+
                     if (res.success) {
-                        let mySavedEvents = JSON.parse(localStorage.getItem('chihlee_registered_events')) || [];
+                        let mySavedEvents = JSON.parse(sessionStorage.getItem('chihlee_registered_events')) || [];
                         payloads.forEach(p => { if (!mySavedEvents.includes(p.eventId)) mySavedEvents.push(p.eventId); });
-                        localStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents));
-                        
-                        closeModal('modal-register'); 
-                        showSuccessAndCalendar(allCheckedSessions); 
-                        state.selectedEventIds = []; 
-                        
+                        sessionStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents));
+
+                        closeModal('modal-register');
+                        showSuccessAndCalendar(allCheckedSessions);
+                        state.selectedEventIds = [];
+
                         if (droppedEvents.length > 0) {
                             setTimeout(() => showToast(`已放棄未勾選的活動：${droppedEvents.join('、')}`, 'info'), 600);
                         }
-                        await reloadDataSilently('同步資料中...'); 
+                        await reloadDataSilently('同步資料中...');
                     } else {
                         showToast(res.error || '報名失敗，請確認資料是否正確', 'error');
                     }
-                } catch (err) { 
-                    showToast('網路連線異常', 'error'); 
+                } catch (err) {
+                    showToast('網路連線異常', 'error');
                 } finally {
                     if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
                     showGlobalLoading(false);
@@ -2147,7 +2136,7 @@
             };
 
             if (seriesWarningMsg) {
-                if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; } 
+                if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
                 customConfirm(seriesWarningMsg, () => {
                     if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...'; }
                     proceedSubmit();
@@ -2158,36 +2147,39 @@
         }
 
         function closeQueryModalSafe() { closeModal('modal-query'); }
-        
+
         function openQueryModal() {
-            switchView('student'); 
-            const savedSid = localStorage.getItem('chihlee_sid'); 
-            const savedName = localStorage.getItem('chihlee_sname');
-            document.getElementById('query-student-id').value = savedSid || ''; 
+            switchView('student');
+            const savedSid = sessionStorage.getItem('chihlee_sid');
+            const savedName = sessionStorage.getItem('chihlee_sname');
+            const savedPhone = sessionStorage.getItem('chihlee_phone');
+            document.getElementById('query-student-id').value = savedSid || '';
             document.getElementById('query-name').value = savedName || '';
+            document.getElementById('query-phone').value = savedPhone || '';
             document.getElementById('query-result-container').innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-shield-halved text-4xl mb-3 text-gray-300"></i><br>請輸入驗證資料以查詢您的報名</div>';
             openModal('modal-query'); setTimeout(() => document.getElementById('query-student-id').focus(), 100);
         }
 
         async function executeStudentQuery() {
-            const sid = document.getElementById('query-student-id').value.trim(); 
+            const sid = document.getElementById('query-student-id').value.trim();
             const sname = document.getElementById('query-name').value.trim();
-            
-            if(!sid || !sname) return showToast('請完整填寫學號與姓名', 'error');
-            
-            const container = document.getElementById('query-result-container'); 
+            const phone = document.getElementById('query-phone').value.trim();
+
+            if(!sid || !sname || !phone) return showToast('請完整填寫學號、姓名與手機號碼', 'error');
+
+            const container = document.getElementById('query-result-container');
             container.innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-chihlee-blue"></i><br><span class="font-bold tracking-widest">安全連線查詢中...</span></div>';
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'queryStudent', sid: sid, sname: sname, phone: '' }) 
+                    body: JSON.stringify({ action: 'queryStudent', sid: sid, sname: sname, phone: phone })
                 });
                 const res = await response.json();
-                if (res.success) { 
-                    state.myRegistrations = res.data; 
-                    
+                if (res.success) {
+                    state.myRegistrations = res.data;
+
                     const eventMap = new Map();
                     state.events.forEach(e => eventMap.set(String(e.id), e));
 
@@ -2199,19 +2191,20 @@
                         const hasAttend = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validKeys.includes(sd.date + '_' + (sd.time || '')));
                         if (hasAttend && !mySavedEvents.includes(String(r.eventId))) mySavedEvents.push(String(r.eventId));
                     });
-                    
-                    localStorage.setItem('chihlee_sid', sid);
-                    localStorage.setItem('chihlee_sname', sname);
-                    localStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents)); 
-                    
+
+                    sessionStorage.setItem('chihlee_sid', sid);
+                    sessionStorage.setItem('chihlee_sname', sname);
+                    sessionStorage.setItem('chihlee_phone', phone);
+                    sessionStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents));
+
                     const idBar = document.getElementById('student-identity-bar');
                     if(idBar && !state.isTeacherLoggedIn) {
                         document.getElementById('current-sid-display').innerText = sid;
                         idBar.classList.remove('hidden');
                     }
 
-                    renderQueryResults(); 
-                } 
+                    renderQueryResults();
+                }
                 else container.innerHTML = `<div class="text-center text-red-500 py-8 font-bold">${escapeHTML(res.error || '查詢發生錯誤')}</div>`;
             } catch (err) { container.innerHTML = '<div class="text-center text-red-500 py-8">網路連線異常。</div>'; }
         }
@@ -2219,16 +2212,16 @@
         function renderQueryResults() {
             const container = document.getElementById('query-result-container');
             if(state.myRegistrations.length === 0) { container.innerHTML = '<div class="text-center text-red-500 py-8"><i class="fa-regular fa-folder-open mb-2 text-3xl"></i><br>找不到您的報名紀錄。</div>'; return; }
-            container.innerHTML = ''; 
-            
+            container.innerHTML = '';
+
             const eventMap = new Map();
             state.events.forEach(e => eventMap.set(String(e.id), e));
 
-            let sortedRegs = state.myRegistrations.filter(r => { 
-                const ev = eventMap.get(String(r.eventId)); return ev && ev.sessions && ev.sessions.length > 0; 
-            }).sort((a, b) => { 
-                const evA = eventMap.get(String(a.eventId)); const evB = eventMap.get(String(b.eventId)); 
-                return new Date(String(evA.sessions[0].date).replace(/-/g,'/')) - new Date(String(evB.sessions[0].date).replace(/-/g,'/')); 
+            let sortedRegs = state.myRegistrations.filter(r => {
+                const ev = eventMap.get(String(r.eventId)); return ev && ev.sessions && ev.sessions.length > 0;
+            }).sort((a, b) => {
+                const evA = eventMap.get(String(a.eventId)); const evB = eventMap.get(String(b.eventId));
+                return new Date(String(evA.sessions[0].date).replace(/-/g,'/')) - new Date(String(evB.sessions[0].date).replace(/-/g,'/'));
             });
 
             sortedRegs.forEach(reg => {
@@ -2239,13 +2232,13 @@
                 if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text border-cat-academic-text border-opacity-30';
 
                 const sessHtml = reg.sessionsData.map((sd, idx) => {
-                    const session = ev.sessions.find(s => s.date === sd.date && (s.time === sd.time || !sd.time)) || ev.sessions[idx]; 
+                    const session = ev.sessions.find(s => s.date === sd.date && (s.time === sd.time || !sd.time)) || ev.sessions[idx];
                     if (!session) return '';
-                    
-                    let timeStart = String(session.time).split('-')[0].trim() || '00:00'; 
+
+                    let timeStart = String(session.time).split('-')[0].trim() || '00:00';
                     let timeStartClean = timeStart.replace(':', '') + '00';
-                    const dateStr = String(session.date).replace(/\//g, ''); 
-                    
+                    const dateStr = String(session.date).replace(/\//g, '');
+
                     let timeEndStr = '';
                     if (String(session.time).includes('-') && String(session.time).split('-')[1]) {
                         timeEndStr = String(session.time).split('-')[1].trim().replace(':', '') + '00';
@@ -2270,11 +2263,11 @@
         function showSuccessAndCalendar(sessionsList) {
             const container = document.getElementById('success-events-list');
             container.innerHTML = sessionsList.map(item => {
-                const dateStr = String(item.sessionDate).replace(/\//g, ''); 
+                const dateStr = String(item.sessionDate).replace(/\//g, '');
                 let timeStart = String(item.sessionTime).split('-')[0].trim() || '00:00';
-                let timeStartClean = timeStart.replace(':', '') + '00'; 
+                let timeStartClean = timeStart.replace(':', '') + '00';
                 let timeEndStr = '';
-                
+
                 if (String(item.sessionTime).includes('-') && String(item.sessionTime).split('-')[1]) {
                     timeEndStr = String(item.sessionTime).split('-')[1].trim().replace(':', '') + '00';
                 } else {
@@ -2284,10 +2277,10 @@
                     if (isNaN(h)) {
                         timeStartClean = '000000';
                         timeEndStr = '235900';
-                    } else if (h >= 24) { 
-                        timeEndStr = '235900'; 
-                    } else { 
-                        timeEndStr = String(h).padStart(2, '0') + m + '00'; 
+                    } else if (h >= 24) {
+                        timeEndStr = '235900';
+                    } else {
+                        timeEndStr = String(h).padStart(2, '0') + m + '00';
                     }
                 }
 
@@ -2300,10 +2293,10 @@
 
         function switchAdminTab(tab) {
             document.getElementById('adminActivitySection').classList.toggle('hidden', tab !== 'list'); document.getElementById('adminLogSection').classList.toggle('hidden', tab !== 'log'); document.getElementById('adminStudentSection').classList.toggle('hidden', tab !== 'students');
-            
+
             const activeTabClass = 'font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition whitespace-nowrap text-sm md:text-base';
             const defaultTabClass = 'text-gray-500 hover:text-gray-800 pb-1 px-2 transition whitespace-nowrap text-sm md:text-base';
-            
+
             document.getElementById('tabActivityList').className = tab === 'list' ? activeTabClass : defaultTabClass;
             document.getElementById('tabActivityLog').className = tab === 'log' ? activeTabClass : defaultTabClass;
             document.getElementById('tabStudents').className = tab === 'students' ? activeTabClass : defaultTabClass;
@@ -2314,18 +2307,18 @@
             if (page !== null) state.adminCurrentPage = page;
             const searchInput = document.getElementById('teacher-search-input').value.trim().toLowerCase();
             const yearSelect = document.getElementById('teacher-year-filter'); const categorySelect = document.getElementById('teacher-category-filter'); const teacherSelect = document.getElementById('teacher-name-filter');
-            
+
             if(yearSelect.options.length === 0) {
                 let years = [...new Set(state.events.filter(e => e.sessions && e.sessions.length > 0).map(ev => String(ev.sessions[0].date).split('/')[0]))].sort((a,b)=>b-a);
                 const currentY = String(new Date().getFullYear());
                 yearSelect.innerHTML = `<option value="all">全部年度</option>` + years.map(y => `<option value="${escapeHTML(y)}">${escapeHTML(y)}</option>`).join('');
-                if (years.includes(currentY)) yearSelect.value = currentY; else if(years.length > 0) yearSelect.value = years[0]; 
+                if (years.includes(currentY)) yearSelect.value = currentY; else if(years.length > 0) yearSelect.value = years[0];
             }
             const currentTeacherVal = teacherSelect.value || 'all'; const teachers = [...new Set(state.events.map(ev => ev.teacher).filter(t => t))].sort();
             teacherSelect.innerHTML = `<option value="all">承辦人(全部)</option>` + teachers.map(t => `<option value="${escapeHTML(t)}" ${t===currentTeacherVal?'selected':''}>${escapeHTML(t)}</option>`).join('');
-            
+
             const currentYear = yearSelect.value || 'all'; const currentCat = categorySelect.value || 'all'; const currentTeacher = teacherSelect.value || 'all';
-            const tbody = document.getElementById('teacher-events-tbody'); tbody.innerHTML = ''; 
+            const tbody = document.getElementById('teacher-events-tbody'); tbody.innerHTML = '';
             const today = new Date(); today.setHours(0,0,0,0);
 
             const isEventFullyExpired = (ev, refDate) => ev.sessions.every(s => new Date(String(s.date).replace(/-/g,'/')) < refDate);
@@ -2342,7 +2335,7 @@
 
             mappedEvents.sort((a, b) => {
                 if(!a.ev.sessions || a.ev.sessions.length === 0) return 1; if(!b.ev.sessions || b.ev.sessions.length === 0) return -1;
-                if (a.isPast && !b.isPast) return 1; if (!a.isPast && b.isPast) return -1; 
+                if (a.isPast && !b.isPast) return 1; if (!a.isPast && b.isPast) return -1;
                 return a.activeDate - b.activeDate;
             });
             const sortedEvents = mappedEvents.map(item => item.ev);
@@ -2363,7 +2356,7 @@
                 if(!ev.sessions || ev.sessions.length === 0) return;
                 const isPast = isEventFullyExpired(ev, today);
                 const isSeries = ev.isSeries === true;
-                const pCount = getEventRegistrationCount(ev.id); 
+                const pCount = getEventRegistrationCount(ev.id);
                 const isFull = ev.capacity && pCount >= ev.capacity;
                 let tagColor = 'bg-gray-100 text-gray-600';
                 if(ev.category === '職涯') tagColor = 'bg-cat-career-bg text-cat-career-text'; if(ev.category === '人際') tagColor = 'bg-cat-inter-bg text-cat-inter-text'; if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text';
@@ -2386,11 +2379,11 @@
                                 <span class="text-gray-500 text-[10px] md:text-xs ml-4 break-words max-w-[150px] md:max-w-none"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(s.location || ev.location)}</span>
                             </div>`;
                 }).join('');
-                
-                const deleteBtnHtml = state.currentUserRole === 'admin' 
+
+                const deleteBtnHtml = state.currentUserRole === 'admin'
                     ? `<button onclick="deleteAdminEvent('${jsSafe(ev.id)}')" title="刪除活動" class="text-red-500 hover:bg-red-50 px-2 py-1.5 rounded transition text-lg mt-1 md:mt-0"><i class="fa-solid fa-trash"></i></button>`
                     : `<button disabled title="僅管理員可刪除" class="text-gray-300 cursor-not-allowed px-2 py-1.5 rounded transition text-lg mt-1 md:mt-0"><i class="fa-solid fa-trash"></i></button>`;
-                
+
                 const tr = document.createElement('tr');
                 tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white group`;
                 tr.innerHTML = `
@@ -2400,7 +2393,7 @@
                         ${isSeries ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-[10px] md:text-xs font-bold bg-purple-100 text-purple-700 whitespace-nowrap">系列</span>' : ''}
                     </td>
                     <td class="px-4 md:px-6 py-4 align-top font-medium ${isPast ? 'text-gray-500' : 'text-gray-900'} md:sticky md:left-[96px] md:z-10 bg-inherit shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100">
-                        <div class="max-w-[150px] md:max-w-[200px] whitespace-normal break-words">${escapeHTML(ev.title)}</div> 
+                        <div class="max-w-[150px] md:max-w-[200px] whitespace-normal break-words">${escapeHTML(ev.title)}</div>
                         <span class="text-xs text-gray-500 block mt-2 whitespace-nowrap"><i class="fa-solid fa-user-tie mr-1"></i>${escapeHTML(ev.teacher || '未設定')}</span>
                     </td>
                     <td class="px-4 md:px-6 py-4 text-xs md:text-sm leading-relaxed align-top">${datesHTML}</td>
@@ -2439,9 +2432,9 @@
 
         function renderStudentRoster() {
             const tbody = document.getElementById('adminStudentList');
-            if (!state.students || state.students.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500"><i class="fa-regular fa-folder-open text-3xl mb-2 text-gray-300 block"></i>目前資料庫無學生資料</td></tr>'; 
-                return; 
+            if (!state.students || state.students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500"><i class="fa-regular fa-folder-open text-3xl mb-2 text-gray-300 block"></i>目前資料庫無學生資料</td></tr>';
+                return;
             }
             try {
                 tbody.innerHTML = state.students.map(s => {
@@ -2503,7 +2496,7 @@
                 if (timeEl) state.tempSessions[i].time = timeEl.value; if (locEl) state.tempSessions[i].location = locEl.value;
             }
         }
-        
+
         function renderTempSessions() {
             document.getElementById('edit-sessions-container').innerHTML = state.tempSessions.map((s, idx) => `
                 <div class="session-edit-row bg-white p-2.5 rounded-md border border-gray-200">
@@ -2517,10 +2510,10 @@
         function removeTempSession(idx) { if(state.tempSessions.length <= 1) return showToast('至少需保留一場！', 'error'); syncTempSessions(); state.tempSessions.splice(idx, 1); renderTempSessions(); handleActivityTypeChange(); }
 
         function openEditEventModal(eventId = null) {
-            resetDirty(); 
+            resetDirty();
             document.getElementById('edit-event-form').reset(); document.querySelectorAll('input[name="edit-loc-quick"]').forEach(cb => cb.checked = false);
             const teacherSelect = document.getElementById('edit-teacher'); teacherSelect.innerHTML = '<option value="">請選擇承辦人...</option>';
-            
+
             let adminList = [];
             if (state.admins && state.admins.length > 0) {
                 adminList = state.admins;
@@ -2532,8 +2525,8 @@
 
             if (eventId) {
                 document.getElementById('edit-modal-title').innerText = '編輯活動'; const ev = state.events.find(e => String(e.id) === String(eventId));
-                document.getElementById('edit-id').value = ev.id; 
-                document.getElementById('edit-title').value = ev.title; 
+                document.getElementById('edit-id').value = ev.id;
+                document.getElementById('edit-title').value = ev.title;
 
                 const currentCount = getEventRegistrationCount(eventId);
                 const warningEl = document.getElementById('edit-time-warning');
@@ -2545,7 +2538,7 @@
                 document.getElementById('edit-category').value = ev.category;
                 document.getElementById('edit-teacher').value = ev.teacher; document.getElementById('edit-capacity').value = ev.capacity; document.getElementById('edit-description').value = ev.description;
                 document.getElementById('edit-meal-main').checked = ev.hasMeal; document.getElementById('edit-meal-snack').checked = ev.hasSnack;
-                
+
                 if (ev.isOneOnOne) {
                     document.querySelector('input[name="edit-activity-type"][value="ooo"]').checked = true;
                 } else if (ev.isSeries) {
@@ -2573,19 +2566,19 @@
             let finalSessions = [];
             const timeRegex = /^\d{2}:\d{2}-\d{2}:\d{2}$/;
             for(let i=0; i<state.tempSessions.length; i++){
-                const dateEl = document.getElementById(`sesDate_${i}`); 
-                const t = document.getElementById(`sesTime_${i}`).value.trim(); 
+                const dateEl = document.getElementById(`sesDate_${i}`);
+                const t = document.getElementById(`sesTime_${i}`).value.trim();
                 const locEl = document.getElementById(`sesLoc_${i}`);
-                
+
                 if(dateEl && dateEl.value) {
                     if(!t) return showToast(`第 ${i+1} 場請填寫時間`, 'error');
                     if(!timeRegex.test(t)) {
                         return showToast(`第 ${i+1} 場時間格式錯誤！請依照 HH:MM-HH:MM (如: 09:30-12:00)`, 'error');
                     }
-                    finalSessions.push({ 
-                        date: dateEl.value.replace(/-/g, '/'), 
-                        time: t, 
-                        location: (locEl && locEl.value.trim()) ? locEl.value.trim() : mainLocationString 
+                    finalSessions.push({
+                        date: dateEl.value.replace(/-/g, '/'),
+                        time: t,
+                        location: (locEl && locEl.value.trim()) ? locEl.value.trim() : mainLocationString
                     });
                 } else {
                     if (t || (locEl && locEl.value.trim())) {
@@ -2608,7 +2601,7 @@
                     }
                 }
             }
-            
+
             const activityType = document.querySelector('input[name="edit-activity-type"]:checked').value;
             const isOoo = activityType === 'ooo';
             const isSeriesEvent = activityType === 'series';
@@ -2640,49 +2633,49 @@
                     return;
                 }
             }
-            
+
             proceedSubmitEventEdit(id, mainLocationString, finalSessions, isOoo, isSeriesEvent, finalCapacity, restoreSubmitBtn);
         }
 
         async function proceedSubmitEventEdit(id, mainLocationString, finalSessions, isOoo, isSeriesEvent, finalCapacity, restoreBtnCallback) {
-            const eventData = { 
-                title: document.getElementById('edit-title').value.trim(), 
-                category: document.getElementById('edit-category').value, 
-                tags: [...state.tempTags], 
-                location: mainLocationString, 
-                teacher: document.getElementById('edit-teacher').value.trim(), 
-                capacity: finalCapacity, 
-                description: document.getElementById('edit-description').value.trim(), 
-                hasMeal: document.getElementById('edit-meal-main').checked, 
-                hasSnack: document.getElementById('edit-meal-snack').checked, 
+            const eventData = {
+                title: document.getElementById('edit-title').value.trim(),
+                category: document.getElementById('edit-category').value,
+                tags: [...state.tempTags],
+                location: mainLocationString,
+                teacher: document.getElementById('edit-teacher').value.trim(),
+                capacity: finalCapacity,
+                description: document.getElementById('edit-description').value.trim(),
+                hasMeal: document.getElementById('edit-meal-main').checked,
+                hasSnack: document.getElementById('edit-meal-snack').checked,
                 isOneOnOne: isOoo,
                 isSeries: isSeriesEvent,
-                sessions: finalSessions 
+                sessions: finalSessions
             };
-            
+
             showGlobalLoading(true, '儲存活動中...');
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ 
-                        action: id ? 'updateEvent' : 'addEvent', 
-                        data: eventData, 
-                        eventId: id || null, 
+                    body: JSON.stringify({
+                        action: id ? 'updateEvent' : 'addEvent',
+                        data: eventData,
+                        eventId: id || null,
                         adminName: state.currentUserName,
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
-                    }) 
+                    })
                 });
                 const res = await response.json();
                 if (checkTokenExpiration(res)) return;
-                if (res.success) { 
-                    resetDirty(); 
-                    showToast('活動儲存成功！', 'success'); 
-                    closeModal('modal-edit-event'); 
-                    await reloadDataSilently('同步活動資料...'); 
-                } 
+                if (res.success) {
+                    resetDirty();
+                    showToast('活動儲存成功！', 'success');
+                    closeModal('modal-edit-event');
+                    await reloadDataSilently('同步活動資料...');
+                }
                 else showToast('儲存失敗：' + res.error, 'error');
             } catch (err) { showToast('網路連線異常', 'error'); }
             finally { if (restoreBtnCallback) restoreBtnCallback(); }
@@ -2698,23 +2691,23 @@
             customConfirm(`確定徹底刪除「${escapeHTML(ev.title)}」？\n(報名紀錄也會一併移除)`, async () => {
                 showGlobalLoading(true, '刪除中...');
                 try {
-                    const response = await fetch(GAS_API_URL, { 
-                        method: 'POST', 
+                    const response = await fetch(GAS_API_URL, {
+                        method: 'POST',
                         redirect: 'follow',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ 
-                            action: 'deleteEvent', 
-                            eventId: eventId, 
+                        body: JSON.stringify({
+                            action: 'deleteEvent',
+                            eventId: eventId,
                             adminName: state.currentUserName,
                             adminAcc: state.adminCreds.acc,
                             adminToken: state.adminCreds.token
-                        }) 
+                        })
                     });
                     const res = await response.json();
                     if (checkTokenExpiration(res)) return;
-                    if (res.success) { 
-                        showToast('活動已刪除', 'success'); 
-                        await reloadDataSilently('同步中...'); 
+                    if (res.success) {
+                        showToast('活動已刪除', 'success');
+                        await reloadDataSilently('同步中...');
                     } else showToast('刪除失敗', 'error');
                 } catch(e) { showToast('網路錯誤', 'error'); }
                 showGlobalLoading(false);
@@ -2722,36 +2715,36 @@
         }
 
         async function deleteParticipantAdmin(regId) {
-            const reg = state.registrations.find(r => String(r.id) === String(regId)); 
+            const reg = state.registrations.find(r => String(r.id) === String(regId));
             if (!reg) return showToast('找不到報名資料', 'error');
 
             customConfirm(`確定刪除 <b>${escapeHTML(reg.name)}</b> 的報名？<br><span class="text-sm text-red-600 font-bold">⚠️ 名額將直接釋放。</span>`, async () => {
                 showGlobalLoading(true, '刪除中...');
                 try {
-                    const response = await fetch(GAS_API_URL, { 
-                        method: 'POST', 
+                    const response = await fetch(GAS_API_URL, {
+                        method: 'POST',
                         redirect: 'follow',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ 
-                            action: 'deleteRegistration', 
-                            regId: regId, 
+                        body: JSON.stringify({
+                            action: 'deleteRegistration',
+                            regId: regId,
                             adminAcc: state.adminCreds.acc,
                             adminToken: state.adminCreds.token
-                        }) 
+                        })
                     });
                     const res = await response.json();
-                    if (checkTokenExpiration(res)) return; 
-                    if (res.success) { 
-                        showToast('已刪除，名額釋放', 'success'); 
-                        await reloadDataSilently('同步中...'); 
+                    if (checkTokenExpiration(res)) return;
+                    if (res.success) {
+                        showToast('已刪除，名額釋放', 'success');
+                        await reloadDataSilently('同步中...');
                         if (!document.getElementById('modal-participants').classList.contains('hidden')) {
                             openParticipantsModal(state.currentAdminEventId);
                         }
                     } else {
                         showToast('刪除失敗', 'error');
                     }
-                } catch(e) { 
-                    showToast('網路連線錯誤', 'error'); 
+                } catch(e) {
+                    showToast('網路連線錯誤', 'error');
                 }
                 showGlobalLoading(false);
             }, '確認刪除');
@@ -2759,19 +2752,19 @@
 
         function openAdminAddParticipantModal() {
             document.getElementById('admin-add-sid').value = '';
-            
+
             const infoBox = document.getElementById('admin-add-student-info');
             infoBox.innerHTML = '';
             infoBox.classList.remove('bg-blue-50', 'bg-red-50', 'border-blue-100', 'border-red-100');
             infoBox.classList.add('hidden');
-            
+
             document.getElementById('admin-add-meals-container').classList.add('hidden');
             document.getElementById('admin-add-meals').innerHTML = '';
-            
+
             const submitBtn = document.getElementById('btn-admin-submit-add');
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            
+
             state.adminAddTempStudent = null;
             openModal('modal-admin-add-participant');
         }
@@ -2782,7 +2775,7 @@
 
             const student = state.students.find(s => s && s.id != null && String(s.id).trim() === sid);
             const infoBox = document.getElementById('admin-add-student-info');
-            
+
             if (student) {
                 const isAlreadyRegistered = state.registrations.some(r => String(r.eventId) === String(state.currentAdminEventId) && String(r.studentId) === sid);
                 if (isAlreadyRegistered) {
@@ -2796,9 +2789,9 @@
                 state.adminAddTempStudent = student;
                 infoBox.innerHTML = `<i class="fa-solid fa-check-circle text-green-500 mr-1"></i> 找到學生：<span class="font-bold text-gray-800">${escapeHTML(student.name)}</span> (${escapeHTML(student.eduSystem || '')}${escapeHTML(student.className || '')})`;
                 infoBox.classList.remove('hidden', 'bg-red-50', 'border-red-100'); infoBox.classList.add('bg-blue-50', 'border-blue-100');
-                
+
                 const ev = state.events.find(e => String(e.id) === state.currentAdminEventId); const opts = getMealOptionsHtml(ev);
-                
+
                 const inputType = 'checkbox';
                 const inputName = '';
 
@@ -2851,7 +2844,7 @@
                         ${!ev.hasMeal && !ev.hasSnack ? '<span class="text-xs text-gray-500 hidden sm:block">無供餐</span>' : ''}
                     </div>`;
                 }).join('');
-                
+
                 document.getElementById('admin-add-meals-container').classList.remove('hidden');
                 document.getElementById('btn-admin-submit-add').disabled = false; document.getElementById('btn-admin-submit-add').classList.remove('opacity-50', 'cursor-not-allowed');
 
@@ -2866,13 +2859,13 @@
 
         async function submitAdminAddParticipant() {
             if (!state.adminAddTempStudent) return;
-            const student = state.adminAddTempStudent; 
+            const student = state.adminAddTempStudent;
             const ev = state.events.find(e => String(e.id) === state.currentAdminEventId);
             let sessData = []; let hasAnyAttend = false;
 
             ev.sessions.forEach((s, idx) => {
                 const chk = document.getElementById(`admin-add-attend-${idx}`); const mealSel = document.getElementById(`admin-add-meal-${idx}`);
-                if(chk && chk.checked) { sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true }); hasAnyAttend = true; } 
+                if(chk && chk.checked) { sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true }); hasAnyAttend = true; }
                 else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false });
             });
             if(!hasAnyAttend) return showToast('請至少選擇一個場次', 'error');
@@ -2891,36 +2884,36 @@
             const payload = [{ eventId: eventId, studentId: student.id, name: student.name, email: student.email || '', phone: student.phone || '', sessionsData: sessData }];
             showGlobalLoading(true, '新增報名資料中...');
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ 
-                        action: 'adminSubmitRegistration', 
+                    body: JSON.stringify({
+                        action: 'adminSubmitRegistration',
                         data: payload,
                         adminName: state.currentUserName,
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
-                    }) 
+                    })
                 });
                 const res = await response.json();
                 if (checkTokenExpiration(res)) return;
-                if (res.success) { 
-                    closeModal('modal-admin-add-participant'); 
+                if (res.success) {
+                    closeModal('modal-admin-add-participant');
                     await reloadDataSilently('同步報名資料...');
                     if (!document.getElementById('modal-participants').classList.contains('hidden')) {
                         openParticipantsModal(state.currentAdminEventId);
                     }
-                    showToast('新增成功！', 'success'); 
-                } 
+                    showToast('新增成功！', 'success');
+                }
                 else showToast('新增失敗：' + res.error, 'error');
             } catch (err) { showToast('網路連線異常', 'error'); }
             showGlobalLoading(false);
         }
 
         function openAdminRemarkModal(regId, studentName) {
-            resetDirty(); state.currentRemarkStudent = String(regId); 
-            const reg = state.registrations.find(r => String(r.id) === state.currentRemarkStudent); 
+            resetDirty(); state.currentRemarkStudent = String(regId);
+            const reg = state.registrations.find(r => String(r.id) === state.currentRemarkStudent);
             if (!reg) return showToast('找不到資料', 'error');
             const ev = state.events.find(e => String(e.id) === String(reg.eventId));
             if (!ev) return showToast('找不到活動', 'error');
@@ -2928,7 +2921,7 @@
             document.getElementById('remark-student-info').innerText = `正在編輯: ${studentName}`; document.getElementById('admin-remark-input').value = reg.adminRemark || '';
             const opts = getMealOptionsHtml(ev);
             const sData = Array.isArray(reg.sessionsData) ? reg.sessionsData : [];
-            
+
             const eventMapForConflicts = new Map();
             state.events.forEach(e => eventMapForConflicts.set(String(e.id), e));
 
@@ -2949,7 +2942,7 @@
                 state.registrations.forEach(r => {
                     if (String(r.eventId) === String(ev.id) && String(r.id) !== String(reg.id)) {
                         (Array.isArray(r.sessionsData) ? r.sessionsData : []).forEach(sd => {
-                            if (sd.attend) takenOooSessions.push(sd.date + '_' + (sd.time || '')); 
+                            if (sd.attend) takenOooSessions.push(sd.date + '_' + (sd.time || ''));
                         });
                     }
                 });
@@ -2957,10 +2950,10 @@
 
             let htmlStr = '<label class="block text-sm font-bold text-gray-700 mb-1">場次參與與餐點修正</label>';
             htmlStr += ev.sessions.map((sess, idx) => {
-                const d = sData.find(x => x.date === sess.date && (x.time === sess.time || !x.time)) || { date: sess.date, time: sess.time, attend: false, meal: '不用餐' }; 
-                
+                const d = sData.find(x => x.date === sess.date && (x.time === sess.time || !x.time)) || { date: sess.date, time: sess.time, attend: false, meal: '不用餐' };
+
                 const isTakenByOthers = ev.isOneOnOne && takenOooSessions.includes(d.date + '_' + (d.time || '')) && !d.attend;
-                
+
                 let hasTimeConflict = false;
                 let conflictEvTitle = '';
                 for (const c of precompiledConflicts) {
@@ -2976,7 +2969,7 @@
                 let warningTag = '';
                 if (isTakenByOthers) warningTag = '<span class="text-xs text-red-500 ml-1 font-bold break-words">(已被約走)</span>';
                 else if (hasTimeConflict) warningTag = `<span class="text-xs text-red-500 ml-1 font-bold break-words">(衝堂: ${escapeHTML(conflictEvTitle)})</span>`;
-                
+
                 let onChangeLogic = `markDirty(); const sel=document.getElementById('remark-meal-${idx}'); if(sel){sel.disabled=!this.checked; if(!this.checked)sel.value='不用餐';}`;
                 if (ev.isOneOnOne) {
                     onChangeLogic = `if(${isLocked}) { this.checked=false; return; } markDirty(); document.querySelectorAll('.remark-meal-sel').forEach(s => {s.disabled=true; s.value='不用餐';}); const sel=document.getElementById('remark-meal-${idx}'); if(sel && this.checked){sel.disabled=false;} if(this.checked){ for(let i=0;i<${ev.sessions.length};i++){ if(i!==${idx}){ let c=document.getElementById('remark-attend-'+i); if(c && !c.disabled){c.checked=false; let m=document.getElementById('remark-meal-'+i); if(m){m.disabled=true; m.value='不用餐';}} } } }`;
@@ -2991,7 +2984,7 @@
                     ${!ev.hasMeal && !ev.hasSnack ? '<span class="text-xs text-gray-500 hidden sm:block">無供餐</span>' : ''}
                 </div>`;
             }).join('');
-            
+
             const currentSessionKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
             let ghostCount = 0;
             sData.forEach((sd, ghostIdx) => {
@@ -3014,7 +3007,7 @@
         }
 
         async function saveAdminRemark() {
-            const reg = state.registrations.find(r => String(r.id) === state.currentRemarkStudent); 
+            const reg = state.registrations.find(r => String(r.id) === state.currentRemarkStudent);
             if (!reg) return showToast('找不到資料', 'error');
 
             const ev = state.events.find(e => String(e.id) === String(reg.eventId));
@@ -3022,22 +3015,22 @@
 
             const newRemark = document.getElementById('admin-remark-input').value.trim();
             let newSessionsData = Array.isArray(reg.sessionsData) ? JSON.parse(JSON.stringify(reg.sessionsData)) : [];
-            
+
             ev.sessions.forEach((sess, idx) => {
-                const chk = document.getElementById(`remark-attend-${idx}`); 
+                const chk = document.getElementById(`remark-attend-${idx}`);
                 const sel = document.getElementById(`remark-meal-${idx}`);
-                
+
                 let isAttending = chk ? chk.checked : false;
                 let mealChoice = '不用餐';
                 if (isAttending && sel && !sel.disabled && !sel.classList.contains('hidden')) {
                     mealChoice = sel.value;
                 }
-                
+
                 const existingIdx = newSessionsData.findIndex(d => d.date === sess.date && (d.time === sess.time || !d.time));
                 if (existingIdx >= 0) {
                     newSessionsData[existingIdx].attend = isAttending;
                     newSessionsData[existingIdx].meal = mealChoice;
-                    newSessionsData[existingIdx].time = sess.time; 
+                    newSessionsData[existingIdx].time = sess.time;
                 } else {
                     newSessionsData.push({ date: sess.date, time: sess.time, attend: isAttending, meal: mealChoice });
                 }
@@ -3063,41 +3056,41 @@
                     return;
                 }
             }
-            
+
             proceedSaveAdminRemark(reg, newRemark, newSessionsData);
         }
 
         async function proceedSaveAdminRemark(reg, newRemark, newSessionsData) {
             const saveBtn = document.getElementById('btn-save-admin-remark');
             if (saveBtn) { saveBtn.disabled = true; saveBtn.classList.add('opacity-70', 'cursor-not-allowed'); saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>儲存中...'; }
-            
+
             showGlobalLoading(true, '更新備註中...');
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ 
-                        action: 'updateRegistration', 
-                        regId: reg.id, 
-                        remark: newRemark, 
+                    body: JSON.stringify({
+                        action: 'updateRegistration',
+                        regId: reg.id,
+                        remark: newRemark,
                         sessionsData: newSessionsData,
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
-                    }) 
+                    })
                 });
                 const res = await response.json();
                 if (checkTokenExpiration(res)) return;
-                if (res.success) { 
-                    resetDirty(); 
-                    reg.adminRemark = newRemark; reg.sessionsData = newSessionsData; 
-                    closeModal('modal-remark'); 
+                if (res.success) {
+                    resetDirty();
+                    reg.adminRemark = newRemark; reg.sessionsData = newSessionsData;
+                    closeModal('modal-remark');
                     showToast('資料已更新', 'success');
-                    await reloadDataSilently('同步資料狀態...'); 
+                    await reloadDataSilently('同步資料狀態...');
                     if (!document.getElementById('modal-participants').classList.contains('hidden')) {
                         openParticipantsModal(state.currentAdminEventId);
                     }
-                } 
+                }
                 else showToast(res.error || '更新失敗', 'error');
             } catch (err) { showToast('網路錯誤', 'error'); }
             finally {
@@ -3106,15 +3099,15 @@
             showGlobalLoading(false);
         }
 
-        function toggleAllNotify(source) { 
-            document.querySelectorAll('.notify-checkbox:not([disabled])').forEach(cb => cb.checked = source.checked); 
+        function toggleAllNotify(source) {
+            document.querySelectorAll('.notify-checkbox:not([disabled])').forEach(cb => cb.checked = source.checked);
             updateSelectAllState();
         }
-        
-        function updateSelectAllState() { 
-            const allEnabled = document.querySelectorAll('.notify-checkbox:not([disabled])'); 
+
+        function updateSelectAllState() {
+            const allEnabled = document.querySelectorAll('.notify-checkbox:not([disabled])');
             const checkedBoxes = document.querySelectorAll('.notify-checkbox:checked');
-            document.getElementById('selectAllNotify').checked = (allEnabled.length > 0 && allEnabled.length === checkedBoxes.length); 
+            document.getElementById('selectAllNotify').checked = (allEnabled.length > 0 && allEnabled.length === checkedBoxes.length);
             document.getElementById('line-recipient-count').innerText = `即將發送: ${checkedBoxes.length} 人`;
         }
 
@@ -3127,13 +3120,13 @@
 
                 document.getElementById('notify-event-subtitle').innerText = ev.title || '未命名活動';
                 document.getElementById('selectAllNotify').checked = false;
-                
+
                 const templateSelect = document.getElementById('line-template-select');
                 if (templateSelect) templateSelect.value = 'pre_event';
                 changeLineTemplate();
 
-                const parts = state.registrations.filter(r => String(r.eventId) === safeEventId); 
-                const tbody = document.getElementById('notify-tbody'); 
+                const parts = state.registrations.filter(r => String(r.eventId) === safeEventId);
+                const tbody = document.getElementById('notify-tbody');
                 let hasValidUsers = false;
 
                 if(parts.length === 0) {
@@ -3142,7 +3135,7 @@
                     tbody.innerHTML = parts.map(p => {
                         const safeId = p.studentId != null ? String(p.studentId).trim() : '';
                         const safeName = p.name != null ? String(p.name).trim() : '未知名稱';
-                        const studentGlobal = state.students.find(s => s && s.id != null && String(s.id).trim() === safeId); 
+                        const studentGlobal = state.students.find(s => s && s.id != null && String(s.id).trim() === safeId);
                         const safeLine = studentGlobal && studentGlobal.lineId != null ? String(studentGlobal.lineId).trim() : '';
                         const hasLine = safeLine !== '';
                         if (hasLine) hasValidUsers = true;
@@ -3160,8 +3153,8 @@
                         </tr>`;
                     }).join('');
                 }
-                
-                document.getElementById('selectAllNotify').disabled = !hasValidUsers; 
+
+                document.getElementById('selectAllNotify').disabled = !hasValidUsers;
                 updateSelectAllState();
                 openModal('modal-notify');
 
@@ -3174,12 +3167,12 @@
             const type = document.getElementById('line-template-select').value;
             const ev = state.events.find(e => String(e.id) === String(state.currentAdminEventId));
             if (!ev) return;
-            
+
             const textarea = document.getElementById('line-preview-text');
             const clearBtn = document.getElementById('btn-clear-line-draft');
             const sessionsStr = (ev.sessions || []).map((s, idx) => `第${idx+1}場: ${escapeHTML(s.date)} ${getDayOfWeek(s.date)} ${escapeHTML(s.time)}`).join('\n');
 
-            const savedDraft = localStorage.getItem(`chihlee_line_draft_${ev.id}_${type}`);
+            const savedDraft = sessionStorage.getItem(`chihlee_line_draft_${ev.id}_${type}`);
 
             if (savedDraft) {
                 textarea.value = savedDraft;
@@ -3192,7 +3185,7 @@
                 clearBtn.classList.add('hidden');
                 document.getElementById('line-draft-warning').classList.add('hidden');
                 document.getElementById('line-draft-hint').classList.remove('hidden');
-                
+
                 if (type === 'pre_event') {
                     textarea.value = `【致理科大資源教室 活動提醒】\n同學您好！提醒您有報名以下活動：\n\n📌 活動名稱：${ev.title}\n📅 活動時間：\n${sessionsStr}\n📍 地點：${ev.location}\n\n💡 小提醒：請留意當天是否有供餐，若有用餐需求變更或臨時不克前來，請直接聯繫輔導老師喔！期待您的參與！`;
                 } else if (type === 'feedback') {
@@ -3207,25 +3200,25 @@
             if (!state.currentAdminEventId) return;
             const type = document.getElementById('line-template-select').value;
             const text = document.getElementById('line-preview-text').value;
-            localStorage.setItem(`chihlee_line_draft_${state.currentAdminEventId}_${type}`, text);
+            sessionStorage.setItem(`chihlee_line_draft_${state.currentAdminEventId}_${type}`, text);
             const typeName = document.getElementById('line-template-select').options[document.getElementById('line-template-select').selectedIndex].text;
             showToast(`已暫存「${typeName.replace('📝 ', '').replace('⭐ ', '').replace('✏️ ', '')}」！`, 'success');
-            changeLineTemplate(); 
+            changeLineTemplate();
         }
 
         function clearLineDraft() {
             if (!state.currentAdminEventId) return;
             const type = document.getElementById('line-template-select').value;
-            localStorage.removeItem(`chihlee_line_draft_${state.currentAdminEventId}_${type}`);
+            sessionStorage.removeItem(`chihlee_line_draft_${state.currentAdminEventId}_${type}`);
             showToast('已清除暫存，恢復預設', 'info');
             changeLineTemplate();
         }
 
         async function confirmSendLine() {
-            const checkboxes = document.querySelectorAll('.notify-checkbox:checked'); 
-            const msg = document.getElementById('line-preview-text').value.trim(); 
+            const checkboxes = document.querySelectorAll('.notify-checkbox:checked');
+            const msg = document.getElementById('line-preview-text').value.trim();
             const notifyType = document.getElementById('line-template-select').value;
-            
+
             if (checkboxes.length === 0) return showToast('請勾選要發送的學生！', 'error');
             if (!msg) return showToast('推播文案不可為空！', 'error');
 
@@ -3241,18 +3234,18 @@
 
             showGlobalLoading(true, `發送給 ${targetRegIds.length} 位學生中...`);
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ 
-                        action: 'sendLineNotification', 
-                        regIds: targetRegIds, 
-                        message: msg, 
+                    body: JSON.stringify({
+                        action: 'sendLineNotification',
+                        regIds: targetRegIds,
+                        message: msg,
                         notifyType: notifyType,
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
-                    }) 
+                    })
                 });
                 const res = await response.json();
                 if (checkTokenExpiration(res)) return;
@@ -3264,8 +3257,8 @@
                     } else {
                         showToast(`發送失敗！(請檢查 LINE ID)`, 'error');
                     }
-                    await reloadDataSilently('更新通知狀態...'); 
-                    openNotifyModal(state.currentAdminEventId); 
+                    await reloadDataSilently('更新通知狀態...');
+                    openNotifyModal(state.currentAdminEventId);
                 } else showToast('發送失敗：' + res.error, 'error');
             } catch(e) { showToast('網路錯誤', 'error'); }
             finally {
@@ -3279,50 +3272,50 @@
         }
 
         function openEditStudentModal(sid) {
-            const s = state.students.find(st => st && st.id != null && String(st.id).trim() === String(sid).trim()); 
+            const s = state.students.find(st => st && st.id != null && String(st.id).trim() === String(sid).trim());
             if(!s) return;
-            document.getElementById('edit-stu-original-id').value = s.id; 
+            document.getElementById('edit-stu-original-id').value = s.id;
             document.getElementById('edit-stu-id').value = s.id;
-            document.getElementById('edit-stu-name').value = s.name != null ? s.name : ''; 
+            document.getElementById('edit-stu-name').value = s.name != null ? s.name : '';
             document.getElementById('edit-stu-class').value = ((s.eduSystem != null ? s.eduSystem : '') + (s.className != null ? s.className : '')).trim();
-            document.getElementById('edit-stu-phone').value = s.phone != null ? s.phone : ''; 
+            document.getElementById('edit-stu-phone').value = s.phone != null ? s.phone : '';
             document.getElementById('edit-stu-line').value = s.lineId != null ? s.lineId : '';
             openModal('modal-edit-student');
         }
 
         async function saveStudentData() {
-            const oldSid = document.getElementById('edit-stu-original-id').value; 
+            const oldSid = document.getElementById('edit-stu-original-id').value;
             const newSid = document.getElementById('edit-stu-id').value.trim();
-            const name = document.getElementById('edit-stu-name').value.trim(); 
+            const name = document.getElementById('edit-stu-name').value.trim();
             const fullClass = document.getElementById('edit-stu-class').value.trim();
-            const phone = document.getElementById('edit-stu-phone').value.trim(); 
+            const phone = document.getElementById('edit-stu-phone').value.trim();
             const line = document.getElementById('edit-stu-line').value.trim();
-            
-            if(!newSid || !name) return showToast('學號與姓名不可為空', 'error'); 
+
+            if(!newSid || !name) return showToast('學號與姓名不可為空', 'error');
             if (newSid !== oldSid && state.students.some(st => st && st.id != null && String(st.id).trim() === newSid)) return showToast('該學號已存在', 'error');
-            
-            const match = fullClass.match(/^(.{3})(.*)$/); 
-            const eduSys = match ? match[1] : ''; 
+
+            const match = fullClass.match(/^(.{3})(.*)$/);
+            const eduSys = match ? match[1] : '';
             const className = match ? match[2] : fullClass;
-            
+
             showGlobalLoading(true, '更新學生資料...');
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ 
-                        action: 'updateStudent', 
-                        oldSid, 
-                        data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line }, 
+                    body: JSON.stringify({
+                        action: 'updateStudent',
+                        oldSid,
+                        data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line },
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
-                    }) 
+                    })
                 });
                 const res = await response.json();
                 if (checkTokenExpiration(res)) return;
                 if (res.success) {
-                    showToast('學生資料已更新', 'success'); 
+                    showToast('學生資料已更新', 'success');
                     closeModal('modal-edit-student');
                     await reloadDataSilently('重新載入學生名冊...');
                 } else showToast('更新失敗：' + res.error, 'error');
@@ -3331,29 +3324,29 @@
         }
 
         function openImportStudentModal() { document.getElementById('import-students-textarea').value = ''; openModal('modal-import-students'); }
-        
+
         async function processImportStudents() {
             const dataString = document.getElementById('import-students-textarea').value; if (!dataString.trim()) return showToast('請貼上資料', 'error');
             const lines = dataString.split('\n'); let newStudents = [];
             lines.forEach(line => {
                 const cleanLine = line.trim(); if (!cleanLine) return;
-                let eduSystem = '', className = '', id = '', name = '', lineId = ''; 
-                
+                let eduSystem = '', className = '', id = '', name = '', lineId = '';
+
                 const tabParts = cleanLine.split(/\t+/);
-                if (tabParts.length >= 4) { 
-                    eduSystem = tabParts[0].trim(); 
-                    className = tabParts[1].trim(); 
-                    id = tabParts[2].trim(); 
-                    name = tabParts[3].trim(); 
-                    lineId = tabParts.length > 4 ? tabParts[4].trim() : ''; 
-                } 
-                else { 
+                if (tabParts.length >= 4) {
+                    eduSystem = tabParts[0].trim();
+                    className = tabParts[1].trim();
+                    id = tabParts[2].trim();
+                    name = tabParts[3].trim();
+                    lineId = tabParts.length > 4 ? tabParts[4].trim() : '';
+                }
+                else {
                     const spaceParts = cleanLine.split(/\s+/).filter(p => p !== '');
                     if (spaceParts.length >= 4) {
                         eduSystem = spaceParts[0];
                         className = spaceParts[1];
                         id = spaceParts[2];
-                        
+
                         const lastPart = spaceParts[spaceParts.length - 1];
                         if (lastPart.length >= 33 && lastPart.startsWith('U')) {
                             lineId = lastPart;
@@ -3362,11 +3355,11 @@
                             name = spaceParts.slice(3).join(' ');
                         }
                     } else {
-                        const match = cleanLine.match(/^(\S+)\s+(\S+)\s+(\d{8,})\s+(.*)$/); 
-                        if (match) { 
-                            eduSystem = match[1].trim(); 
-                            className = match[2].trim(); 
-                            id = match[3].trim(); 
+                        const match = cleanLine.match(/^(\S+)\s+(\S+)\s+(\d{8,})\s+(.*)$/);
+                        if (match) {
+                            eduSystem = match[1].trim();
+                            className = match[2].trim();
+                            id = match[3].trim();
                             let remainingText = match[4].trim();
                             const parts = remainingText.split(/\s+/);
                             const lastP = parts[parts.length - 1];
@@ -3376,34 +3369,34 @@
                             } else {
                                 name = remainingText;
                             }
-                        } 
+                        }
                     }
                 }
                 if (id && name) newStudents.push({ id, name, eduSystem, className, phone: '', email: '', lineId });
             });
             if(newStudents.length === 0) return showToast('無法解析資料，請確認格式', 'error');
-            
+
             showGlobalLoading(true, `正在匯入 ${newStudents.length} 筆資料...`);
             try {
-                const response = await fetch(GAS_API_URL, { 
-                    method: 'POST', 
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ 
-                        action: 'batchImportStudents', 
+                    body: JSON.stringify({
+                        action: 'batchImportStudents',
                         students: newStudents,
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
-                    }) 
+                    })
                 });
                 const res = await response.json();
                 if (checkTokenExpiration(res)) return;
-                if (res.success) { 
-                    showToast(`匯入完成！共處理 ${newStudents.length} 筆`, 'success'); 
-                    document.getElementById('import-students-textarea').value = ''; 
-                    closeModal('modal-import-students'); 
+                if (res.success) {
+                    showToast(`匯入完成！共處理 ${newStudents.length} 筆`, 'success');
+                    document.getElementById('import-students-textarea').value = '';
+                    closeModal('modal-import-students');
                     await reloadDataSilently('重新載入學生名冊...');
-                } 
+                }
                 else showToast('匯入失敗：' + res.error, 'error');
             } catch (err) { showToast('網路連線異常', 'error'); }
             showGlobalLoading(false);
