@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.5｜2026-08-24 19:43 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.6｜2026-08-24 22:14 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -56,18 +56,6 @@
             --success: #007A55;
             --cyan: #00A6D6;
             --sky: #DDF3FF;
-            --category-inter-text: #135B4E;
-            --category-inter-bg: #E2F3EF;
-            --category-inter-border: #4E927F;
-            --category-inter-active: #245F52;
-            --category-academic-text: #8F2941;
-            --category-academic-bg: #FBE8ED;
-            --category-academic-border: #C56A7F;
-            --category-academic-active: #9B3150;
-            --category-career-text: #655300;
-            --category-career-bg: #FFF8C9;
-            --category-career-border: #B9A315;
-            --category-career-active: #F4D13D;
         }
 
         html { color-scheme: light; scroll-behavior: smooth; }
@@ -231,22 +219,12 @@
             border-color: var(--primary) !important;
             box-shadow: 0 4px 10px rgba(0, 87, 184, .22) !important;
         }
-        /* 分類專屬色與成功、報名及日期狀態色分離；以下規則只影響人際、課業、職涯。 */
-        .bg-cat-inter-bg { background-color: var(--category-inter-bg) !important; }
-        .text-cat-inter-text { color: var(--category-inter-text) !important; }
-        .border-cat-inter-text { border-color: var(--category-inter-border) !important; }
-        .bg-cat-academic-bg { background-color: var(--category-academic-bg) !important; }
-        .text-cat-academic-text { color: var(--category-academic-text) !important; }
-        .border-cat-academic-text { border-color: var(--category-academic-border) !important; }
-        .bg-cat-career-bg { background-color: var(--category-career-bg) !important; }
-        .text-cat-career-text { color: var(--category-career-text) !important; }
-        .border-cat-career-text { border-color: var(--category-career-border) !important; }
-        #filter-btn-inter[aria-pressed="false"] { color: var(--category-inter-text) !important; background: var(--category-inter-bg) !important; border-color: var(--category-inter-border) !important; }
-        #filter-btn-academic[aria-pressed="false"] { color: var(--category-academic-text) !important; background: var(--category-academic-bg) !important; border-color: var(--category-academic-border) !important; }
-        #filter-btn-career[aria-pressed="false"] { color: var(--category-career-text) !important; background: var(--category-career-bg) !important; border-color: var(--category-career-border) !important; }
-        #category-filters #filter-btn-inter[aria-pressed="true"] { color: #FFFFFF !important; background: var(--category-inter-active) !important; border-color: #184A40 !important; }
-        #category-filters #filter-btn-academic[aria-pressed="true"] { color: #FFFFFF !important; background: var(--category-academic-active) !important; border-color: #76233C !important; }
-        #category-filters #filter-btn-career[aria-pressed="true"] { color: #332B00 !important; background: var(--category-career-active) !important; border-color: #9C8700 !important; }
+        #filter-btn-inter[aria-pressed="false"] { color: #006B4F !important; background: #E0FFF2 !important; border-color: #00A86B !important; }
+        #filter-btn-academic[aria-pressed="false"] { color: #97123D !important; background: #FFE7EF !important; border-color: #E91E63 !important; }
+        #filter-btn-career[aria-pressed="false"] { color: #6A4200 !important; background: #FFF4BF !important; border-color: #E09A00 !important; }
+        #category-filters #filter-btn-inter[aria-pressed="true"] { color: #FFFFFF !important; background: #007A55 !important; border-color: #007A55 !important; }
+        #category-filters #filter-btn-academic[aria-pressed="true"] { color: #FFFFFF !important; background: #C2185B !important; border-color: #C2185B !important; }
+        #category-filters #filter-btn-career[aria-pressed="true"] { color: #102A43 !important; background: #F4B400 !important; border-color: #B97800 !important; }
         #student-main-content > .bg-white {
             max-width: 56rem;
             margin-inline: auto;
@@ -263,9 +241,9 @@
             background: var(--surface);
             box-shadow: 0 3px 12px rgba(16, 24, 40, .06);
         }
-        #student-events-container > label[data-category="人際"] { border-left-color: var(--category-inter-active) !important; }
-        #student-events-container > label[data-category="課業"] { border-left-color: var(--category-academic-active) !important; }
-        #student-events-container > label[data-category="職涯"] { border-left-color: var(--category-career-active) !important; }
+        #student-events-container > label[data-category="人際"] { border-left-color: #00A86B !important; }
+        #student-events-container > label[data-category="課業"] { border-left-color: #E91E63 !important; }
+        #student-events-container > label[data-category="職涯"] { border-left-color: #F4B400 !important; }
         #student-events-container > label:hover {
             border-color: var(--line-strong) !important;
             border-color: var(--line-strong) !important;
@@ -277,11 +255,11 @@
             box-shadow: 0 0 0 3px rgba(0, 87, 184, .14);
         }
         #student-events-container > label[data-category="人際"]:hover,
-        #student-events-container > label[data-category="人際"]:has(input:checked) { border-left-color: var(--category-inter-active) !important; }
+        #student-events-container > label[data-category="人際"]:has(input:checked) { border-left-color: #00A86B !important; }
         #student-events-container > label[data-category="課業"]:hover,
-        #student-events-container > label[data-category="課業"]:has(input:checked) { border-left-color: var(--category-academic-active) !important; }
+        #student-events-container > label[data-category="課業"]:has(input:checked) { border-left-color: #E91E63 !important; }
         #student-events-container > label[data-category="職涯"]:hover,
-        #student-events-container > label[data-category="職涯"]:has(input:checked) { border-left-color: var(--category-career-active) !important; }
+        #student-events-container > label[data-category="職涯"]:has(input:checked) { border-left-color: #F4B400 !important; }
         #student-events-container h3 { color: var(--ink) !important; }
         #student-events-container .bg-gray-50 { background: #EEF8FF !important; }
 
@@ -767,7 +745,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">活動標籤 (最多3個)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">活動標籤（最多 3 個，每個含 # 最多 10 字）</label>
                             <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-2">
                                 <input type="text" id="edit-tag-input" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTempTag(); markDirty();}" class="border border-gray-300 rounded-md p-2 flex-1 focus:ring-chihlee-blue outline-none text-base md:text-sm" placeholder="輸入標籤...按 Enter 加入" maxlength="10">
                                 <button type="button" onclick="addTempTag(); markDirty();" class="w-full sm:w-auto bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 font-medium text-sm transition">加入</button>
@@ -849,7 +827,7 @@
                                 <input type="text" id="edit-loc-custom" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm" placeholder="其他主地點填此處...">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">承辦人 <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">承辦人 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal ml-1">最多 5 字</span></label>
                                 <select id="edit-teacher" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none bg-white text-base md:text-sm">
                                     <option value="">請選擇承辦人...</option>
                                 </select>
@@ -879,7 +857,7 @@
                     <div id="part-modal-stats-container" class="flex flex-wrap gap-2 md:gap-4 mb-2 md:mb-0"></div>
                 </div>
                 <div class="participants-modal-actions grid grid-cols-2 sm:flex sm:flex-row gap-2 w-full lg:w-auto flex-shrink-0">
-                    <button onclick="reloadDataSilently('同步最新報名狀態...'); setTimeout(()=>openParticipantsModal(state.currentAdminEventId), 1500);" class="w-full md:w-auto bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-200 transition flex justify-center items-center text-sm font-bold flex-shrink-0">
+                    <button onclick="refreshParticipantsModal()" class="w-full md:w-auto bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-200 transition flex justify-center items-center text-sm font-bold flex-shrink-0">
                         <i class="fa-solid fa-rotate mr-2"></i> 重新整理
                     </button>
                     <button onclick="openAdminAddParticipantModal()" class="w-full md:w-auto bg-chihlee-gold text-white px-4 py-2.5 rounded-lg shadow hover:bg-opacity-90 transition flex justify-center items-center text-sm font-bold flex-shrink-0">
@@ -1053,7 +1031,7 @@
         };
 
         let isFormDirty = false;
-        let lastFocusedElement = null;
+        const modalFocusHistory = new Map();
         function markDirty() { isFormDirty = true; }
         function resetDirty() { isFormDirty = false; }
         window.addEventListener('beforeunload', function (e) { if (isFormDirty) { e.preventDefault(); e.returnValue = ''; } });
@@ -1104,8 +1082,11 @@
             if (!dateInput) return '';
             const d = new Date(dateInput);
             if (isNaN(d.getTime())) return String(dateInput);
-            const pad = (n) => String(n).padStart(2, '0');
-            return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+            }).formatToParts(d).filter(part => part.type !== 'literal').map(part => [part.type, part.value]));
+            return `${parts.year}/${parts.month}/${parts.day} ${parts.hour}:${parts.minute}`;
         }
 
         const escapeHTML = (str) => {
@@ -1233,9 +1214,110 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.5';
-        const VERSION_UPDATED_AT = '2026/08/24 19:43';
-        const VERSION_UPDATED_AT_ISO = '2026-08-24T19:43:00+08:00';
+        const VERSION_LABEL = 'V11.6';
+        const VERSION_UPDATED_AT = '2026/08/24 22:14';
+        const VERSION_UPDATED_AT_ISO = '2026-08-24T22:14:00+08:00';
+        const API_TIMEOUT_MS = 20000;
+
+        function isPlainObject(value) {
+            return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+        }
+
+        function validateEventArray(events, label) {
+            if (!Array.isArray(events)) throw new Error(`${label}活動資料格式不正確`);
+            events.forEach(event => {
+                if (!isPlainObject(event) || !Array.isArray(event.sessions)) throw new Error(`${label}活動場次格式不正確`);
+                if (event.tags !== undefined && !Array.isArray(event.tags)) throw new Error(`${label}活動標籤格式不正確`);
+            });
+        }
+
+        function validateApiResponseShape(response, action) {
+            if (!isPlainObject(response) || typeof response.success !== 'boolean') {
+                throw new Error('後端回傳格式不正確');
+            }
+            if (!response.success) return response;
+
+            const data = response.data;
+            if (action === 'getPublicData' && !isPlainObject(data)) throw new Error('公開資料格式不正確');
+            if (action === 'getAdminData' && (!isPlainObject(data) || !isPlainObject(data.fullData))) throw new Error('後台資料格式不正確');
+            if (action === 'login' && (
+                !isPlainObject(data) || typeof data.token !== 'string' || !data.token ||
+                typeof data.name !== 'string' || !['admin', 'staff'].includes(data.role) || !isPlainObject(data.fullData)
+            )) throw new Error('登入資料格式不正確');
+            if (action === 'queryStudent' && !Array.isArray(data)) throw new Error('查詢結果格式不正確');
+            if (action === 'lookupStudentForAdminRegistration' && (
+                !isPlainObject(data) || typeof data.id !== 'string' || typeof data.name !== 'string'
+            )) throw new Error('學生資料格式不正確');
+            if (action === 'sendLineNotification' && (
+                typeof response.successCount !== 'number' || typeof response.failCount !== 'number' || !Array.isArray(response.failedStudents)
+            )) throw new Error('LINE 發送結果格式不正確');
+            if (isPlainObject(data) && data.events !== undefined) {
+                validateEventArray(data.events, '公開');
+                if (!isPlainObject(data.eventStats) || !Array.isArray(data.counselors)) throw new Error('公開資料格式不正確');
+            }
+            if (isPlainObject(data) && data.fullData !== undefined) {
+                const fullData = data.fullData;
+                if (!isPlainObject(fullData)) throw new Error('後台資料格式不正確');
+                validateEventArray(fullData.events, '後台');
+                if (!Array.isArray(fullData.registrations) || !Array.isArray(fullData.logs) || !Array.isArray(fullData.admins)) {
+                    throw new Error('後台清單格式不正確');
+                }
+                fullData.registrations.forEach(registration => {
+                    if (!isPlainObject(registration) || !Array.isArray(registration.sessionsData)) throw new Error('報名場次格式不正確');
+                });
+            }
+            if (Array.isArray(data)) {
+                data.forEach(registration => {
+                    if (!isPlainObject(registration) || !Array.isArray(registration.sessionsData)) throw new Error('查詢結果格式不正確');
+                    if (registration.eventSummary && !Array.isArray(registration.eventSummary.sessions)) throw new Error('活動摘要格式不正確');
+                });
+            }
+            return response;
+        }
+
+        async function apiRequest(payload, timeoutMs = API_TIMEOUT_MS) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+                if (!response.ok) throw new Error(`連線失敗（HTTP ${response.status}）`);
+                const text = await response.text();
+                let parsed;
+                try {
+                    parsed = JSON.parse(text);
+                } catch (error) {
+                    const invalidResponseError = new Error('後端未回傳正確資料');
+                    invalidResponseError.code = 'INVALID_RESPONSE';
+                    throw invalidResponseError;
+                }
+                return validateApiResponseShape(parsed, String(payload && payload.action || ''));
+            } catch (error) {
+                if (error && error.name === 'AbortError') {
+                    const timeoutError = new Error('連線逾時，請重新操作');
+                    timeoutError.code = 'REQUEST_TIMEOUT';
+                    throw timeoutError;
+                }
+                throw error;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        function getRequestErrorMessage(error, fallback = '網路連線異常') {
+            return error && error.message ? error.message : fallback;
+        }
+
+        function pruneSelectedEventIds(publicEvents) {
+            const validEventIds = new Set((Array.isArray(publicEvents) ? publicEvents : []).map(event => String(event.id)));
+            state.selectedEventIds = state.selectedEventIds.filter(eventId => validEventIds.has(String(eventId)));
+            updateBulkActionBar();
+        }
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
@@ -1260,7 +1342,8 @@
 
         function openModal(id) {
             const modal = document.getElementById(id);
-            lastFocusedElement = document.activeElement;
+            if (!modal || !modal.classList.contains('hidden')) return;
+            modalFocusHistory.set(id, document.activeElement);
             modal.classList.remove('hidden');
             modal.setAttribute('aria-hidden', 'false');
             document.body.classList.add('overflow-hidden');
@@ -1271,14 +1354,18 @@
         }
         function closeModal(id) {
             const modal = document.getElementById(id);
+            if (!modal) return;
             modal.classList.add('hidden');
             modal.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('overflow-hidden');
-            if (lastFocusedElement && document.contains(lastFocusedElement)) lastFocusedElement.focus();
+            const stillHasOpenModal = document.querySelector('[id^="modal-"]:not(.hidden)');
+            document.body.classList.toggle('overflow-hidden', Boolean(stillHasOpenModal));
+            const focusTarget = modalFocusHistory.get(id);
+            modalFocusHistory.delete(id);
+            if (focusTarget && document.contains(focusTarget)) focusTarget.focus();
         }
 
         function checkTokenExpiration(res) {
-            if (res && res.success === false && res.error && res.error.includes('憑證已失效或過期')) {
+            if (res && res.success === false && (res.code === 'TOKEN_EXPIRED' || (res.error && res.error.includes('憑證已失效或過期')))) {
                 showToast('系統閒置過久或權限失效，請重新登入', 'error');
                 logoutTeacher();
                 return true;
@@ -1289,32 +1376,27 @@
         async function fetchInitialData() {
             showSkeletonLoading(true);
             try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'getPublicData' })
-                });
-                const text = await response.text();
-
-                try {
-                    const res = JSON.parse(text);
-                    if (res.success) {
-                        state.events = res.data.events || [];
-                        state.eventStats = res.data.eventStats || {};
-                        state.counselors = Array.isArray(res.data.counselors) ? res.data.counselors : [];
-                        renderCounselorOptions();
-                        if (!state.isTeacherLoggedIn) {
-                            state.registrations = [];
-                            state.admins = [];
-                            state.logs = [];
-                            updateEventCounts();
-                            syncRegisteredEventIds();
-                            renderStudentEvents();
-                        }
-                        updateVersionTime();
-                    } else showToast('資料庫讀取失敗：' + res.error, 'error');
-                } catch (parseErr) {
+                const res = await apiRequest({ action: 'getPublicData' });
+                if (res.success) {
+                    state.events = res.data.events;
+                    state.eventStats = res.data.eventStats;
+                    state.counselors = res.data.counselors;
+                    pruneSelectedEventIds(res.data.events);
+                    renderCounselorOptions();
+                    if (!state.isTeacherLoggedIn) {
+                        state.registrations = [];
+                        state.admins = [];
+                        state.logs = [];
+                        updateEventCounts();
+                        syncRegisteredEventIds();
+                        renderStudentEvents();
+                    }
+                    updateVersionTime();
+                } else {
+                    showToast('資料庫讀取失敗：' + (res.error || '系統處理失敗'), 'error');
+                }
+            } catch (error) {
+                if (error && error.code === 'INVALID_RESPONSE') {
                     const errorHtml = `
                         <div class="flex items-center text-[#da292e] font-bold text-base mb-4">
                             <i class="fa-solid fa-circle-minus text-xl mr-2"></i>系統連線遭 Google 阻擋！
@@ -1329,9 +1411,12 @@
                         </ol>
                     `;
                     customConfirm(errorHtml, () => {}, 'API 權限設定錯誤');
+                } else {
+                    showToast(getRequestErrorMessage(error, '網路連線異常，無法取得資料'), 'error');
                 }
-            } catch (err) { showToast('網路連線異常，無法取得資料', 'error'); }
-            showSkeletonLoading(false);
+            } finally {
+                showSkeletonLoading(false);
+            }
         }
 
         window.onload = async () => {
@@ -1345,21 +1430,22 @@
 
         async function reloadDataSilently(loadingText = '同步最新資料中...') {
             showGlobalLoading(true, loadingText);
+            const syncErrors = [];
             try {
-                const pubRes = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'getPublicData' })
-                });
-                const pubText = await pubRes.text();
-                try {
-                    const pubData = JSON.parse(pubText);
+                const publicRequest = apiRequest({ action: 'getPublicData' });
+                const adminRequest = state.isTeacherLoggedIn && state.adminCreds
+                    ? apiRequest({ action: 'getAdminData', adminAcc: state.adminCreds.acc, adminToken: state.adminCreds.token })
+                    : Promise.resolve(null);
+                const [publicResult, adminResult] = await Promise.allSettled([publicRequest, adminRequest]);
+
+                if (publicResult.status === 'fulfilled') {
+                    const pubData = publicResult.value;
                     if (pubData.success) {
                         // 公開資料刻意沒有承辦人；登入後不得用它覆蓋完整活動資料。
-                        if (!state.isTeacherLoggedIn) state.events = pubData.data.events || [];
-                        state.eventStats = pubData.data.eventStats || {};
-                        state.counselors = Array.isArray(pubData.data.counselors) ? pubData.data.counselors : [];
+                        if (!state.isTeacherLoggedIn) state.events = pubData.data.events;
+                        state.eventStats = pubData.data.eventStats;
+                        state.counselors = pubData.data.counselors;
+                        pruneSelectedEventIds(pubData.data.events);
                         renderCounselorOptions();
                         if (!state.isTeacherLoggedIn) {
                             state.registrations = [];
@@ -1367,37 +1453,39 @@
                             syncRegisteredEventIds();
                             renderStudentEvents();
                         }
-                    }
-                } catch(e) {}
+                    } else syncErrors.push(pubData.error || '公開資料同步失敗');
+                } else {
+                    syncErrors.push(getRequestErrorMessage(publicResult.reason, '公開資料同步失敗'));
+                }
 
-                if (state.isTeacherLoggedIn && state.adminCreds) {
-                    const authRes = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'getAdminData', adminAcc: state.adminCreds.acc, adminToken: state.adminCreds.token })
-                    });
-                    const authText = await authRes.text();
-                    try {
-                        const authData = JSON.parse(authText);
+                if (adminResult.status === 'fulfilled' && adminResult.value) {
+                        const authData = adminResult.value;
                         if (authData.success) {
-                            state.events = authData.data.fullData.events || [];
-                            state.registrations = normalizeRegistrations(authData.data.fullData.registrations || []);
-                            state.logs = authData.data.fullData.logs || [];
-                            state.admins = authData.data.fullData.admins || [];
+                            state.events = authData.data.fullData.events;
+                            state.registrations = normalizeRegistrations(authData.data.fullData.registrations);
+                            state.logs = authData.data.fullData.logs;
+                            state.admins = authData.data.fullData.admins;
                             updateEventCounts();
                             renderTeacherDashboard();
                         } else if (checkTokenExpiration(authData)) {
-                             showGlobalLoading(false);
-                             return;
-                        }
-                    } catch(e) {}
+                            return false;
+                        } else syncErrors.push(authData.error || '後台資料同步失敗');
+                } else if (adminResult.status === 'rejected') {
+                    syncErrors.push(getRequestErrorMessage(adminResult.reason, '後台資料同步失敗'));
                 }
                 updateVersionTime();
-            } catch (err) {
-                showToast('背景同步資料失敗', 'error');
+                if (syncErrors.length > 0) showToast(`背景同步未完成：${syncErrors[0]}`, 'error');
+                return syncErrors.length === 0;
+            } finally {
+                showGlobalLoading(false);
             }
-            showGlobalLoading(false);
+        }
+
+        async function refreshParticipantsModal() {
+            const eventId = state.currentAdminEventId;
+            if (!eventId) return;
+            const refreshed = await reloadDataSilently('同步最新報名狀態...');
+            if (refreshed) openParticipantsModal(eventId);
         }
 
         function getEventRegistrationCount(eventId) {
@@ -1405,16 +1493,32 @@
         }
 
         function getDayOfWeek(dateString) {
-            if (!dateString) return ''; const date = new Date(String(dateString).replace(/-/g, '/')); if (isNaN(date.getTime())) return '';
-            const days = ['日', '一', '二', '三', '四', '五', '六']; return `(${days[date.getDay()]})`;
+            const match = String(dateString || '').match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
+            if (!match) return '';
+            const dayIndex = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))).getUTCDay();
+            const days = ['日', '一', '二', '三', '四', '五', '六'];
+            return `(${days[dayIndex]})`;
         }
-        function getTodayStart() { let d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+        function parseTaiwanDateTime(dateValue, timeValue = '00:00') {
+            const dateMatch = String(dateValue || '').trim().match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
+            const timeMatch = String(timeValue || '00:00').trim().match(/^(\d{1,2}):(\d{2})$/);
+            if (!dateMatch || !timeMatch) return null;
+            const value = new Date(`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}T${String(timeMatch[1]).padStart(2, '0')}:${timeMatch[2]}:00+08:00`);
+            return isNaN(value.getTime()) ? null : value;
+        }
+        function getTaiwanDateParts(date = new Date()) {
+            return Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit'
+            }).formatToParts(date).filter(part => part.type !== 'literal').map(part => [part.type, part.value]));
+        }
+        function getTodayStart() {
+            const parts = getTaiwanDateParts();
+            return parseTaiwanDateTime(`${parts.year}/${parts.month}/${parts.day}`);
+        }
         function getSessionStartDate(session) {
             if (!session || !session.date) return null;
-            const date = String(session.date).trim().replace(/-/g, '/');
             const startTime = String(session.time || '').split('-')[0].trim();
-            const value = new Date(startTime ? `${date} ${startTime}` : `${date} 00:00`);
-            return isNaN(value.getTime()) ? null : value;
+            return parseTaiwanDateTime(session.date, startTime || '00:00');
         }
         function isSessionExpired(session, now = new Date()) {
             const start = getSessionStartDate(session);
@@ -1481,17 +1585,14 @@
             document.getElementById('confirm-title').innerText = title;
             document.getElementById('confirm-msg-text').innerHTML = message;
             const modal = document.getElementById('modal-confirm');
-            modal.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
+            openModal('modal-confirm');
 
             document.getElementById('btn-confirm-cancel').onclick = () => {
-                modal.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
+                closeModal('modal-confirm');
             };
 
             document.getElementById('btn-confirm-ok').onclick = () => {
-                modal.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
+                closeModal('modal-confirm');
                 onConfirm();
             };
         }
@@ -1546,32 +1647,35 @@
             showGlobalLoading(true, '安全連線驗證中...');
 
             try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'login', account: acc, password: pwd })
-                });
-                const res = await response.json();
+                const res = await apiRequest({ action: 'login', account: acc, password: pwd });
                 if (res.success) {
-                    state.adminCreds = { acc: acc, token: res.data.token }; const user = res.data; state.isTeacherLoggedIn = true; state.currentUserRole = user.role; state.currentUserName = user.name;
-                    state.events = user.fullData.events || [];
-                    state.registrations = normalizeRegistrations(user.fullData.registrations || []);
-                    state.logs = user.fullData.logs || []; state.admins = user.fullData.admins || [];
-                    document.getElementById('admin-account').value = ''; document.getElementById('admin-password').value = '';
+                    const user = res.data;
+                    let refreshedPublicData = null;
+                    try {
+                        const pubData = await apiRequest({ action: 'getPublicData' }, 8000);
+                        if (pubData.success) refreshedPublicData = pubData.data;
+                        else showToast(`登入成功，但公開資料同步失敗：${pubData.error || '系統處理失敗'}`, 'info');
+                    } catch (publicError) {
+                        showToast(`登入成功，但公開資料同步失敗：${getRequestErrorMessage(publicError)}`, 'info');
+                    }
 
-                    const pubRes = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'getPublicData' })
-                    });
-                    const pubData = await pubRes.json();
-                    if(pubData.success) {
-                        state.eventStats = pubData.data.eventStats || {};
-                        state.counselors = Array.isArray(pubData.data.counselors) ? pubData.data.counselors : [];
+                    // 所有登入必要資料確認完成後才一次寫入狀態，避免畫面顯示失敗但記憶體已登入。
+                    state.adminCreds = { acc, token: user.token };
+                    state.isTeacherLoggedIn = true;
+                    state.currentUserRole = user.role;
+                    state.currentUserName = user.name;
+                    state.events = user.fullData.events;
+                    state.registrations = normalizeRegistrations(user.fullData.registrations);
+                    state.logs = user.fullData.logs;
+                    state.admins = user.fullData.admins;
+                    if (refreshedPublicData) {
+                        state.eventStats = refreshedPublicData.eventStats;
+                        state.counselors = refreshedPublicData.counselors;
+                        pruneSelectedEventIds(refreshedPublicData.events);
                         renderCounselorOptions();
                     }
+                    document.getElementById('admin-account').value = '';
+                    document.getElementById('admin-password').value = '';
 
                     updateEventCounts();
 
@@ -1588,8 +1692,9 @@
                     if (!e || !(e.target && e.target.tagName === 'FORM')) logoutTeacher();
                 }
             } catch (err) {
-                if (errorMsgEl) { errorMsgEl.innerText = '登入連線失敗，請檢查網路'; errorMsgEl.classList.remove('hidden'); }
-                showToast('登入連線失敗，請檢查網路', 'error');
+                const message = getRequestErrorMessage(err, '登入連線失敗，請檢查網路');
+                if (errorMsgEl) { errorMsgEl.innerText = message; errorMsgEl.classList.remove('hidden'); }
+                showToast(message, 'error');
             } finally {
                 if (loginBtn) {
                     loginBtn.disabled = false;
@@ -1604,12 +1709,7 @@
             const credentials = state.adminCreds;
             if (credentials && credentials.acc && credentials.token) {
                 try {
-                    await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'logout', adminAcc: credentials.acc, adminToken: credentials.token })
-                    });
+                    await apiRequest({ action: 'logout', adminAcc: credentials.acc, adminToken: credentials.token }, 8000);
                 } catch (error) {
                     // 即使網路中斷也先清除瀏覽器記憶體中的登入狀態；token 最遲仍會依後端 TTL 到期。
                 }
@@ -1663,16 +1763,12 @@
                         const now = new Date();
                         const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
                         let activeSession = ev.sessions.find(s => {
-                            let sDateTimeStr = String(s.date).replace(/-/g, '/');
-                            if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
-                            const sDateTime = new Date(sDateTimeStr);
-                            return !isNaN(sDateTime.getTime()) ? sDateTime >= now : new Date(String(s.date).replace(/-/g, '/')) >= getTodayStart();
+                            const sDateTime = getSessionStartDate(s);
+                            return sDateTime ? sDateTime >= now : false;
                         }) || ev.sessions[0];
 
-                        let sessionDateTimeStr = String(activeSession.date).replace(/-/g, '/');
-                        if (activeSession.time) sessionDateTimeStr += ' ' + String(activeSession.time).split('-')[0];
-                        const activeSessionDateTime = new Date(sessionDateTimeStr);
-                        const isWithinOneMonth = !isNaN(activeSessionDateTime) && activeSessionDateTime <= thirtyDaysFromNow;
+                        const activeSessionDateTime = getSessionStartDate(activeSession);
+                        const isWithinOneMonth = activeSessionDateTime && activeSessionDateTime <= thirtyDaysFromNow;
 
                         if (isWithinOneMonth) {
                             labelEl.classList.add('hover:bg-yellow-50/50', 'bg-yellow-50/20', 'border-chihlee-gold');
@@ -1741,10 +1837,8 @@
 
                 let activeSession = ev.sessions.find(s => !isSessionExpired(s, now)) || ev.sessions[0];
 
-                let sessionDateTimeStr = String(activeSession.date).replace(/-/g, '/');
-                if (activeSession.time) sessionDateTimeStr += ' ' + String(activeSession.time).split('-')[0];
-                const activeSessionDateTime = new Date(sessionDateTimeStr);
-                const isWithinOneMonth = !isNaN(activeSessionDateTime) && activeSessionDateTime <= thirtyDaysFromNow;
+                const activeSessionDateTime = getSessionStartDate(activeSession);
+                const isWithinOneMonth = activeSessionDateTime && activeSessionDateTime <= thirtyDaysFromNow;
 
                 let mealTags = []; if(ev.hasMeal) mealTags.push('附餐'); if(ev.hasSnack) mealTags.push('附點心');
                 const mealStr = mealTags.length > 0 ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded bg-orange-100 text-orange-700 border border-orange-200">${mealTags.join('+')}</span>` : `<span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded bg-gray-100 text-gray-600 border border-gray-200">無供餐</span>`;
@@ -1808,7 +1902,6 @@
             document.getElementById('reg-student-id').value = identity.sid || '';
             document.getElementById('reg-name').value = identity.name || '';
             document.getElementById('reg-counselor').value = identity.counselor || '';
-            autoFillStudentName();
         }
 
         function normalizeMealChoice(value) {
@@ -1956,10 +2049,8 @@
                 let sessionsHtml = ev.sessions.map((s, idx) => {
                     const isTaken = isOoo && takenSessions.includes(s.date + '_' + (s.time || ''));
 
-                    let sDateTimeStr = String(s.date).replace(/-/g, '/');
-                    if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
-                    const sDateTime = new Date(sDateTimeStr);
-                    const isPastSession = (!isNaN(sDateTime.getTime()) ? sDateTime : new Date(String(s.date).replace(/-/g, '/'))) < new Date();
+                    const sDateTime = getSessionStartDate(s);
+                    const isPastSession = !sDateTime || sDateTime < new Date();
 
                     const isUnavailable = isTaken || isPastSession;
                     const inputType = isOoo ? 'radio' : 'checkbox';
@@ -2069,15 +2160,9 @@
                 // 先以三項身分資料查詢本人既有報名，讓前端能在真正寫入前立即提示衝堂；
                 // 後端仍會在 ScriptLock 內再次檢查，避免修改 API 請求或同時送出時繞過。
                 try {
-                    const queryResponse = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'queryStudent', sid, sname, counselor })
-                    });
-                    const queryResult = await queryResponse.json();
+                    const queryResult = await apiRequest({ action: 'queryStudent', sid, sname, counselor }, 8000);
                     if (queryResult.success) {
-                        state.myRegistrations = Array.isArray(queryResult.data) ? queryResult.data : [];
+                        state.myRegistrations = queryResult.data;
                         state.registeredEventIds = [...new Set(state.myRegistrations.map(registration => String(registration.eventId)))];
 
                         const duplicate = payloads.find(payload => state.registeredEventIds.includes(String(payload.eventId)));
@@ -2098,25 +2183,22 @@
                     }
                 } catch (error) {
                     // 首次報名或查詢暫時失敗時仍交由後端做最終身分、重複報名與衝堂檢查。
+                    showToast(`既有報名預檢未完成：${getRequestErrorMessage(error)}；送出時仍會由後端檢查`, 'info');
                 }
 
                 try {
-                    const pubRes = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'getPublicData' })
-                    });
-                    const pubText = await pubRes.text();
-                    const pubData = JSON.parse(pubText);
+                    const pubData = await apiRequest({ action: 'getPublicData' }, 8000);
                     if (pubData.success) {
-                        state.events = pubData.data.events || [];
-                        state.eventStats = pubData.data.eventStats || {};
-                        state.counselors = Array.isArray(pubData.data.counselors) ? pubData.data.counselors : [];
+                        state.events = pubData.data.events;
+                        state.eventStats = pubData.data.eventStats;
+                        state.counselors = pubData.data.counselors;
+                        pruneSelectedEventIds(pubData.data.events);
                         renderCounselorOptions();
                         updateEventCounts();
                     }
-                } catch(e) {}
+                } catch(error) {
+                    showToast(`最新名額同步失敗：${getRequestErrorMessage(error)}；後端仍會做最終檢查`, 'info');
+                }
 
                 let isCapacityExceeded = false;
                 let exceededEventName = '';
@@ -2139,13 +2221,7 @@
                 }
 
                 try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'submitRegistration', data: payloads })
-                    });
-                    const res = await response.json();
+                    const res = await apiRequest({ action: 'submitRegistration', data: payloads });
 
                     if (res.success) {
                         payloads.forEach(p => {
@@ -2165,7 +2241,7 @@
                         showToast(res.error || '報名失敗，請確認資料是否正確', 'error');
                     }
                 } catch (err) {
-                    showToast('網路連線異常', 'error');
+                    showToast(getRequestErrorMessage(err), 'error');
                 } finally {
                     if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
                     showGlobalLoading(false);
@@ -2211,13 +2287,7 @@
             const container = document.getElementById('query-result-container');
             container.innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-chihlee-blue"></i><br><span class="font-bold tracking-widest">安全連線查詢中...</span></div>';
             try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'queryStudent', sid, sname, counselor })
-                });
-                const res = await response.json();
+                const res = await apiRequest({ action: 'queryStudent', sid, sname, counselor });
                 if (res.success) {
                     state.myRegistrations = res.data;
 
@@ -2245,7 +2315,7 @@
                     renderQueryResults();
                 }
                 else container.innerHTML = `<div class="text-center text-red-500 py-8 font-bold">${escapeHTML(res.error || '查詢發生錯誤')}</div>`;
-            } catch (err) { container.innerHTML = '<div class="text-center text-red-500 py-8">網路連線異常。</div>'; }
+            } catch (err) { container.innerHTML = `<div class="text-center text-red-500 py-8">${escapeHTML(getRequestErrorMessage(err))}</div>`; }
         }
 
         function renderQueryResults() {
@@ -2260,7 +2330,7 @@
                 const ev = eventMap.get(String(r.eventId)) || r.eventSummary; return ev && ev.sessions && ev.sessions.length > 0;
             }).sort((a, b) => {
                 const evA = eventMap.get(String(a.eventId)) || a.eventSummary; const evB = eventMap.get(String(b.eventId)) || b.eventSummary;
-                return new Date(String(evA.sessions[0].date).replace(/-/g,'/')) - new Date(String(evB.sessions[0].date).replace(/-/g,'/'));
+                return (parseTaiwanDateTime(evA.sessions[0].date) || new Date(0)) - (parseTaiwanDateTime(evB.sessions[0].date) || new Date(0));
             });
 
             sortedRegs.forEach(reg => {
@@ -2350,7 +2420,7 @@
 
             if(yearSelect.options.length === 0) {
                 let years = [...new Set(state.events.filter(e => e.sessions && e.sessions.length > 0).map(ev => String(ev.sessions[0].date).split('/')[0]))].sort((a,b)=>b-a);
-                const currentY = String(new Date().getFullYear());
+                const currentY = String(getTaiwanDateParts().year);
                 yearSelect.innerHTML = `<option value="all">全部年度</option>` + years.map(y => `<option value="${escapeHTML(y)}">${escapeHTML(y)}</option>`).join('');
                 if (years.includes(currentY)) yearSelect.value = currentY; else if(years.length > 0) yearSelect.value = years[0];
             }
@@ -2359,12 +2429,18 @@
 
             const currentYear = yearSelect.value || 'all'; const currentCat = categorySelect.value || 'all'; const currentTeacher = teacherSelect.value || 'all';
             const tbody = document.getElementById('teacher-events-tbody'); tbody.innerHTML = '';
-            const today = new Date(); today.setHours(0,0,0,0);
+            const today = getTodayStart();
 
-            const isEventFullyExpired = (ev, refDate) => ev.sessions.every(s => new Date(String(s.date).replace(/-/g,'/')) < refDate);
+            const isEventFullyExpired = (ev, refDate) => ev.sessions.every(s => {
+                const date = parseTaiwanDateTime(s.date);
+                return !date || date < refDate;
+            });
             const getActiveSessionDate = (ev, refDate) => {
-                let active = ev.sessions.find(s => new Date(String(s.date).replace(/-/g,'/')) >= refDate);
-                return active ? new Date(String(active.date).replace(/-/g,'/')) : new Date(String(ev.sessions[ev.sessions.length - 1].date).replace(/-/g,'/'));
+                let active = ev.sessions.find(s => {
+                    const date = parseTaiwanDateTime(s.date);
+                    return date && date >= refDate;
+                });
+                return active ? parseTaiwanDateTime(active.date) : (parseTaiwanDateTime(ev.sessions[ev.sessions.length - 1].date) || new Date(0));
             };
 
             const mappedEvents = state.events.map(ev => ({
@@ -2403,10 +2479,8 @@
 
                 const datesHTML = ev.sessions.map((s, idx) => {
                     const numHtml = ev.sessions.length > 1 ? `<span class="inline-block w-4 text-right mr-1.5 text-gray-500 font-medium">${idx+1}.</span>` : '';
-                    let sDateTimeStr = String(s.date).replace(/-/g, '/');
-                    if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
-                    const sDateTime = new Date(sDateTimeStr);
-                    const isSessionPast = !isNaN(sDateTime.getTime()) ? sDateTime < new Date() : new Date(String(s.date).replace(/-/g, '/')) < today;
+                    const sDateTime = getSessionStartDate(s);
+                    const isSessionPast = !sDateTime || sDateTime < new Date();
 
                     const dateTextColor = isSessionPast ? 'text-gray-400 line-through decoration-gray-300' : 'text-gray-800';
                     const timeTextColor = isSessionPast ? 'text-gray-400' : 'text-chihlee-blue';
@@ -2474,7 +2548,7 @@
         }
 
         function renderTempTags() { document.getElementById('edit-tags-container').innerHTML = state.tempTags.map((t, idx) => `<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs md:text-sm font-bold flex items-center">${escapeHTML(t)} <button type="button" onclick="removeTempTag(${idx}); markDirty();" class="ml-1 text-blue-500 hover:text-red-500 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-200 transition">✕</button></span>`).join(''); }
-        function addTempTag() { const input = document.getElementById('edit-tag-input'); let val = input.value.trim(); if(!val) return; if(!val.startsWith('#')) val = '#' + val; if(state.tempTags.length >= 3) return showToast('最多 3 個標籤！', 'error'); if(!state.tempTags.includes(val)) { state.tempTags.push(val); input.value = ''; renderTempTags(); } }
+        function addTempTag() { const input = document.getElementById('edit-tag-input'); let val = input.value.trim(); if(!val) return; if(!val.startsWith('#')) val = '#' + val; if(val.length > 10) return showToast('每個標籤含 # 最多 10 個字！', 'error'); if(state.tempTags.length >= 3) return showToast('最多 3 個標籤！', 'error'); if(!state.tempTags.includes(val)) { state.tempTags.push(val); input.value = ''; renderTempTags(); } }
         function removeTempTag(idx) { state.tempTags.splice(idx, 1); renderTempTags(); }
 
         function handleActivityTypeChange() {
@@ -2504,7 +2578,7 @@
                 <div class="session-edit-row bg-white p-2.5 rounded-md border border-gray-200">
                     <input type="date" id="sesDate_${idx}" value="${String(s.date).replace(/\//g, '-')}" onchange="markDirty()" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
                     <input type="text" id="sesTime_${idx}" value="${escapeHTML(s.time)}" oninput="markDirty()" onblur="formatTimeRange(this); syncTempSessions();" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm" placeholder="如 18:00-20:00">
-                    <input type="text" id="sesLoc_${idx}" value="${escapeHTML(s.location || '')}" oninput="markDirty()" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-yellow-50 placeholder-gray-400" placeholder="獨立地點(選填)">
+                    <input type="text" id="sesLoc_${idx}" value="${escapeHTML(s.location || '')}" maxlength="10" oninput="markDirty()" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-yellow-50 placeholder-gray-400" placeholder="獨立地點（最多10字）">
                     <button type="button" aria-label="刪除第 ${idx + 1} 場" onclick="removeTempSession(${idx}); markDirty();" class="session-delete-button text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-800 rounded-md transition text-sm font-bold shadow-sm"><i class="fa-solid fa-trash"></i><span class="session-delete-label">刪除</span></button>
                 </div>`).join('');
         }
@@ -2590,6 +2664,16 @@
             }
             if(finalSessions.length === 0) return showToast('請完整填寫日期與時間', 'error');
 
+            const teacher = document.getElementById('edit-teacher').value.trim();
+            if (!teacher || teacher.length > 5) return showToast('承辦人必須為 1 至 5 個字', 'error');
+            if (state.tempTags.length > 3 || state.tempTags.some(tag => typeof tag !== 'string' || !tag.trim() || tag.trim().length > 10)) {
+                return showToast('活動標籤最多 3 個，每個含 # 最多 10 個字', 'error');
+            }
+            const invalidSessionLocationIndex = finalSessions.findIndex(session => !session.location || session.location.length > 10);
+            if (invalidSessionLocationIndex !== -1) {
+                return showToast(`第 ${invalidSessionLocationIndex + 1} 場地點必須為 1 至 10 個字`, 'error');
+            }
+
             for (let i = 0; i < finalSessions.length; i++) {
                 for (let j = i + 1; j < finalSessions.length; j++) {
                     if (finalSessions[i].date === finalSessions[j].date) {
@@ -2657,20 +2741,14 @@
 
             showGlobalLoading(true, '儲存活動中...');
             try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: id ? 'updateEvent' : 'addEvent',
-                        data: eventData,
-                        eventId: id || null,
-                        adminName: state.currentUserName,
-                        adminAcc: state.adminCreds.acc,
-                        adminToken: state.adminCreds.token
-                    })
+                const res = await apiRequest({
+                    action: id ? 'updateEvent' : 'addEvent',
+                    data: eventData,
+                    eventId: id || null,
+                    adminName: state.currentUserName,
+                    adminAcc: state.adminCreds.acc,
+                    adminToken: state.adminCreds.token
                 });
-                const res = await response.json();
                 if (checkTokenExpiration(res)) return;
                 if (res.success) {
                     resetDirty();
@@ -2679,9 +2757,11 @@
                     await reloadDataSilently('同步活動資料...');
                 }
                 else showToast('儲存失敗：' + res.error, 'error');
-            } catch (err) { showToast('網路連線異常', 'error'); }
-            finally { if (restoreBtnCallback) restoreBtnCallback(); }
-            showGlobalLoading(false);
+            } catch (err) { showToast(getRequestErrorMessage(err), 'error'); }
+            finally {
+                if (restoreBtnCallback) restoreBtnCallback();
+                showGlobalLoading(false);
+            }
         }
 
         async function toggleEventPublished(eventId, isPublished) {
@@ -2694,25 +2774,19 @@
             customConfirm(`確定要${actionText}「${escapeHTML(ev.title)}」？<br><span class="text-sm text-gray-600">${detail}</span>`, async () => {
                 showGlobalLoading(true, `${actionText}活動中...`);
                 try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({
-                            action: 'setEventPublished',
-                            eventId: eventId,
-                            isPublished: isPublished,
-                            adminAcc: state.adminCreds.acc,
-                            adminToken: state.adminCreds.token
-                        })
+                    const res = await apiRequest({
+                        action: 'setEventPublished',
+                        eventId: eventId,
+                        isPublished: isPublished,
+                        adminAcc: state.adminCreds.acc,
+                        adminToken: state.adminCreds.token
                     });
-                    const res = await response.json();
                     if (checkTokenExpiration(res)) return;
                     if (!res.success) return showToast(`${actionText}失敗：${res.error || '系統處理失敗'}`, 'error');
                     await reloadDataSilently('同步活動公開狀態...');
                     showToast(`活動已${actionText}`, 'success');
                 } catch (error) {
-                    showToast(`${actionText}失敗：網路連線異常`, 'error');
+                    showToast(`${actionText}失敗：${getRequestErrorMessage(error)}`, 'error');
                 } finally {
                     showGlobalLoading(false);
                 }
@@ -2724,26 +2798,20 @@
             customConfirm(`確定徹底刪除「${escapeHTML(ev.title)}」？\n(報名紀錄也會一併移除)`, async () => {
                 showGlobalLoading(true, '刪除中...');
                 try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({
-                            action: 'deleteEvent',
-                            eventId: eventId,
-                            adminName: state.currentUserName,
-                            adminAcc: state.adminCreds.acc,
-                            adminToken: state.adminCreds.token
-                        })
+                    const res = await apiRequest({
+                        action: 'deleteEvent',
+                        eventId: eventId,
+                        adminName: state.currentUserName,
+                        adminAcc: state.adminCreds.acc,
+                        adminToken: state.adminCreds.token
                     });
-                    const res = await response.json();
                     if (checkTokenExpiration(res)) return;
                     if (res.success) {
                         showToast('活動已刪除', 'success');
                         await reloadDataSilently('同步中...');
                     } else showToast('刪除失敗', 'error');
-                } catch(e) { showToast('網路錯誤', 'error'); }
-                showGlobalLoading(false);
+                } catch(e) { showToast(getRequestErrorMessage(e), 'error'); }
+                finally { showGlobalLoading(false); }
             });
         }
 
@@ -2754,18 +2822,12 @@
             customConfirm(`確定刪除 <b>${escapeHTML(reg.name)}</b> 的報名？<br><span class="text-sm text-red-600 font-bold">⚠️ 名額將直接釋放。</span>`, async () => {
                 showGlobalLoading(true, '刪除中...');
                 try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({
-                            action: 'deleteRegistration',
-                            regId: regId,
-                            adminAcc: state.adminCreds.acc,
-                            adminToken: state.adminCreds.token
-                        })
+                    const res = await apiRequest({
+                        action: 'deleteRegistration',
+                        regId: regId,
+                        adminAcc: state.adminCreds.acc,
+                        adminToken: state.adminCreds.token
                     });
-                    const res = await response.json();
                     if (checkTokenExpiration(res)) return;
                     if (res.success) {
                         showToast('已刪除，名額釋放', 'success');
@@ -2777,9 +2839,10 @@
                         showToast('刪除失敗', 'error');
                     }
                 } catch(e) {
-                    showToast('網路連線錯誤', 'error');
+                    showToast(getRequestErrorMessage(e), 'error');
+                } finally {
+                    showGlobalLoading(false);
                 }
-                showGlobalLoading(false);
             }, '確認刪除');
         }
 
@@ -2813,23 +2876,17 @@
             verifyButton.disabled = true;
             verifyButton.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i>驗證中';
             try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'lookupStudentForAdminRegistration',
-                        sid,
-                        adminAcc: state.adminCreds.acc,
-                        adminToken: state.adminCreds.token
-                    })
+                const result = await apiRequest({
+                    action: 'lookupStudentForAdminRegistration',
+                    sid,
+                    adminAcc: state.adminCreds.acc,
+                    adminToken: state.adminCreds.token
                 });
-                const result = await response.json();
                 if (checkTokenExpiration(result)) return;
                 if (result.success) student = result.data;
                 else if (result.code !== 'STUDENT_NOT_FOUND') showToast('驗證失敗：' + result.error, 'error');
             } catch (error) {
-                showToast('學生資料驗證連線失敗', 'error');
+                showToast(`學生資料驗證失敗：${getRequestErrorMessage(error)}`, 'error');
             } finally {
                 verifyButton.disabled = false;
                 verifyButton.innerText = '驗證';
@@ -2940,22 +2997,16 @@
         }
 
         async function proceedAdminAddParticipant(eventId, student, sessData) {
-            const payload = [{ eventId: eventId, studentId: student.id, name: student.name, counselor: student.counselor || '', sessionsData: sessData }];
+            const payload = [{ eventId: eventId, studentId: student.id, name: student.name, sessionsData: sessData }];
             showGlobalLoading(true, '新增報名資料中...');
             try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'adminSubmitRegistration',
-                        data: payload,
-                        adminName: state.currentUserName,
-                        adminAcc: state.adminCreds.acc,
-                        adminToken: state.adminCreds.token
-                    })
+                const res = await apiRequest({
+                    action: 'adminSubmitRegistration',
+                    data: payload,
+                    adminName: state.currentUserName,
+                    adminAcc: state.adminCreds.acc,
+                    adminToken: state.adminCreds.token
                 });
-                const res = await response.json();
                 if (checkTokenExpiration(res)) return;
                 if (res.success) {
                     closeModal('modal-admin-add-participant');
@@ -2966,8 +3017,8 @@
                     showToast('新增成功！', 'success');
                 }
                 else showToast('新增失敗：' + res.error, 'error');
-            } catch (err) { showToast('網路連線異常', 'error'); }
-            showGlobalLoading(false);
+            } catch (err) { showToast(getRequestErrorMessage(err), 'error'); }
+            finally { showGlobalLoading(false); }
         }
 
         function openAdminRemarkModal(regId, studentName) {
@@ -3125,20 +3176,14 @@
 
             showGlobalLoading(true, '更新備註中...');
             try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'updateRegistration',
-                        regId: reg.id,
-                        remark: newRemark,
-                        sessionsData: newSessionsData,
-                        adminAcc: state.adminCreds.acc,
-                        adminToken: state.adminCreds.token
-                    })
+                const res = await apiRequest({
+                    action: 'updateRegistration',
+                    regId: reg.id,
+                    remark: newRemark,
+                    sessionsData: newSessionsData,
+                    adminAcc: state.adminCreds.acc,
+                    adminToken: state.adminCreds.token
                 });
-                const res = await response.json();
                 if (checkTokenExpiration(res)) return;
                 if (res.success) {
                     resetDirty();
@@ -3151,11 +3196,11 @@
                     }
                 }
                 else showToast(res.error || '更新失敗', 'error');
-            } catch (err) { showToast('網路錯誤', 'error'); }
+            } catch (err) { showToast(getRequestErrorMessage(err), 'error'); }
             finally {
                 if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove('opacity-70', 'cursor-not-allowed'); saveBtn.innerHTML = '儲存'; }
+                showGlobalLoading(false);
             }
-            showGlobalLoading(false);
         }
 
         function toggleAllNotify(source) {
@@ -3243,7 +3288,7 @@
                 document.getElementById('line-draft-hint').classList.remove('hidden');
 
                 if (type === 'pre_event') {
-                    textarea.value = `【致理科大資源教室 活動提醒】\n同學您好！提醒您有報名以下活動：\n\n📌 活動名稱：${ev.title}\n📅 活動時間：\n${sessionsStr}\n📍 地點：${ev.location}\n\n💡 小提醒：請留意當天是否有供餐，若有用餐需求變更或臨時不克前來，請直接聯繫輔導老師喔！期待您的參與！`;
+                    textarea.value = `【致理科大資源教室 活動提醒】\n同學您好！提醒您有報名以下活動：\n\n📌 活動名稱：${ev.title}\n📅 活動時間：\n${sessionsStr}\n📍 地點：${ev.location}\n\n💡 小提醒：請留意當天是否有供餐，若有用餐需求變更或臨時不克前來，請直接聯繫個管老師喔！期待您的參與！`;
                 } else if (type === 'feedback') {
                     textarea.value = `【致理科大資源教室 滿意度調查】\n同學您好！感謝您參與「${ev.title}」。\n\n為了提供更好的活動品質，邀請您花 1 分鐘填寫回饋問卷：\n👉 [請貼上問卷網址]\n\n您的寶貴意見是我們進步的動力，謝謝您！`;
                 } else if (type === 'custom') {
@@ -3270,7 +3315,20 @@
             changeLineTemplate();
         }
 
-        async function confirmSendLine() {
+        function confirmSendLine() {
+            const selectedCount = document.querySelectorAll('.notify-checkbox:checked').length;
+            const message = document.getElementById('line-preview-text').value.trim();
+            if (selectedCount === 0) return showToast('請勾選要發送的學生！', 'error');
+            if (!message) return showToast('推播文案不可為空！', 'error');
+
+            customConfirm(
+                `<div class="text-left space-y-3"><p class="font-bold text-red-700">LINE 官方帳號每月免費推播額度只有 200 則，請妥善運用。</p><p>每發送給 1 位學生會使用 1 則額度；本次預計發送 <strong>${selectedCount}</strong> 則。</p><p class="text-sm text-gray-600">請再次確認發送對象與內容。按「取消」不會發送，按「確定」才會送出。</p></div>`,
+                sendLineNotificationNow,
+                'LINE 推播額度提醒'
+            );
+        }
+
+        async function sendLineNotificationNow() {
             const checkboxes = document.querySelectorAll('.notify-checkbox:checked');
             const msg = document.getElementById('line-preview-text').value.trim();
             const notifyType = document.getElementById('line-template-select').value;
@@ -3290,20 +3348,14 @@
 
             showGlobalLoading(true, `發送給 ${targetRegIds.length} 位學生中...`);
             try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'sendLineNotification',
-                        regIds: targetRegIds,
-                        message: msg,
-                        notifyType: notifyType,
-                        adminAcc: state.adminCreds.acc,
-                        adminToken: state.adminCreds.token
-                    })
+                const res = await apiRequest({
+                    action: 'sendLineNotification',
+                    regIds: targetRegIds,
+                    message: msg,
+                    notifyType: notifyType,
+                    adminAcc: state.adminCreds.acc,
+                    adminToken: state.adminCreds.token
                 });
-                const res = await response.json();
                 if (checkTokenExpiration(res)) return;
                 if (res.success) {
                     if (res.failCount > 0 && res.failedStudents && res.failedStudents.length > 0) {
@@ -3316,15 +3368,15 @@
                     await reloadDataSilently('更新通知狀態...');
                     openNotifyModal(state.currentAdminEventId);
                 } else showToast('發送失敗：' + res.error, 'error');
-            } catch(e) { showToast('網路錯誤', 'error'); }
+            } catch(e) { showToast(getRequestErrorMessage(e), 'error'); }
             finally {
                 if (sendBtn) {
                     sendBtn.disabled = false;
                     sendBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                     sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i>發送推播';
                 }
+                showGlobalLoading(false);
             }
-            showGlobalLoading(false);
         }
 
         window.openParticipantsModal = function(eventId) {
