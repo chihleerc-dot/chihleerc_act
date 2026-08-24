@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.3｜2026-08-24 18:23 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.4｜2026-08-24 18:49 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -98,6 +98,38 @@
         /* 後台活動表格保留可讀欄寬，避免活動名稱在仍有空間時逐字斷行。 */
         .admin-events-table { min-width: 1140px; table-layout: fixed; }
         .admin-event-title { word-break: keep-all; overflow-wrap: break-word; }
+
+        /* 報名名單：活動資訊置左，操作按鈕固定靠右上，並避免不同寬度互相重疊。 */
+        #modal-participants .participants-modal-header { align-items: flex-start; }
+        #modal-participants .participants-modal-main { min-width: 0; }
+        #modal-participants .participants-modal-actions {
+            align-self: flex-start;
+            justify-content: flex-end;
+            margin-left: auto;
+        }
+        .meal-badge {
+            display: inline-flex;
+            align-items: center;
+            width: max-content;
+            padding: .25rem .7rem;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: .75rem;
+            font-weight: 700;
+            line-height: 1.25rem;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(16, 42, 67, .05);
+        }
+        .meal-badge-meat { color: #B42345; background: #FFF0F3; border-color: #F8B4C2; }
+        .meal-badge-vegetarian { color: #087A45; background: #ECFDF3; border-color: #A6E3C2; }
+        .meal-badge-none { color: #596579; background: #F2F4F7; border-color: #D5DAE1; }
+        @media (max-width: 1023px) {
+            #modal-participants .participants-modal-actions {
+                width: 100%;
+                margin-left: 0;
+                justify-content: stretch;
+            }
+        }
 
         button, a, input, select, textarea { transition-duration: 140ms !important; }
         button { min-height: 44px; border-radius: 8px !important; }
@@ -574,7 +606,7 @@
                         <thead class="bg-gray-200 text-gray-700 text-sm shadow-sm sticky top-0 z-20">
                             <tr>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold sticky left-0 bg-gray-200 z-30 w-24 border-r border-gray-300">分類</th>
-                                <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold md:sticky md:left-[110px] bg-gray-200 md:z-30 shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-gray-300">活動名稱 & 承辦人</th>
+                                <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold md:sticky md:left-[110px] bg-gray-200 md:z-30 shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-gray-300">活動名稱/承辦人</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold">場次時間/地點</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-center font-semibold">報名狀態</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-right font-semibold sticky right-0 bg-gray-200 z-30 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">操作管理</th>
@@ -624,9 +656,9 @@
                                 <input type="text" id="reg-name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm transition-colors">
                             </div>
                             <div>
-                                <label for="reg-counselor" class="block text-sm font-medium text-gray-700 mb-1">負責輔導員 <span class="text-red-500">*</span></label>
+                                <label for="reg-counselor" class="block text-sm font-medium text-gray-700 mb-1">個管老師 <span class="text-red-500">*</span></label>
                                 <select id="reg-counselor" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm">
-                                    <option value="">請選擇負責輔導員</option>
+                                    <option value="">請選擇個管老師</option>
                                 </select>
                             </div>
                         </div>
@@ -674,7 +706,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                     <div><label for="query-student-id" class="block text-xs font-bold text-gray-700 mb-1">學號</label><input type="text" id="query-student-id" inputmode="numeric" autocomplete="off" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"></div>
                     <div><label for="query-name" class="block text-xs font-bold text-gray-700 mb-1">姓名</label><input type="text" id="query-name" autocomplete="name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"></div>
-                    <div><label for="query-counselor" class="block text-xs font-bold text-gray-700 mb-1">負責輔導員</label><select id="query-counselor" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"><option value="">請選擇負責輔導員</option></select></div>
+                    <div><label for="query-counselor" class="block text-xs font-bold text-gray-700 mb-1">個管老師</label><select id="query-counselor" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"><option value="">請選擇個管老師</option></select></div>
                     <button onclick="executeStudentQuery()" class="w-full sm:col-span-2 md:col-span-3 px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>安全查詢</button>
                 </div>
             </div>
@@ -819,17 +851,17 @@
     <!-- Modal: 報名名單 -->
     <div id="modal-participants" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col relative animate-fade-in m-2">
-            <div class="p-4 md:p-6 lg:p-8 border-b border-gray-100 flex-shrink-0 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                <div class="w-full lg:flex-1 min-w-0">
+            <div class="participants-modal-header p-4 md:p-6 lg:p-8 border-b border-gray-100 flex-shrink-0 flex flex-col lg:flex-row justify-between items-start gap-4">
+                <div class="participants-modal-main w-full lg:flex-1 min-w-0">
                     <h3 id="part-modal-title" class="text-lg md:text-2xl font-bold text-chihlee-blue mb-2 flex items-center flex-wrap leading-snug"></h3>
                     <div id="part-modal-stats-container" class="flex flex-wrap gap-2 md:gap-4 mb-2 md:mb-0"></div>
                 </div>
-                <div class="grid grid-cols-2 sm:flex sm:flex-row gap-2 w-full lg:w-auto flex-shrink-0">
+                <div class="participants-modal-actions grid grid-cols-2 sm:flex sm:flex-row gap-2 w-full lg:w-auto flex-shrink-0">
                     <button onclick="reloadDataSilently('同步最新報名狀態...'); setTimeout(()=>openParticipantsModal(state.currentAdminEventId), 1500);" class="w-full md:w-auto bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-200 transition flex justify-center items-center text-sm font-bold flex-shrink-0">
                         <i class="fa-solid fa-rotate mr-2"></i> 重新整理
                     </button>
                     <button onclick="openAdminAddParticipantModal()" class="w-full md:w-auto bg-chihlee-gold text-white px-4 py-2.5 rounded-lg shadow hover:bg-opacity-90 transition flex justify-center items-center text-sm font-bold flex-shrink-0">
-                        <i class="fa-solid fa-user-plus mr-2"></i> 輔導員新增
+                        <i class="fa-solid fa-user-plus mr-2"></i> 個管老師新增
                     </button>
                     <button type="button" onclick="closeModal('modal-participants')" aria-label="關閉報名名單" title="關閉" class="col-span-2 sm:col-span-1 sm:w-11 bg-white text-gray-500 hover:text-gray-800 px-3 py-2.5 rounded-lg border border-gray-300 transition flex justify-center items-center text-xl flex-shrink-0"><i class="fa-solid fa-xmark"></i></button>
                 </div>
@@ -841,7 +873,7 @@
                         <tr>
                             <th class="px-4 md:px-6 py-3 font-semibold sticky left-0 z-30 bg-gray-200 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-gray-300 w-48">系級 / 學號 / 姓名</th>
                             <th class="px-4 md:px-6 py-3 font-semibold bg-gray-200">場次參與狀態</th>
-                            <th class="px-4 md:px-6 py-3 font-semibold bg-gray-200 w-48">輔導員備註</th>
+                            <th class="px-4 md:px-6 py-3 font-semibold bg-gray-200 w-48">個管老師備註</th>
                             <th class="px-4 md:px-6 py-3 font-semibold text-right md:sticky md:right-0 bg-gray-200 md:z-30 md:shadow-[-4px_0_10px_rgba(0,0,0,0.05)] border-l border-gray-300 w-36">操作</th>
                         </tr>
                     </thead>
@@ -852,10 +884,10 @@
         </div>
     </div>
 
-    <!-- Modal: 輔導員手動新增報名 -->
+    <!-- Modal: 個管老師手動新增報名 -->
     <div id="modal-admin-add-participant" class="fixed inset-0 bg-black bg-opacity-60 z-[70] hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white p-5 md:p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in max-h-[95vh] overflow-y-auto custom-scroll mx-2">
-            <h4 class="font-bold text-lg text-chihlee-blue mb-4">輔導員手動新增報名</h4>
+            <h4 class="font-bold text-lg text-chihlee-blue mb-4">個管老師手動新增報名</h4>
             <div class="mb-4">
                 <label class="block text-sm font-bold text-gray-700 mb-1">學生學號 (8碼) <span class="text-red-500">*</span></label>
                 <div class="flex gap-2">
@@ -882,7 +914,7 @@
             <p class="text-sm text-gray-500 mb-4 break-words" id="remark-student-info"></p>
             <div oninput="markDirty()" onchange="markDirty()">
                 <div id="admin-remark-meals" class="mb-4"></div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">輔導員備註</label>
+                <label class="block text-sm font-bold text-gray-700 mb-1">個管老師備註</label>
                 <textarea id="admin-remark-input" class="w-full border border-gray-300 p-3 rounded-md h-24 focus:ring-chihlee-blue outline-none text-base md:text-sm resize-y mb-4" placeholder="輸入備註..."></textarea>
             </div>
             <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-2">
@@ -1128,7 +1160,7 @@
                 select.replaceChildren();
                 const placeholder = document.createElement('option');
                 placeholder.value = '';
-                placeholder.textContent = counselors.length ? '請選擇負責輔導員' : '目前無可選輔導員';
+                placeholder.textContent = counselors.length ? '請選擇個管老師' : '目前無可選個管老師';
                 select.appendChild(placeholder);
                 counselors.forEach(name => {
                     const option = document.createElement('option');
@@ -1179,9 +1211,9 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.3';
-        const VERSION_UPDATED_AT = '2026/08/24 18:23';
-        const VERSION_UPDATED_AT_ISO = '2026-08-24T18:23:00+08:00';
+        const VERSION_LABEL = 'V11.4';
+        const VERSION_UPDATED_AT = '2026/08/24 18:49';
+        const VERSION_UPDATED_AT_ISO = '2026-08-24T18:49:00+08:00';
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
@@ -1764,6 +1796,13 @@
             return '不用餐';
         }
 
+        function getMealBadgeClass(value) {
+            const meal = normalizeMealChoice(value);
+            if (meal === '葷') return 'meal-badge meal-badge-meat';
+            if (meal === '素') return 'meal-badge meal-badge-vegetarian';
+            return 'meal-badge meal-badge-none';
+        }
+
         function getMealOptionsHtml(event, selectedValue = '不用餐') {
             const selected = normalizeMealChoice(selectedValue);
             const choices = event && (event.hasMeal || event.hasSnack) ? ['葷', '素', '不用餐'] : ['不用餐'];
@@ -1857,7 +1896,7 @@
 
         function openRegisterModal() {
             if (state.isTeacherLoggedIn) {
-                return showToast('您目前為登入狀態！若需協助學生報名，請至後台「報名名單」使用【輔導員新增】功能。', 'error');
+                return showToast('您目前為登入狀態！若需協助學生報名，請至後台「報名名單」使用【個管老師新增】功能。', 'error');
             }
 
             if (state.selectedEventIds.length === 0) return showToast('請先勾選活動！', 'error');
@@ -1948,7 +1987,7 @@
             }
             if (!sname || !counselor) {
                 if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
-                return showToast('請完整填寫學號、姓名與負責輔導員', 'error');
+                return showToast('請完整填寫學號、姓名與個管老師', 'error');
             }
 
             let duplicateEventTitles = [];
@@ -2032,7 +2071,7 @@
                             const when = [conflict.date, conflict.time].filter(Boolean).join(' ');
                             showGlobalLoading(false);
                             if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
-                            return showToast(`該時段您已報名「${conflict.title}」${when ? `（${when}）` : ''}，如仍要報名請聯絡輔導員取消原報名`, 'error');
+                            return showToast(`該時段您已報名「${conflict.title}」${when ? `（${when}）` : ''}，如仍要報名請聯絡個管老師取消原報名`, 'error');
                         }
                     }
                 } catch (error) {
@@ -2145,7 +2184,7 @@
             const sname = document.getElementById('query-name').value.trim();
             const counselor = document.getElementById('query-counselor').value.trim();
 
-            if(!sid || !sname || !counselor) return showToast('請完整填寫學號、姓名與負責輔導員', 'error');
+            if(!sid || !sname || !counselor) return showToast('請完整填寫學號、姓名與個管老師', 'error');
 
             const container = document.getElementById('query-result-container');
             container.innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-chihlee-blue"></i><br><span class="font-bold tracking-widest">安全連線查詢中...</span></div>';
@@ -3272,7 +3311,7 @@
             if (!ev) return showToast('找不到活動', 'error');
 
             const titleEl = document.getElementById('part-modal-title');
-            if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-users text-chihlee-blue mr-2"></i> <span>${escapeHTML(ev.title)}</span> <span class="text-sm text-gray-500 md:ml-2 font-normal whitespace-nowrap mt-1 md:mt-0">報名名單</span>`;
+            if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-users text-chihlee-blue mr-2"></i><span>${escapeHTML(ev.title)}</span>`;
 
             const parts = state.registrations.filter(r => String(r.eventId) === state.currentAdminEventId);
             const tbody = document.getElementById('participants-tbody');
@@ -3302,7 +3341,7 @@
                             mealCounts[meal]++;
                             const session = (Array.isArray(ev.sessions) ? ev.sessions : []).find(item => item.date === sd.date && (item.time === sd.time || !sd.time));
                             const time = sd.time || (session && session.time) || '';
-                            return `<div class="text-xs mb-1.5 tabular-nums flex flex-col sm:flex-row sm:items-center sm:gap-2"><span class="font-bold text-gray-700 break-words">${escapeHTML(sd.date)} ${escapeHTML(time)}</span><span class="text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-0.5 font-bold whitespace-nowrap">${escapeHTML(meal)}</span></div>`;
+                            return `<div class="text-xs mb-1.5 tabular-nums flex flex-col sm:flex-row sm:items-center sm:gap-2"><span class="font-bold text-gray-700 break-words">${escapeHTML(sd.date)} ${escapeHTML(time)}</span><span class="${getMealBadgeClass(meal)}">${escapeHTML(meal)}</span></div>`;
                         }
                         return '';
                     }).join('');
@@ -3332,7 +3371,7 @@
             let statsHtml = `<div class="bg-blue-50 text-chihlee-blue px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-blue-100 shadow-sm whitespace-nowrap"><i class="fa-solid fa-users mr-1"></i>報名人數：${parts.length}</div>`;
             if (ev.isSeries) statsHtml += `<div class="bg-sky-50 text-blue-700 px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-blue-100 shadow-sm whitespace-nowrap">出席人次：${totalAttend}</div>`;
             statsHtml += `<div class="w-full text-xs font-bold text-gray-600 mt-1"><i class="fa-solid fa-utensils mr-1"></i>用餐統計（依勾選場次計算）</div>`;
-            statsHtml += Object.entries(mealCounts).map(([m, c]) => `<div class="bg-orange-50 text-orange-700 px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-orange-100 shadow-sm whitespace-nowrap">${escapeHTML(m)}：${c}</div>`).join('');
+            statsHtml += Object.entries(mealCounts).map(([m, c]) => `<div class="${getMealBadgeClass(m)}">${escapeHTML(m)}：${c}</div>`).join('');
             statsContainer.innerHTML = statsHtml;
 
             openModal('modal-participants');
