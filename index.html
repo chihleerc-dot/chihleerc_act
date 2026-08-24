@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.1｜2026-08-24 16:39 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.3｜2026-08-24 18:23 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -524,7 +524,6 @@
             <div class="flex space-x-2 md:space-x-4 mb-4 md:mb-6 border-b pb-2 overflow-x-auto no-scrollbar whitespace-nowrap">
                 <button id="tabActivityList" onclick="switchAdminTab('list')" class="font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition text-sm md:text-base">活動列表</button>
                 <button id="tabActivityLog" onclick="switchAdminTab('log')" class="text-gray-500 hover:text-gray-800 pb-1 px-2 transition text-sm md:text-base">動態紀錄</button>
-                <button id="tabStudents" onclick="switchAdminTab('students')" class="text-gray-500 hover:text-gray-800 pb-1 px-2 transition text-sm md:text-base">學生資料庫</button>
             </div>
 
             <!-- 骨架屏載入 (後台用) -->
@@ -602,33 +601,6 @@
                 </div>
             </div>
 
-            <!-- 學生資料庫 -->
-            <div id="adminStudentSection" class="hidden w-full">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-                    <h2 class="text-lg md:text-xl font-bold text-gray-800">全域學生名冊</h2>
-                    <div class="flex gap-2 w-full sm:w-auto">
-                        <button id="btn-batch-import" onclick="openImportStudentModal()" class="w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition flex justify-center items-center text-sm font-bold">
-                            <i class="fa-solid fa-file-import mr-2"></i> 批次匯入 / 新增
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-x-auto w-full block custom-scroll max-h-[70vh] relative">
-                    <table class="w-full whitespace-nowrap text-left text-sm min-w-[700px]">
-                        <thead class="bg-gray-200 text-gray-700 shadow-sm">
-                            <tr>
-                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 left-0 z-30 bg-gray-200 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-gray-300 w-28">學號</th>
-                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">姓名</th>
-                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">系級</th>
-                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">負責輔導員</th>
-                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200 text-center" aria-label="LINE 綁定狀態"><i class="fa-brands fa-line text-green-600 text-lg"></i><span class="sr-only">LINE 綁定狀態</span></th>
-                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold text-right sticky top-0 right-0 z-30 bg-gray-200 shadow-[-4px_0_10px_rgba(0,0,0,0.05)] border-l border-gray-300">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminStudentList" class="divide-y divide-gray-100 bg-white"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </main>
 
@@ -645,7 +617,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                             <div>
                                 <label for="reg-student-id" class="block text-sm font-medium text-gray-700 mb-1">學號 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal ml-1">限8碼數字</span></label>
-                                <input type="text" id="reg-student-id" required pattern="\d{8}" title="請輸入8碼數字" inputmode="numeric" oninput="autoFillStudentName()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm">
+                                <input type="text" id="reg-student-id" required pattern="\d{8}" title="請輸入8碼數字" inputmode="numeric" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm">
                             </div>
                             <div>
                                 <label for="reg-name" class="block text-sm font-medium text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
@@ -717,10 +689,10 @@
     <!-- Modal: 新增/編輯活動 -->
     <div id="modal-edit-event" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[95vh] overflow-y-auto relative animate-fade-in custom-scroll m-2">
-            <button type="button" onclick="safeCloseEditEvent()" class="absolute top-3 right-3 md:top-4 md:right-4 text-gray-400 hover:text-gray-700 text-2xl md:text-xl w-10 h-10 flex items-center justify-center z-10 bg-white rounded-full bg-opacity-80 backdrop-blur"><i class="fa-solid fa-xmark"></i></button>
-            <div class="p-5 md:p-8 pt-8">
-                <div class="flex justify-between items-center mb-4 md:mb-6">
-                    <h3 id="edit-modal-title" class="text-xl md:text-2xl font-bold text-chihlee-blue">新增 / 編輯活動</h3>
+            <div class="p-5 md:p-8">
+                <div class="flex justify-between items-center gap-4 mb-4 md:mb-6">
+                    <h3 id="edit-modal-title" class="text-xl md:text-2xl font-bold text-chihlee-blue min-w-0 break-words">新增 / 編輯活動</h3>
+                    <button type="button" onclick="safeCloseEditEvent()" aria-label="關閉活動編輯視窗" title="關閉" class="w-11 h-11 flex-shrink-0 inline-flex items-center justify-center text-gray-500 hover:text-gray-800 bg-white border border-gray-300 rounded-lg transition text-xl"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
                 <form id="edit-event-form" onsubmit="submitEventEdit(event)" oninput="markDirty()" onchange="markDirty()">
                     <input type="hidden" id="edit-id">
@@ -888,7 +860,7 @@
                 <label class="block text-sm font-bold text-gray-700 mb-1">學生學號 (8碼) <span class="text-red-500">*</span></label>
                 <div class="flex gap-2">
                     <input type="text" id="admin-add-sid" placeholder="請輸入學號" inputmode="numeric" class="flex-grow border border-gray-300 p-2 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm">
-                    <button type="button" onclick="verifyStudentForAdminAdd()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 md:px-4 rounded-md text-sm font-medium transition whitespace-nowrap shrink-0">驗證</button>
+                    <button type="button" id="btn-verify-admin-student" onclick="verifyStudentForAdminAdd()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 md:px-4 rounded-md text-sm font-medium transition whitespace-nowrap shrink-0">驗證</button>
                 </div>
             </div>
             <div id="admin-add-student-info" class="hidden mb-4 p-3 bg-blue-50 border border-blue-100 rounded-md text-sm break-words"></div>
@@ -923,23 +895,25 @@
     <!-- Modal: LINE 通知管理 -->
     <div id="modal-notify" class="fixed inset-0 bg-black bg-opacity-60 z-[60] hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col relative animate-fade-in mx-2">
-            <button onclick="closeModal('modal-notify')" class="absolute top-3 right-3 md:top-4 md:right-4 text-gray-400 hover:text-gray-700 text-2xl md:text-xl z-20 w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-            <div class="p-4 md:p-6 border-b bg-green-50 rounded-t-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-0 flex-shrink-0 pt-10 md:pt-6">
-                <div class="w-full md:w-auto pr-6 md:pr-0">
+            <div class="p-4 md:p-6 border-b bg-green-50 rounded-t-xl flex-shrink-0">
+                <div class="flex justify-between items-start gap-3">
+                    <div class="min-w-0 flex-1">
                     <h3 id="notify-modal-title" class="text-lg md:text-2xl font-bold text-green-800 mb-1 flex items-center flex-wrap">
                         <i class="fa-brands fa-line mr-2 text-green-600"></i>LINE 推播管理
                     </h3>
                     <p id="notify-event-subtitle" class="text-xs md:text-sm text-green-700 font-medium md:ml-8 leading-tight break-words"></p>
+                    </div>
+                    <button type="button" onclick="closeModal('modal-notify')" aria-label="關閉 LINE 推播管理" title="關閉" class="w-11 h-11 flex-shrink-0 inline-flex items-center justify-center text-gray-500 hover:text-gray-800 bg-white border border-gray-300 rounded-lg transition text-xl"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
-                    <select id="line-template-select" onchange="changeLineTemplate()" class="w-full sm:w-auto bg-white border border-green-300 text-green-800 text-sm md:text-sm rounded-md focus:ring-green-500 outline-none font-bold shadow-sm p-2 truncate">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full mt-4">
+                    <select id="line-template-select" onchange="changeLineTemplate()" class="w-full sm:flex-1 bg-white border border-green-300 text-green-800 text-sm md:text-sm rounded-md focus:ring-green-500 outline-none font-bold shadow-sm p-2 truncate">
                         <option value="pre_event">📝 活動行前通知</option>
                         <option value="feedback">⭐ 滿意度回饋</option>
                         <option value="custom">✏️ 自訂/載入暫存</option>
                     </select>
-                    <div class="flex gap-2 w-full sm:w-auto">
+                    <div class="flex gap-2 w-full sm:w-auto flex-shrink-0">
                         <button onclick="saveLineDraft()" class="flex-1 sm:flex-none justify-center bg-white border border-green-600 text-green-700 px-3 py-2 rounded-md hover:bg-green-100 transition text-sm font-bold shadow-sm flex items-center" title="將文字儲存到瀏覽器">
-                            <i class="fa-solid fa-floppy-disk sm:mr-1"></i><span class="sm:inline">暫存</span>
+                            <i class="fa-solid fa-floppy-disk mr-1"></i><span>暫存</span>
                         </button>
                         <button id="btn-clear-line-draft" onclick="clearLineDraft()" class="hidden sm:flex-none justify-center bg-red-50 border border-red-300 text-red-600 px-3 py-2 rounded-md hover:bg-red-100 transition text-sm font-bold shadow-sm items-center" title="清除暫存">
                             <i class="fa-solid fa-rotate-left"></i>
@@ -990,52 +964,6 @@
         </div>
     </div>
 
-    <!-- Modal: 編輯學生 -->
-    <div id="modal-edit-student" class="fixed inset-0 bg-black bg-opacity-60 z-[70] hidden flex items-center justify-center p-2 md:p-4">
-        <div class="bg-white p-5 md:p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in custom-scroll mx-2">
-            <h4 class="font-bold text-lg md:text-xl text-chihlee-blue mb-4">編輯學生資料</h4>
-            <input type="hidden" id="edit-stu-original-id">
-
-            <label for="edit-stu-id" class="block text-sm font-bold text-gray-700 mb-1">學號 (8碼) <span class="text-red-500">*</span></label>
-            <input type="text" id="edit-stu-id" pattern="\d{8}" inputmode="numeric" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-
-            <label for="edit-stu-name" class="block text-sm font-bold text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
-            <input type="text" id="edit-stu-name" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-
-            <label for="edit-stu-class" class="block text-sm font-bold text-gray-700 mb-1">系級</label>
-            <input type="text" id="edit-stu-class" placeholder="如: 資管三A" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-
-            <label for="edit-stu-counselor" class="block text-sm font-bold text-gray-700 mb-1">負責輔導員 <span class="text-red-500">*</span></label>
-            <input type="text" id="edit-stu-counselor" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-
-            <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-6">
-                <button onclick="closeModal('modal-edit-student')" class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
-                <button onclick="saveStudentData()" class="w-full sm:w-auto px-6 py-2.5 bg-chihlee-blue text-white font-bold rounded-md hover:bg-opacity-90 shadow">儲存</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: 批次匯入學生名單 -->
-    <div id="modal-import-students" class="fixed inset-0 bg-black bg-opacity-60 z-[70] hidden flex items-center justify-center p-2 md:p-4">
-        <div class="bg-white p-5 md:p-6 rounded-xl shadow-2xl w-full max-w-2xl animate-fade-in custom-scroll mx-2">
-            <div class="flex justify-between items-center mb-4">
-                <h4 class="font-bold text-lg md:text-xl text-green-700 flex items-center"><i class="fa-solid fa-file-import mr-2"></i>批次匯入</h4>
-                <button onclick="closeModal('modal-import-students')" class="text-gray-400 hover:text-gray-700 text-2xl md:text-xl w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4 mb-4 text-xs md:text-sm text-green-800 leading-relaxed">
-                <p class="font-bold mb-1">支援 Excel 欄位貼上，順序為：</p>
-                <p class="my-1 break-words leading-loose"><strong class="bg-green-200 px-1 rounded whitespace-nowrap">學制</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">系級</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">學號(8碼)</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">姓名</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">負責輔導員</strong></p>
-                <p class="mt-2 opacity-90"><i class="fa-solid fa-shield-halved"></i> LINE 綁定資料請直接在 Google 試算表管理，不會傳到或顯示於前端。</p>
-                <p class="mt-2 opacity-90"><i class="fa-solid fa-circle-info"></i> 已存在學號將自動更新。支援空白分隔。</p>
-            </div>
-            <textarea id="import-students-textarea" aria-label="貼上學生名冊" class="w-full h-48 md:h-64 border border-gray-300 rounded-md p-3 text-sm font-mono focus:ring-green-500 outline-none resize-none custom-scroll" placeholder="日四技 企四B 11102205 徐先生 王輔導員&#10;日四技 資管二A 11203301 王小明 李輔導員"></textarea>
-            <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-4">
-                <button onclick="closeModal('modal-import-students')" class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
-                <button onclick="processImportStudents()" class="w-full sm:w-auto px-6 py-2.5 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 shadow">確認匯入</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal: 確認操作 (警告視窗) -->
     <div id="modal-confirm" class="fixed inset-0 bg-black bg-opacity-60 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-sm md:max-w-md animate-fade-in border-t-8 border-red-500 mx-2">
@@ -1064,8 +992,8 @@
         let state = {
             isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
             selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
-            tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null, studentEditDraft: [],
-            events: [], eventStats: {}, counselors: [], registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
+            tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null,
+            events: [], eventStats: {}, counselors: [], registrations: [], admins: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
             studentIdentity: null, registeredEventIds: [],
             eventCounts: new Map()
         };
@@ -1144,30 +1072,6 @@
                 .replace(/\u2029/g, '\\u2029');
             return escapeHTML(javascriptEscaped);
         };
-
-        function autoFillStudentName() {
-            const sidInput = document.getElementById('reg-student-id');
-            const nameInput = document.getElementById('reg-name');
-            const sid = sidInput.value.trim();
-
-            if (sid.length === 8 && state.students && state.students.length > 0) {
-                const student = state.students.find(s => s && s.id != null && String(s.id).trim() === sid);
-                if (student && student.name) {
-                    nameInput.value = student.name;
-                    nameInput.readOnly = true;
-                    nameInput.classList.add('bg-gray-200', 'text-gray-600', 'cursor-not-allowed');
-                    nameInput.title = "已自動帶入系統姓名，無法手動修改";
-                } else {
-                    nameInput.readOnly = false;
-                    nameInput.classList.remove('bg-gray-200', 'text-gray-600', 'cursor-not-allowed');
-                    nameInput.title = "";
-                }
-            } else {
-                nameInput.readOnly = false;
-                nameInput.classList.remove('bg-gray-200', 'text-gray-600', 'cursor-not-allowed');
-                nameInput.title = "";
-            }
-        }
 
         function normalizeRegistrations(regs) {
             if (!regs || !Array.isArray(regs)) return [];
@@ -1275,9 +1179,9 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.1';
-        const VERSION_UPDATED_AT = '2026/08/24 16:39';
-        const VERSION_UPDATED_AT_ISO = '2026-08-24T16:39:00+08:00';
+        const VERSION_LABEL = 'V11.3';
+        const VERSION_UPDATED_AT = '2026/08/24 18:23';
+        const VERSION_UPDATED_AT_ISO = '2026-08-24T18:23:00+08:00';
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
@@ -1348,7 +1252,6 @@
                         renderCounselorOptions();
                         if (!state.isTeacherLoggedIn) {
                             state.registrations = [];
-                            state.students = [];
                             state.admins = [];
                             state.logs = [];
                             updateEventCounts();
@@ -1426,7 +1329,6 @@
                         if (authData.success) {
                             state.events = authData.data.fullData.events || [];
                             state.registrations = normalizeRegistrations(authData.data.fullData.registrations || []);
-                            state.students = authData.data.fullData.students || [];
                             state.logs = authData.data.fullData.logs || [];
                             state.admins = authData.data.fullData.admins || [];
                             updateEventCounts();
@@ -1570,11 +1472,6 @@
                 document.getElementById('nav-staff-badge').innerHTML = `<i class="fa-solid fa-user-shield mr-1"></i><span class="hidden sm:inline">${escapeHTML(state.currentUserName)}</span>`;
             }
 
-            const importBtn = document.getElementById('btn-batch-import');
-            if (importBtn) {
-                if (state.currentUserRole === 'admin') { importBtn.disabled = false; importBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
-                else { importBtn.disabled = true; importBtn.classList.add('opacity-50', 'cursor-not-allowed'); }
-            }
         }
 
         async function handleLogin(e) {
@@ -1605,7 +1502,6 @@
                 if (res.success) {
                     state.adminCreds = { acc: acc, token: res.data.token }; const user = res.data; state.isTeacherLoggedIn = true; state.currentUserRole = user.role; state.currentUserName = user.name;
                     state.events = user.fullData.events || [];
-                    state.students = user.fullData.students || [];
                     state.registrations = normalizeRegistrations(user.fullData.registrations || []);
                     state.logs = user.fullData.logs || []; state.admins = user.fullData.admins || [];
                     document.getElementById('admin-account').value = ''; document.getElementById('admin-password').value = '';
@@ -1665,7 +1561,7 @@
                 }
             }
             state.adminCreds = null; state.isTeacherLoggedIn = false; state.currentUserRole = null; state.currentUserName = null;
-            state.students = []; state.logs = []; state.admins = [];
+            state.logs = []; state.admins = [];
             showToast('已安全登出', 'info'); switchView('student');
             await fetchInitialData(); renderStudentEvents();
         }
@@ -2375,15 +2271,15 @@
         }
 
         function switchAdminTab(tab) {
-            document.getElementById('adminActivitySection').classList.toggle('hidden', tab !== 'list'); document.getElementById('adminLogSection').classList.toggle('hidden', tab !== 'log'); document.getElementById('adminStudentSection').classList.toggle('hidden', tab !== 'students');
+            document.getElementById('adminActivitySection').classList.toggle('hidden', tab !== 'list');
+            document.getElementById('adminLogSection').classList.toggle('hidden', tab !== 'log');
 
             const activeTabClass = 'font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition whitespace-nowrap text-sm md:text-base';
             const defaultTabClass = 'text-gray-500 hover:text-gray-800 pb-1 px-2 transition whitespace-nowrap text-sm md:text-base';
 
             document.getElementById('tabActivityList').className = tab === 'list' ? activeTabClass : defaultTabClass;
             document.getElementById('tabActivityLog').className = tab === 'log' ? activeTabClass : defaultTabClass;
-            document.getElementById('tabStudents').className = tab === 'students' ? activeTabClass : defaultTabClass;
-            if (tab === 'students') renderStudentRoster(); if (tab === 'log') renderLogs();
+            if (tab === 'log') renderLogs();
         }
 
         function renderTeacherDashboard(page = null) {
@@ -2514,45 +2410,6 @@
             const tbody = document.getElementById('admin-logs-tbody'); if (!tbody) return;
             if (state.logs.length === 0) { tbody.innerHTML = '<tr><td colspan="2" class="text-center py-4 text-gray-500">目前尚無動態紀錄</td></tr>'; return; }
             tbody.innerHTML = state.logs.map(log => `<tr class="border-b border-gray-100 even:bg-slate-50 odd:bg-white hover:bg-blue-50 transition-colors"><td class="py-3 px-4 text-gray-500 whitespace-nowrap font-mono text-[10px] md:text-xs align-top">${escapeHTML(formatSafeDate(log.time))}</td><td class="py-3 px-4 text-gray-800 leading-relaxed text-xs md:text-sm whitespace-normal break-words align-top">${escapeHTML(log.message)}</td></tr>`).join('');
-        }
-
-        function renderStudentRoster() {
-            const tbody = document.getElementById('adminStudentList');
-            if (!state.students || state.students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500"><i class="fa-regular fa-folder-open text-3xl mb-2 text-gray-300 block"></i>目前資料庫無學生資料</td></tr>';
-                return;
-            }
-            try {
-                tbody.innerHTML = state.students.map(s => {
-                    const safeId = s.id != null ? String(s.id).trim() : '';
-                    const safeName = s.name != null ? String(s.name).trim() : '';
-                    const safeEdu = s.eduSystem != null ? String(s.eduSystem).trim() : '';
-                    const safeClass = s.className != null ? String(s.className).trim() : '';
-                    const safeCounselor = s.counselor != null ? String(s.counselor).trim() : '';
-                    const hasLine = s.lineBound === true;
-                    const displayClass = (safeEdu || safeClass) ? `${safeEdu}${safeClass}` : '-';
-
-                    return `<tr class="hover:bg-blue-50 even:bg-slate-50 odd:bg-white transition border-b border-gray-100 group">
-                        <td class="px-4 md:px-6 py-4 font-bold text-gray-900 sticky left-0 z-10 bg-inherit border-r border-gray-100 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
-                            <div class="flex items-center justify-between text-xs md:text-sm">${escapeHTML(safeId)} <button type="button" onclick="copyText('${jsSafe(safeId)}', '學號')" class="opacity-0 group-hover:opacity-100 transition text-gray-400 hover:text-chihlee-blue"><i class="fa-regular fa-copy"></i></button></div>
-                        </td>
-                        <td class="px-4 md:px-6 py-4 font-medium text-gray-800"><div class="flex items-center justify-between text-xs md:text-sm whitespace-normal break-words min-w-[80px]">${escapeHTML(safeName)}</div></td>
-                        <td class="px-4 md:px-6 py-4 text-gray-700 text-xs md:text-sm whitespace-normal min-w-[100px]">${escapeHTML(displayClass)}</td>
-                        <td class="px-4 md:px-6 py-4 text-gray-600 text-xs md:text-sm whitespace-nowrap">${escapeHTML(safeCounselor) || '-'}</td>
-                        <td class="px-4 md:px-6 py-4">
-                            <div class="flex items-center text-xs md:text-sm">
-                                ${hasLine ? '<i class="fa-brands fa-line text-green-500 text-lg" title="已綁定 LINE" aria-hidden="true"></i><span class="sr-only">已綁定 LINE</span>' : '<i class="fa-brands fa-line text-gray-300 text-lg" title="未綁定 LINE" aria-hidden="true"></i><span class="sr-only">未綁定 LINE</span>'}
-                            </div>
-                        </td>
-                        <td class="px-4 md:px-6 py-4 text-right sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] border-l border-gray-100">
-                            ${state.currentUserRole === 'admin' ? `<button onclick="openEditStudentModal('${jsSafe(safeId)}')" class="text-chihlee-blue border border-chihlee-blue px-2 md:px-3 py-1 rounded text-[10px] md:text-xs hover:bg-blue-50 transition font-bold whitespace-nowrap"><i class="fa-solid fa-pen mr-1"></i>編輯</button>` : `<span class="text-[10px] md:text-xs text-gray-400 font-bold bg-gray-100 px-1 md:px-2 py-1 rounded whitespace-nowrap"><i class="fa-solid fa-lock mr-1 hidden md:inline"></i>唯讀</span>`}
-                        </td>
-                    </tr>`;
-                }).join('');
-            } catch (err) {
-                console.error(err);
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-500">資料庫格式解析錯誤。</td></tr>`;
-            }
         }
 
         function renderTempTags() { document.getElementById('edit-tags-container').innerHTML = state.tempTags.map((t, idx) => `<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs md:text-sm font-bold flex items-center">${escapeHTML(t)} <button type="button" onclick="removeTempTag(${idx}); markDirty();" class="ml-1 text-blue-500 hover:text-red-500 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-200 transition">✕</button></span>`).join(''); }
@@ -2884,12 +2741,38 @@
             openModal('modal-admin-add-participant');
         }
 
-        function verifyStudentForAdminAdd() {
+        async function verifyStudentForAdminAdd() {
             const sid = document.getElementById('admin-add-sid').value.trim();
             if (!sid || !/^\d{8}$/.test(sid)) return showToast('請輸入 8 碼學號', 'error');
 
-            const student = state.students.find(s => s && s.id != null && String(s.id).trim() === sid);
             const infoBox = document.getElementById('admin-add-student-info');
+            const verifyButton = document.getElementById('btn-verify-admin-student');
+            let student = null;
+
+            verifyButton.disabled = true;
+            verifyButton.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i>驗證中';
+            try {
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'lookupStudentForAdminRegistration',
+                        sid,
+                        adminAcc: state.adminCreds.acc,
+                        adminToken: state.adminCreds.token
+                    })
+                });
+                const result = await response.json();
+                if (checkTokenExpiration(result)) return;
+                if (result.success) student = result.data;
+                else if (result.code !== 'STUDENT_NOT_FOUND') showToast('驗證失敗：' + result.error, 'error');
+            } catch (error) {
+                showToast('學生資料驗證連線失敗', 'error');
+            } finally {
+                verifyButton.disabled = false;
+                verifyButton.innerText = '驗證';
+            }
 
             if (student) {
                 const isAlreadyRegistered = state.registrations.some(r => String(r.eventId) === String(state.currentAdminEventId) && String(r.studentId) === sid);
@@ -2965,7 +2848,7 @@
 
             } else {
                 state.adminAddTempStudent = null;
-                infoBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> 查無此學號，請先至「學生資料庫」新增。`;
+                infoBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> 查無此學號，請先在 Google 試算表 Students 分頁建檔。`;
                 infoBox.classList.remove('hidden', 'bg-blue-50', 'border-blue-100'); infoBox.classList.add('bg-red-50', 'border-red-100');
                 document.getElementById('admin-add-meals-container').classList.add('hidden');
                 document.getElementById('btn-admin-submit-add').disabled = true; document.getElementById('btn-admin-submit-add').classList.add('opacity-50', 'cursor-not-allowed');
@@ -3248,10 +3131,8 @@
                     tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-gray-500 bg-gray-50"><i class="fa-solid fa-user-xmark text-3xl mb-2 text-gray-300 block"></i>目前尚無報名<br><span class="text-xs">您可先編輯暫存文案</span></td></tr>';
                 } else {
                     tbody.innerHTML = parts.map(p => {
-                        const safeId = p.studentId != null ? String(p.studentId).trim() : '';
                         const safeName = p.name != null ? String(p.name).trim() : '未知名稱';
-                        const studentGlobal = state.students.find(s => s && s.id != null && String(s.id).trim() === safeId);
-                        const hasLine = Boolean(studentGlobal && studentGlobal.lineBound === true);
+                        const hasLine = p.lineBound === true;
                         if (hasLine) hasValidUsers = true;
 
                         const preEventTime = p.lineNotifiedAt ? `<span class="text-green-600 text-[10px] md:text-xs font-bold bg-green-100 px-2 py-1 rounded shadow-sm whitespace-nowrap"><i class="fa-solid fa-check mr-1 hidden sm:inline"></i>${escapeHTML(formatSafeDate(p.lineNotifiedAt))}</span>` : `<span class="text-gray-400 text-xs">未發送</span>`;
@@ -3385,121 +3266,6 @@
             showGlobalLoading(false);
         }
 
-        function openEditStudentModal(sid) {
-            const s = state.students.find(st => st && st.id != null && String(st.id).trim() === String(sid).trim());
-            if(!s) return;
-            document.getElementById('edit-stu-original-id').value = s.id;
-            document.getElementById('edit-stu-id').value = s.id;
-            document.getElementById('edit-stu-name').value = s.name != null ? s.name : '';
-            document.getElementById('edit-stu-class').value = ((s.eduSystem != null ? s.eduSystem : '') + (s.className != null ? s.className : '')).trim();
-            document.getElementById('edit-stu-counselor').value = s.counselor != null ? s.counselor : '';
-            openModal('modal-edit-student');
-        }
-
-        async function saveStudentData() {
-            const oldSid = document.getElementById('edit-stu-original-id').value;
-            const newSid = document.getElementById('edit-stu-id').value.trim();
-            const name = document.getElementById('edit-stu-name').value.trim();
-            const fullClass = document.getElementById('edit-stu-class').value.trim();
-            const counselor = document.getElementById('edit-stu-counselor').value.trim();
-            if(!newSid || !name || !counselor) return showToast('學號、姓名與負責輔導員不可為空', 'error');
-            if (newSid !== oldSid && state.students.some(st => st && st.id != null && String(st.id).trim() === newSid)) return showToast('該學號已存在', 'error');
-
-            const match = fullClass.match(/^(.{3})(.*)$/);
-            const eduSys = match ? match[1] : '';
-            const className = match ? match[2] : fullClass;
-
-            showGlobalLoading(true, '更新學生資料...');
-            try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'updateStudent',
-                        oldSid,
-                        data: { id: newSid, name, eduSystem: eduSys, className, counselor },
-                        adminAcc: state.adminCreds.acc,
-                        adminToken: state.adminCreds.token
-                    })
-                });
-                const res = await response.json();
-                if (checkTokenExpiration(res)) return;
-                if (res.success) {
-                    showToast('學生資料已更新', 'success');
-                    closeModal('modal-edit-student');
-                    await reloadDataSilently('重新載入學生名冊...');
-                } else showToast('更新失敗：' + res.error, 'error');
-            } catch (err) { showToast('網路連線異常', 'error'); }
-            showGlobalLoading(false);
-        }
-
-        function openImportStudentModal() { document.getElementById('import-students-textarea').value = ''; openModal('modal-import-students'); }
-
-        async function processImportStudents() {
-            const dataString = document.getElementById('import-students-textarea').value; if (!dataString.trim()) return showToast('請貼上資料', 'error');
-            const lines = dataString.split('\n'); let newStudents = [];
-            lines.forEach(line => {
-                const cleanLine = line.trim(); if (!cleanLine) return;
-                let eduSystem = '', className = '', id = '', name = '', counselor = '';
-
-                const tabParts = cleanLine.split(/\t+/);
-                if (tabParts.length >= 5) {
-                    eduSystem = tabParts[0].trim();
-                    className = tabParts[1].trim();
-                    id = tabParts[2].trim();
-                    name = tabParts[3].trim();
-                    counselor = tabParts.slice(4).join(' ').trim();
-                }
-                else {
-                    const spaceParts = cleanLine.split(/\s+/).filter(p => p !== '');
-                    if (spaceParts.length >= 5) {
-                        eduSystem = spaceParts[0];
-                        className = spaceParts[1];
-                        id = spaceParts[2];
-                        name = spaceParts[3];
-                        counselor = spaceParts.slice(4).join(' ');
-                    } else {
-                        const match = cleanLine.match(/^(\S+)\s+(\S+)\s+(\d{8})\s+(\S+)\s+(.+)$/);
-                        if (match) {
-                            eduSystem = match[1].trim();
-                            className = match[2].trim();
-                            id = match[3].trim();
-                            name = match[4].trim();
-                            counselor = match[5].trim();
-                        }
-                    }
-                }
-                if (id && name && counselor) newStudents.push({ id, name, eduSystem, className, counselor });
-            });
-            if(newStudents.length === 0) return showToast('無法解析資料，請確認格式', 'error');
-
-            showGlobalLoading(true, `正在匯入 ${newStudents.length} 筆資料...`);
-            try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'batchImportStudents',
-                        students: newStudents,
-                        adminAcc: state.adminCreds.acc,
-                        adminToken: state.adminCreds.token
-                    })
-                });
-                const res = await response.json();
-                if (checkTokenExpiration(res)) return;
-                if (res.success) {
-                    showToast(`匯入完成！共處理 ${newStudents.length} 筆`, 'success');
-                    document.getElementById('import-students-textarea').value = '';
-                    closeModal('modal-import-students');
-                    await reloadDataSilently('重新載入學生名冊...');
-                }
-                else showToast('匯入失敗：' + res.error, 'error');
-            } catch (err) { showToast('網路連線異常', 'error'); }
-            showGlobalLoading(false);
-        }
-
         window.openParticipantsModal = function(eventId) {
             state.currentAdminEventId = String(eventId);
             const ev = state.events.find(e => String(e.id) === state.currentAdminEventId);
@@ -3519,14 +3285,12 @@
             if (parts.length === 0) {
                 tbody.innerHTML = '';
                 noMsg.classList.remove('hidden');
-                statsContainer.innerHTML = '';
             } else {
                 noMsg.classList.add('hidden');
                 tbody.innerHTML = parts.map(p => {
-                    const studentGlobal = state.students.find(s => s && s.id != null && String(s.id).trim() === String(p.studentId).trim());
                     const safeName = p.name || '未知名稱';
-                    const displayClass = studentGlobal ? `${escapeHTML(studentGlobal.eduSystem || '')}${escapeHTML(studentGlobal.className || '')}` : '-';
-                    const hasLine = Boolean(studentGlobal && studentGlobal.lineBound === true);
+                    const displayClass = `${escapeHTML(p.eduSystem || '')}${escapeHTML(p.className || '')}` || '-';
+                    const hasLine = p.lineBound === true;
 
                     let sData = Array.isArray(p.sessionsData) ? p.sessionsData : [];
                     let hasAttend = false;
@@ -3551,7 +3315,7 @@
                         <td class="px-4 md:px-6 py-3 sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100">
                             <div class="font-bold text-gray-900 text-xs md:text-sm whitespace-normal break-words">${escapeHTML(displayClass)}</div>
                             <div class="text-xs md:text-sm text-gray-600 my-0.5 whitespace-normal break-all">${escapeHTML(p.studentId)}</div>
-                            <div class="text-xs md:text-sm font-bold text-chihlee-blue flex items-center whitespace-normal break-words min-w-[80px]">${escapeHTML(safeName)} ${hasLine ? '<i class="fa-brands fa-line text-green-500 ml-1.5 text-base drop-shadow-sm flex-shrink-0" title="已綁定LINE"></i>' : ''}</div>
+                            <div class="text-xs md:text-sm font-bold text-chihlee-blue flex items-center whitespace-normal break-words min-w-[80px]">${escapeHTML(safeName)} ${hasLine ? '<i class="fa-brands fa-line text-green-500 ml-1.5 text-lg drop-shadow-sm flex-shrink-0" title="已綁定 LINE" aria-hidden="true"></i><span class="sr-only">已綁定 LINE</span>' : '<i class="fa-brands fa-line text-gray-300 ml-1.5 text-lg flex-shrink-0" title="未綁定 LINE" aria-hidden="true"></i><span class="sr-only">未綁定 LINE</span>'}</div>
                         </td>
                         <td class="px-4 md:px-6 py-3 align-top bg-inherit min-w-[120px]">${sessionDetailsHtml}</td>
                         <td class="px-4 md:px-6 py-3 align-top bg-inherit min-w-[150px]">${remarkHtml}</td>
@@ -3562,11 +3326,14 @@
                     </tr>`;
                 }).join('');
 
-                let statsHtml = `<div class="bg-blue-50 text-chihlee-blue px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-blue-100 shadow-sm whitespace-nowrap"><i class="fa-solid fa-users mr-1"></i>報名人數：${parts.length}</div>`;
-                if (ev.isSeries) statsHtml += `<div class="bg-sky-50 text-blue-700 px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-blue-100 shadow-sm whitespace-nowrap">出席人次：${totalAttend}</div>`;
-                statsHtml += Object.entries(mealCounts).map(([m, c]) => `<div class="bg-orange-50 text-orange-700 px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-orange-100 shadow-sm whitespace-nowrap">${escapeHTML(m)}：${c}</div>`).join('');
-                statsContainer.innerHTML = statsHtml;
             }
+
+            // 統計固定顯示於活動名稱下方；即使尚無報名，也清楚呈現全部為 0。
+            let statsHtml = `<div class="bg-blue-50 text-chihlee-blue px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-blue-100 shadow-sm whitespace-nowrap"><i class="fa-solid fa-users mr-1"></i>報名人數：${parts.length}</div>`;
+            if (ev.isSeries) statsHtml += `<div class="bg-sky-50 text-blue-700 px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-blue-100 shadow-sm whitespace-nowrap">出席人次：${totalAttend}</div>`;
+            statsHtml += `<div class="w-full text-xs font-bold text-gray-600 mt-1"><i class="fa-solid fa-utensils mr-1"></i>用餐統計（依勾選場次計算）</div>`;
+            statsHtml += Object.entries(mealCounts).map(([m, c]) => `<div class="bg-orange-50 text-orange-700 px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-orange-100 shadow-sm whitespace-nowrap">${escapeHTML(m)}：${c}</div>`).join('');
+            statsContainer.innerHTML = statsHtml;
 
             openModal('modal-participants');
         }
