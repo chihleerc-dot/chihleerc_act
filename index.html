@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V8｜2026-08-24 12:20 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V9｜2026-08-24 14:20 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
     <title>致理．心夥伴 - 活動報名系統</title>
     <style id="anti-clickjacking">html{display:none!important}</style>
     <script>
@@ -15,26 +15,7 @@
             try { window.top.location = window.self.location; } catch (error) {}
         }
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'chihlee-blue': '#0057B8',
-                        'chihlee-red': '#C2185B',
-                        'chihlee-gold': '#F4B400',
-                        'cat-career-bg': '#FFF4BF',
-                        'cat-career-text': '#6A4200',
-                        'cat-academic-bg': '#FFE7EF',
-                        'cat-academic-text': '#97123D',
-                        'cat-inter-bg': '#E0FFF2',
-                        'cat-inter-text': '#006B4F'
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -42,7 +23,7 @@
         body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
 
         /* 避免 iOS 輸入框縮放 */
-        input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"], select, textarea {
+        input[type="text"], input[type="password"], input[type="number"], input[type="date"], select, textarea {
             font-size: 16px !important;
         }
 
@@ -433,14 +414,14 @@
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-white text-chihlee-blue font-bold mr-2 md:mr-3 border-2 border-chihlee-gold flex-shrink-0">致</div>
                     <div class="flex flex-col md:flex-row md:items-end whitespace-nowrap min-w-0 truncate">
                         <span class="font-bold text-base md:text-xl tracking-wider leading-none truncate">致理．心夥伴 - 活動報名系統</span>
-                        <span id="version-display" class="text-[10px] md:text-xs text-blue-200 md:ml-3 mt-1 md:mt-0 font-mono tracking-tighter opacity-80 truncate hidden sm:block" title="版本更新時間">
+                        <span id="version-display" class="text-[9px] sm:text-[10px] md:text-xs text-blue-200 md:ml-3 mt-1 md:mt-0 font-mono tracking-tighter opacity-80 truncate block max-w-[150px] sm:max-w-none" title="版本更新時間">
                             <i class="fa-solid fa-clock mr-1" aria-hidden="true"></i>載入中...
                         </span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-1.5 md:space-x-4 overflow-x-auto no-scrollbar pb-1 md:pb-0 justify-end min-w-0 flex-shrink-0">
                     <button onclick="switchView('student')" id="nav-student-btn" aria-current="page" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0">報名專區</button>
-                    <button onclick="openQueryModal()" id="nav-query-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0"><i class="fa-solid fa-magnifying-glass md:mr-1"></i> <span class="hidden sm:inline">查詢/修改</span><span class="sm:hidden">查詢</span></button>
+                    <button onclick="openQueryModal()" id="nav-query-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0"><i class="fa-solid fa-magnifying-glass md:mr-1"></i> <span class="hidden sm:inline">查詢紀錄</span><span class="sm:hidden">查詢</span></button>
                     <button onclick="switchView('teacherLogin')" id="nav-teacher-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap shrink-0"><i class="fa-solid fa-user-tie md:mr-1"></i> <span class="hidden sm:inline">系統後台</span><span class="sm:hidden">後台</span></button>
                     <div id="nav-admin-badge" class="hidden items-center px-2 py-1 rounded bg-yellow-500 text-yellow-900 text-xs font-bold shadow-sm whitespace-nowrap shrink-0"><i class="fa-solid fa-crown md:mr-1"></i><span class="hidden sm:inline">系統管理員</span><span class="sm:hidden">管理員</span></div>
                     <div id="nav-staff-badge" class="hidden items-center px-2 py-1 rounded bg-blue-500 text-white text-xs font-bold shadow-sm whitespace-nowrap shrink-0"></div>
@@ -628,7 +609,7 @@
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 left-0 z-30 bg-gray-200 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-gray-300 w-28">學號</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">姓名</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">系級</th>
-                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">聯絡電話</th>
+                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">負責輔導員</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200 text-center" aria-label="LINE 綁定狀態"><i class="fa-brands fa-line text-green-600 text-lg"></i><span class="sr-only">LINE 綁定狀態</span></th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold text-right sticky top-0 right-0 z-30 bg-gray-200 shadow-[-4px_0_10px_rgba(0,0,0,0.05)] border-l border-gray-300">操作</th>
                             </tr>
@@ -652,20 +633,18 @@
                     <div class="space-y-3 mb-6 bg-gray-50 p-3 md:p-4 rounded-lg border border-gray-200">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">學號 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal ml-1">限8碼數字</span></label>
+                                <label for="reg-student-id" class="block text-sm font-medium text-gray-700 mb-1">學號 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal ml-1">限8碼數字</span></label>
                                 <input type="text" id="reg-student-id" required pattern="\d{8}" title="請輸入8碼數字" inputmode="numeric" oninput="autoFillStudentName()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
+                                <label for="reg-name" class="block text-sm font-medium text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
                                 <input type="text" id="reg-name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm transition-colors">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
-                                <input type="email" id="reg-email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">聯絡電話 <span class="text-red-500">*</span></label>
-                                <input type="tel" id="reg-phone" required pattern="09\d{2}-\d{3}-\d{3}" title="請輸入格式為 09xx-xxx-xxx 的手機號碼" oninput="formatPhoneNumber(this)" placeholder="09xx-xxx-xxx" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm">
+                                <label for="reg-counselor" class="block text-sm font-medium text-gray-700 mb-1">負責輔導員 <span class="text-red-500">*</span></label>
+                                <select id="reg-counselor" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm">
+                                    <option value="">請選擇負責輔導員</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -700,7 +679,7 @@
         </div>
     </div>
 
-    <!-- Modal: 學生查詢/修改 -->
+    <!-- Modal: 學生查詢紀錄 -->
     <div id="modal-query" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col relative animate-fade-in m-2">
             <div class="p-5 md:p-8 border-b border-gray-100 flex-shrink-0 pt-8">
@@ -709,11 +688,11 @@
                     <button type="button" onclick="closeQueryModalSafe()" aria-label="關閉查詢視窗" class="query-close-button text-xl" style="position:static !important;color:#0057B8 !important;background:#FFFFFF !important;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <p class="text-xs md:text-sm text-gray-500 mb-4">若需取消或修改報名，請直接聯繫資源教室辦理。</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-                    <input type="text" id="query-student-id" aria-label="學號（8碼）" inputmode="numeric" autocomplete="off" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
-                    <input type="text" id="query-name" aria-label="姓名" autocomplete="name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
-                    <input type="tel" id="query-phone" aria-label="手機號碼" inputmode="tel" autocomplete="tel" placeholder="請輸入建檔手機號碼" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition">
-                    <button onclick="executeStudentQuery()" class="w-full sm:col-span-2 md:col-span-1 px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>安全查詢</button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+                    <div><label for="query-student-id" class="block text-xs font-bold text-gray-700 mb-1">學號</label><input type="text" id="query-student-id" inputmode="numeric" autocomplete="off" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"></div>
+                    <div><label for="query-name" class="block text-xs font-bold text-gray-700 mb-1">姓名</label><input type="text" id="query-name" autocomplete="name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"></div>
+                    <div><label for="query-counselor" class="block text-xs font-bold text-gray-700 mb-1">負責輔導員</label><select id="query-counselor" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"><option value="">請選擇負責輔導員</option></select></div>
+                    <button onclick="executeStudentQuery()" class="w-full sm:col-span-2 md:col-span-3 px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>安全查詢</button>
                 </div>
             </div>
             <div class="p-4 md:p-6 overflow-y-auto flex-grow bg-gray-50 custom-scroll">
@@ -1006,17 +985,17 @@
             <h4 class="font-bold text-lg md:text-xl text-chihlee-blue mb-4">編輯學生資料</h4>
             <input type="hidden" id="edit-stu-original-id">
 
-            <label class="block text-sm font-bold text-gray-700 mb-1">學號 (8碼) <span class="text-red-500">*</span></label>
+            <label for="edit-stu-id" class="block text-sm font-bold text-gray-700 mb-1">學號 (8碼) <span class="text-red-500">*</span></label>
             <input type="text" id="edit-stu-id" pattern="\d{8}" inputmode="numeric" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
 
-            <label class="block text-sm font-bold text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
+            <label for="edit-stu-name" class="block text-sm font-bold text-gray-700 mb-1">姓名 <span class="text-red-500">*</span></label>
             <input type="text" id="edit-stu-name" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
 
-            <label class="block text-sm font-bold text-gray-700 mb-1">系級</label>
+            <label for="edit-stu-class" class="block text-sm font-bold text-gray-700 mb-1">系級</label>
             <input type="text" id="edit-stu-class" placeholder="如: 資管三A" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
 
-            <label class="block text-sm font-bold text-gray-700 mb-1">聯絡電話</label>
-            <input type="tel" id="edit-stu-phone" pattern="09\d{2}-\d{3}-\d{3}" title="請輸入格式為 09xx-xxx-xxx 的手機號碼" oninput="formatPhoneNumber(this)" placeholder="09xx-xxx-xxx" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
+            <label for="edit-stu-counselor" class="block text-sm font-bold text-gray-700 mb-1">負責輔導員 <span class="text-red-500">*</span></label>
+            <input type="text" id="edit-stu-counselor" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
 
             <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-6">
                 <button onclick="closeModal('modal-edit-student')" class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
@@ -1034,11 +1013,11 @@
             </div>
             <div class="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4 mb-4 text-xs md:text-sm text-green-800 leading-relaxed">
                 <p class="font-bold mb-1">支援 Excel 欄位貼上，順序為：</p>
-                <p class="my-1 break-words leading-loose"><strong class="bg-green-200 px-1 rounded whitespace-nowrap">學制</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">系級</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">學號(8碼)</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">姓名</strong></p>
+                <p class="my-1 break-words leading-loose"><strong class="bg-green-200 px-1 rounded whitespace-nowrap">學制</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">系級</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">學號(8碼)</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">姓名</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">負責輔導員</strong></p>
                 <p class="mt-2 opacity-90"><i class="fa-solid fa-shield-halved"></i> LINE 綁定資料請直接在 Google 試算表管理，不會傳到或顯示於前端。</p>
                 <p class="mt-2 opacity-90"><i class="fa-solid fa-circle-info"></i> 已存在學號將自動更新。支援空白分隔。</p>
             </div>
-            <textarea id="import-students-textarea" class="w-full h-48 md:h-64 border border-gray-300 rounded-md p-3 text-sm font-mono focus:ring-green-500 outline-none resize-none custom-scroll" placeholder="日四技 企四B 11102205 徐先生&#10;日四技 資管二A 11203301 王小明"></textarea>
+            <textarea id="import-students-textarea" aria-label="貼上學生名冊" class="w-full h-48 md:h-64 border border-gray-300 rounded-md p-3 text-sm font-mono focus:ring-green-500 outline-none resize-none custom-scroll" placeholder="日四技 企四B 11102205 徐先生 王輔導員&#10;日四技 資管二A 11203301 王小明 李輔導員"></textarea>
             <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-4">
                 <button onclick="closeModal('modal-import-students')" class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
                 <button onclick="processImportStudents()" class="w-full sm:w-auto px-6 py-2.5 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 shadow">確認匯入</button>
@@ -1075,7 +1054,7 @@
             isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
             selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
             tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null, studentEditDraft: [],
-            events: [], eventStats: {}, registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
+            events: [], eventStats: {}, counselors: [], registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
             studentIdentity: null, registeredEventIds: [],
             eventCounts: new Map()
         };
@@ -1134,14 +1113,6 @@
             if (isNaN(d.getTime())) return String(dateInput);
             const pad = (n) => String(n).padStart(2, '0');
             return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-        }
-
-        function formatPhoneNumber(input) {
-            let value = input.value.replace(/\D/g, '');
-            if (value.length > 10) value = value.substring(0, 10);
-            if (value.length > 7) value = value.replace(/^(\d{4})(\d{3})(\d+)$/, '$1-$2-$3');
-            else if (value.length > 4) value = value.replace(/^(\d{4})(\d+)$/, '$1-$2');
-            input.value = value;
         }
 
         const escapeHTML = (str) => {
@@ -1223,6 +1194,27 @@
             return state.registeredEventIds;
         }
 
+        function renderCounselorOptions() {
+            const counselors = Array.isArray(state.counselors) ? state.counselors : [];
+            ['reg-counselor', 'query-counselor'].forEach(id => {
+                const select = document.getElementById(id);
+                if (!select) return;
+                const previous = select.value;
+                select.replaceChildren();
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = counselors.length ? '請選擇負責輔導員' : '目前無可選輔導員';
+                select.appendChild(placeholder);
+                counselors.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = String(name);
+                    option.textContent = String(name);
+                    select.appendChild(option);
+                });
+                if (counselors.includes(previous)) select.value = previous;
+            });
+        }
+
         function clearStudentData() {
             state.studentIdentity = null;
             state.registeredEventIds = [];
@@ -1262,9 +1254,9 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V8';
-        const VERSION_UPDATED_AT = '2026/08/24 12:20';
-        const VERSION_UPDATED_AT_ISO = '2026-08-24T12:20:00+08:00';
+        const VERSION_LABEL = 'V9';
+        const VERSION_UPDATED_AT = '2026/08/24 14:20';
+        const VERSION_UPDATED_AT_ISO = '2026-08-24T14:20:00+08:00';
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
@@ -1331,6 +1323,8 @@
                     if (res.success) {
                         state.events = res.data.events || [];
                         state.eventStats = res.data.eventStats || {};
+                        state.counselors = Array.isArray(res.data.counselors) ? res.data.counselors : [];
+                        renderCounselorOptions();
                         if (!state.isTeacherLoggedIn) {
                             state.registrations = [];
                             state.students = [];
@@ -1386,6 +1380,8 @@
                     if (pubData.success) {
                         state.events = pubData.data.events || [];
                         state.eventStats = pubData.data.eventStats || {};
+                        state.counselors = Array.isArray(pubData.data.counselors) ? pubData.data.counselors : [];
+                        renderCounselorOptions();
                         if (!state.isTeacherLoggedIn) {
                             state.registrations = [];
                             updateEventCounts();
@@ -1433,6 +1429,24 @@
             const days = ['日', '一', '二', '三', '四', '五', '六']; return `(${days[date.getDay()]})`;
         }
         function getTodayStart() { let d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+        function getSessionStartDate(session) {
+            if (!session || !session.date) return null;
+            const date = String(session.date).trim().replace(/-/g, '/');
+            const startTime = String(session.time || '').split('-')[0].trim();
+            const value = new Date(startTime ? `${date} ${startTime}` : `${date} 00:00`);
+            return isNaN(value.getTime()) ? null : value;
+        }
+        function isSessionExpired(session, now = new Date()) {
+            const start = getSessionStartDate(session);
+            return start ? start < now : true;
+        }
+        function getNextUpcomingSessionDate(event, now = new Date()) {
+            const dates = (event && Array.isArray(event.sessions) ? event.sessions : [])
+                .map(getSessionStartDate)
+                .filter(date => date && date >= now)
+                .sort((left, right) => left - right);
+            return dates[0] || null;
+        }
         function formatTimeRange(input) { let val = String(input.value).trim(); let match = val.match(/^(\d{1,2})(\d{2})-(\d{1,2})(\d{2})$/); if (match) input.value = `${match[1].padStart(2, '0')}:${match[2]}-${match[3].padStart(2, '0')}:${match[4]}`; }
 
         function checkTimeConflict(time1, time2) {
@@ -1581,6 +1595,8 @@
                     if(pubData.success) {
                         state.events = pubData.data.events || [];
                         state.eventStats = pubData.data.eventStats || {};
+                        state.counselors = Array.isArray(pubData.data.counselors) ? pubData.data.counselors : [];
+                        renderCounselorOptions();
                     }
 
                     updateEventCounts();
@@ -1714,19 +1730,7 @@
             const now = new Date();
             const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-            const validEvents = state.events.filter(ev => {
-                if(!ev.sessions || ev.sessions.length === 0) return false;
-                return ev.sessions.some(s => {
-                    let sessionDateTimeStr = String(s.date).replace(/-/g, '/');
-                    if (s.time) { sessionDateTimeStr += ' ' + String(s.time).split('-')[0]; }
-                    const sessionDateTime = new Date(sessionDateTimeStr);
-                    if (isNaN(sessionDateTime.getTime())) {
-                         const sDate = new Date(String(s.date).replace(/-/g, '/'));
-                         return sDate >= getTodayStart();
-                    }
-                    return sessionDateTime >= now;
-                });
-            });
+            const validEvents = state.events.filter(ev => Boolean(getNextUpcomingSessionDate(ev, now)));
 
             const allCount = validEvents.length;
             const interCount = validEvents.filter(e => e.category === '人際').length;
@@ -1745,7 +1749,7 @@
                 updateBulkActionBar(); return;
             }
             document.getElementById('no-events-msg').classList.add('hidden'); container.parentElement.classList.remove('hidden');
-            visibleEvents.sort((a, b) => new Date(String(a.sessions[0].date).replace(/-/g,'/')) - new Date(String(b.sessions[0].date).replace(/-/g,'/')));
+            visibleEvents.sort((a, b) => getNextUpcomingSessionDate(a, now) - getNextUpcomingSessionDate(b, now));
 
             visibleEvents.forEach(ev => {
                 let tagColor = 'bg-gray-100 text-gray-600 border-gray-200';
@@ -1761,12 +1765,7 @@
                 const isOoo = ev.isOneOnOne === true;
                 const isSeries = ev.isSeries === true;
 
-                let activeSession = ev.sessions.find(s => {
-                    let sDateTimeStr = String(s.date).replace(/-/g, '/');
-                    if (s.time) sDateTimeStr += ' ' + String(s.time).split('-')[0];
-                    const sDateTime = new Date(sDateTimeStr);
-                    return !isNaN(sDateTime.getTime()) ? sDateTime >= now : new Date(String(s.date).replace(/-/g, '/')) >= getTodayStart();
-                }) || ev.sessions[0];
+                let activeSession = ev.sessions.find(s => !isSessionExpired(s, now)) || ev.sessions[0];
 
                 let sessionDateTimeStr = String(activeSession.date).replace(/-/g, '/');
                 if (activeSession.time) sessionDateTimeStr += ' ' + String(activeSession.time).split('-')[0];
@@ -1779,7 +1778,8 @@
 
                 const sessionsHTML = ev.sessions.map((s, i) => {
                     const prefix = isSeries ? `<span class="inline-block w-12 text-right mr-1.5 flex-shrink-0 text-gray-400">第${i+1}場:</span>` : '';
-                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums"><div class="flex items-center text-chihlee-gold font-medium text-xs md:text-sm whitespace-nowrap"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-20 text-center inline-block font-bold text-gray-600">${escapeHTML(s.time)}</span></div><span class="text-[10px] md:text-xs text-gray-500 mt-0.5 ml-6 pl-1 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(s.location || ev.location)}</span></div>`;
+                    const expired = isSessionExpired(s, now);
+                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums ${expired ? 'opacity-55' : ''}"><div class="flex items-center ${expired ? 'text-gray-400 line-through' : 'text-chihlee-gold'} font-medium text-xs md:text-sm whitespace-nowrap"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-20 text-center inline-block font-bold ${expired ? 'text-gray-400' : 'text-gray-600'}">${escapeHTML(s.time)}</span>${expired ? '<span class="ml-2 no-underline text-[10px] font-bold bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">已過期</span>' : ''}</div><span class="text-[10px] md:text-xs text-gray-500 mt-0.5 ml-6 pl-1 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(s.location || ev.location)}</span></div>`;
                 }).join('');
 
                 const label = document.createElement('label');
@@ -1831,10 +1831,9 @@
 
         function loadSavedStudentInfo() {
             const identity = state.studentIdentity || {};
-            document.getElementById('reg-email').value = identity.email || '';
             document.getElementById('reg-student-id').value = identity.sid || '';
             document.getElementById('reg-name').value = identity.name || '';
-            document.getElementById('reg-phone').value = identity.phone || '';
+            document.getElementById('reg-counselor').value = identity.counselor || '';
             autoFillStudentName();
         }
 
@@ -2014,14 +2013,17 @@
             }
 
             const toHalfWidth = (str) => String(str).replace(/[\uff01-\uff5e]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).replace(/\u3000/g, ' ');
-            const email = document.getElementById('reg-email').value.trim();
             let sid = toHalfWidth(document.getElementById('reg-student-id').value.trim()).replace(/\s+/g, '');
             const sname = document.getElementById('reg-name').value.trim();
-            let phone = toHalfWidth(document.getElementById('reg-phone').value.trim()).replace(/[-\s]/g, '');
+            const counselor = document.getElementById('reg-counselor').value.trim();
 
             if (!/^\d{8}$/.test(sid)) {
                 if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
                 return showToast('學號格式錯誤，請輸入 8 碼數字', 'error');
+            }
+            if (!sname || !counselor) {
+                if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
+                return showToast('請完整填寫學號、姓名與負責輔導員', 'error');
             }
 
             let duplicateEventTitles = [];
@@ -2051,7 +2053,7 @@
                     } else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false });
                 });
 
-                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, email, phone, sessionsData: sessData });
+                if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, counselor, sessionsData: sessData });
                 else droppedEvents.push(ev.title);
             });
 
@@ -2065,15 +2067,17 @@
             for (const payload of payloads) {
                 const event = state.events.find(item => String(item.id) === String(payload.eventId));
                 if (!event || event.isSeries !== true) continue;
-                const attendCount = payload.sessionsData.filter(session => session.attend === true).length;
-                if (attendCount > 0 && attendCount < (event.sessions.length / 2)) {
+                const selectableKeys = new Set(event.sessions.filter(session => !isSessionExpired(session)).map(session => `${session.date}_${session.time || ''}`));
+                const selectableCount = selectableKeys.size;
+                const attendCount = payload.sessionsData.filter(session => session.attend === true && selectableKeys.has(`${session.date}_${session.time || ''}`)).length;
+                if (selectableCount > 0 && attendCount > 0 && attendCount < (selectableCount / 2)) {
                     seriesWarningMsg = `<div class="text-left text-purple-700">您在<span class="font-bold">「${escapeHTML(event.title)}」</span>取消了過多場次。<br><br>為確保活動成效，建議盡量全程參與。確定只報名您勾選的場次嗎？</div>`;
                     break;
                 }
             }
 
             const proceedSubmit = async () => {
-                state.studentIdentity = { sid, name: sname, phone, email };
+                state.studentIdentity = { sid, name: sname, counselor };
                 showGlobalLoading(true, '安全驗證與資料處理中...');
 
                 // 先以三項身分資料查詢本人既有報名，讓前端能在真正寫入前立即提示衝堂；
@@ -2083,7 +2087,7 @@
                         method: 'POST',
                         redirect: 'follow',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'queryStudent', sid, sname, phone })
+                        body: JSON.stringify({ action: 'queryStudent', sid, sname, counselor })
                     });
                     const queryResult = await queryResponse.json();
                     if (queryResult.success) {
@@ -2122,6 +2126,8 @@
                     if (pubData.success) {
                         state.events = pubData.data.events || [];
                         state.eventStats = pubData.data.eventStats || {};
+                        state.counselors = Array.isArray(pubData.data.counselors) ? pubData.data.counselors : [];
+                        renderCounselorOptions();
                         updateEventCounts();
                     }
                 } catch(e) {}
@@ -2201,10 +2207,10 @@
             const identity = state.studentIdentity || {};
             const savedSid = identity.sid || '';
             const savedName = identity.name || '';
-            const savedPhone = identity.phone || '';
+            const savedCounselor = identity.counselor || '';
             document.getElementById('query-student-id').value = savedSid || '';
             document.getElementById('query-name').value = savedName || '';
-            document.getElementById('query-phone').value = savedPhone || '';
+            document.getElementById('query-counselor').value = savedCounselor || '';
             document.getElementById('query-result-container').innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-shield-halved text-4xl mb-3 text-gray-300"></i><br>請輸入驗證資料以查詢您的報名</div>';
             openModal('modal-query'); setTimeout(() => document.getElementById('query-student-id').focus(), 100);
         }
@@ -2212,9 +2218,9 @@
         async function executeStudentQuery() {
             const sid = document.getElementById('query-student-id').value.trim();
             const sname = document.getElementById('query-name').value.trim();
-            const phone = document.getElementById('query-phone').value.trim();
+            const counselor = document.getElementById('query-counselor').value.trim();
 
-            if(!sid || !sname || !phone) return showToast('請完整填寫學號、姓名與手機號碼', 'error');
+            if(!sid || !sname || !counselor) return showToast('請完整填寫學號、姓名與負責輔導員', 'error');
 
             const container = document.getElementById('query-result-container');
             container.innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-chihlee-blue"></i><br><span class="font-bold tracking-widest">安全連線查詢中...</span></div>';
@@ -2223,7 +2229,7 @@
                     method: 'POST',
                     redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'queryStudent', sid: sid, sname: sname, phone: phone })
+                    body: JSON.stringify({ action: 'queryStudent', sid, sname, counselor })
                 });
                 const res = await response.json();
                 if (res.success) {
@@ -2241,7 +2247,7 @@
                         if (hasAttend && !mySavedEvents.includes(String(r.eventId))) mySavedEvents.push(String(r.eventId));
                     });
 
-                    state.studentIdentity = { sid, name: sname, phone, email: state.studentIdentity ? (state.studentIdentity.email || '') : '' };
+                    state.studentIdentity = { sid, name: sname, counselor };
                     state.registeredEventIds = mySavedEvents;
 
                     const idBar = document.getElementById('student-identity-bar');
@@ -2488,7 +2494,7 @@
                     const safeName = s.name != null ? String(s.name).trim() : '';
                     const safeEdu = s.eduSystem != null ? String(s.eduSystem).trim() : '';
                     const safeClass = s.className != null ? String(s.className).trim() : '';
-                    const safePhone = s.phone != null ? String(s.phone).trim() : '';
+                    const safeCounselor = s.counselor != null ? String(s.counselor).trim() : '';
                     const hasLine = s.lineBound === true;
                     const displayClass = (safeEdu || safeClass) ? `${safeEdu}${safeClass}` : '-';
 
@@ -2498,7 +2504,7 @@
                         </td>
                         <td class="px-4 md:px-6 py-4 font-medium text-gray-800"><div class="flex items-center justify-between text-xs md:text-sm whitespace-normal break-words min-w-[80px]">${escapeHTML(safeName)}</div></td>
                         <td class="px-4 md:px-6 py-4 text-gray-700 text-xs md:text-sm whitespace-normal min-w-[100px]">${escapeHTML(displayClass)}</td>
-                        <td class="px-4 md:px-6 py-4 text-gray-600 text-xs md:text-sm whitespace-nowrap">${escapeHTML(safePhone) || '-'}</td>
+                        <td class="px-4 md:px-6 py-4 text-gray-600 text-xs md:text-sm whitespace-nowrap">${escapeHTML(safeCounselor) || '-'}</td>
                         <td class="px-4 md:px-6 py-4">
                             <div class="flex items-center text-xs md:text-sm">
                                 ${hasLine ? '<i class="fa-brands fa-line text-green-500 text-lg" title="已綁定 LINE" aria-hidden="true"></i><span class="sr-only">已綁定 LINE</span>' : '<i class="fa-brands fa-line text-gray-300 text-lg" title="未綁定 LINE" aria-hidden="true"></i><span class="sr-only">未綁定 LINE</span>'}
@@ -2921,7 +2927,7 @@
         }
 
         async function proceedAdminAddParticipant(eventId, student, sessData) {
-            const payload = [{ eventId: eventId, studentId: student.id, name: student.name, email: student.email || '', phone: student.phone || '', sessionsData: sessData }];
+            const payload = [{ eventId: eventId, studentId: student.id, name: student.name, counselor: student.counselor || '', sessionsData: sessData }];
             showGlobalLoading(true, '新增報名資料中...');
             try {
                 const response = await fetch(GAS_API_URL, {
@@ -3088,8 +3094,9 @@
             });
 
             if (ev.isSeries) {
-                const attendCount = newSessionsData.filter(sd => sd.attend && currentSessionKeys.includes(sd.date + '_' + (sd.time || ''))).length;
-                if (attendCount < (ev.sessions.length / 2)) {
+                const selectableKeys = new Set(ev.sessions.filter(session => !isSessionExpired(session)).map(session => `${session.date}_${session.time || ''}`));
+                const attendCount = newSessionsData.filter(sd => sd.attend && selectableKeys.has(`${sd.date}_${sd.time || ''}`)).length;
+                if (selectableKeys.size > 0 && attendCount < (selectableKeys.size / 2)) {
                     customConfirm(`<div class="text-left text-purple-700">此為<span class="font-bold">「系列活動」</span>！<br><br>您為學生取消了超過一半的場次。確定要儲存變更嗎？</div>`, () => {
                         proceedSaveAdminRemark(reg, newRemark, newSessionsData);
                     }, '⚠️ 修改警告');
@@ -3317,7 +3324,7 @@
             document.getElementById('edit-stu-id').value = s.id;
             document.getElementById('edit-stu-name').value = s.name != null ? s.name : '';
             document.getElementById('edit-stu-class').value = ((s.eduSystem != null ? s.eduSystem : '') + (s.className != null ? s.className : '')).trim();
-            document.getElementById('edit-stu-phone').value = s.phone != null ? s.phone : '';
+            document.getElementById('edit-stu-counselor').value = s.counselor != null ? s.counselor : '';
             openModal('modal-edit-student');
         }
 
@@ -3326,8 +3333,8 @@
             const newSid = document.getElementById('edit-stu-id').value.trim();
             const name = document.getElementById('edit-stu-name').value.trim();
             const fullClass = document.getElementById('edit-stu-class').value.trim();
-            const phone = document.getElementById('edit-stu-phone').value.trim();
-            if(!newSid || !name) return showToast('學號與姓名不可為空', 'error');
+            const counselor = document.getElementById('edit-stu-counselor').value.trim();
+            if(!newSid || !name || !counselor) return showToast('學號、姓名與負責輔導員不可為空', 'error');
             if (newSid !== oldSid && state.students.some(st => st && st.id != null && String(st.id).trim() === newSid)) return showToast('該學號已存在', 'error');
 
             const match = fullClass.match(/^(.{3})(.*)$/);
@@ -3343,7 +3350,7 @@
                     body: JSON.stringify({
                         action: 'updateStudent',
                         oldSid,
-                        data: { id: newSid, name, eduSystem: eduSys, className, phone },
+                        data: { id: newSid, name, eduSystem: eduSys, className, counselor },
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
                     })
@@ -3366,34 +3373,36 @@
             const lines = dataString.split('\n'); let newStudents = [];
             lines.forEach(line => {
                 const cleanLine = line.trim(); if (!cleanLine) return;
-                let eduSystem = '', className = '', id = '', name = '';
+                let eduSystem = '', className = '', id = '', name = '', counselor = '';
 
                 const tabParts = cleanLine.split(/\t+/);
-                if (tabParts.length >= 4) {
+                if (tabParts.length >= 5) {
                     eduSystem = tabParts[0].trim();
                     className = tabParts[1].trim();
                     id = tabParts[2].trim();
                     name = tabParts[3].trim();
+                    counselor = tabParts.slice(4).join(' ').trim();
                 }
                 else {
                     const spaceParts = cleanLine.split(/\s+/).filter(p => p !== '');
-                    if (spaceParts.length >= 4) {
+                    if (spaceParts.length >= 5) {
                         eduSystem = spaceParts[0];
                         className = spaceParts[1];
                         id = spaceParts[2];
-
-                        name = spaceParts.slice(3).join(' ');
+                        name = spaceParts[3];
+                        counselor = spaceParts.slice(4).join(' ');
                     } else {
-                        const match = cleanLine.match(/^(\S+)\s+(\S+)\s+(\d{8,})\s+(.*)$/);
+                        const match = cleanLine.match(/^(\S+)\s+(\S+)\s+(\d{8})\s+(\S+)\s+(.+)$/);
                         if (match) {
                             eduSystem = match[1].trim();
                             className = match[2].trim();
                             id = match[3].trim();
                             name = match[4].trim();
+                            counselor = match[5].trim();
                         }
                     }
                 }
-                if (id && name) newStudents.push({ id, name, eduSystem, className, phone: '', email: '' });
+                if (id && name && counselor) newStudents.push({ id, name, eduSystem, className, counselor });
             });
             if(newStudents.length === 0) return showToast('無法解析資料，請確認格式', 'error');
 
