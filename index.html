@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.4｜2026-08-24 18:49 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.5｜2026-08-24 19:43 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -56,6 +56,18 @@
             --success: #007A55;
             --cyan: #00A6D6;
             --sky: #DDF3FF;
+            --category-inter-text: #135B4E;
+            --category-inter-bg: #E2F3EF;
+            --category-inter-border: #4E927F;
+            --category-inter-active: #245F52;
+            --category-academic-text: #8F2941;
+            --category-academic-bg: #FBE8ED;
+            --category-academic-border: #C56A7F;
+            --category-academic-active: #9B3150;
+            --category-career-text: #655300;
+            --category-career-bg: #FFF8C9;
+            --category-career-border: #B9A315;
+            --category-career-active: #F4D13D;
         }
 
         html { color-scheme: light; scroll-behavior: smooth; }
@@ -219,12 +231,22 @@
             border-color: var(--primary) !important;
             box-shadow: 0 4px 10px rgba(0, 87, 184, .22) !important;
         }
-        #filter-btn-inter[aria-pressed="false"] { color: #006B4F !important; background: #E0FFF2 !important; border-color: #00A86B !important; }
-        #filter-btn-academic[aria-pressed="false"] { color: #97123D !important; background: #FFE7EF !important; border-color: #E91E63 !important; }
-        #filter-btn-career[aria-pressed="false"] { color: #6A4200 !important; background: #FFF4BF !important; border-color: #E09A00 !important; }
-        #category-filters #filter-btn-inter[aria-pressed="true"] { color: #FFFFFF !important; background: #007A55 !important; border-color: #007A55 !important; }
-        #category-filters #filter-btn-academic[aria-pressed="true"] { color: #FFFFFF !important; background: #C2185B !important; border-color: #C2185B !important; }
-        #category-filters #filter-btn-career[aria-pressed="true"] { color: #102A43 !important; background: #F4B400 !important; border-color: #B97800 !important; }
+        /* 分類專屬色與成功、報名及日期狀態色分離；以下規則只影響人際、課業、職涯。 */
+        .bg-cat-inter-bg { background-color: var(--category-inter-bg) !important; }
+        .text-cat-inter-text { color: var(--category-inter-text) !important; }
+        .border-cat-inter-text { border-color: var(--category-inter-border) !important; }
+        .bg-cat-academic-bg { background-color: var(--category-academic-bg) !important; }
+        .text-cat-academic-text { color: var(--category-academic-text) !important; }
+        .border-cat-academic-text { border-color: var(--category-academic-border) !important; }
+        .bg-cat-career-bg { background-color: var(--category-career-bg) !important; }
+        .text-cat-career-text { color: var(--category-career-text) !important; }
+        .border-cat-career-text { border-color: var(--category-career-border) !important; }
+        #filter-btn-inter[aria-pressed="false"] { color: var(--category-inter-text) !important; background: var(--category-inter-bg) !important; border-color: var(--category-inter-border) !important; }
+        #filter-btn-academic[aria-pressed="false"] { color: var(--category-academic-text) !important; background: var(--category-academic-bg) !important; border-color: var(--category-academic-border) !important; }
+        #filter-btn-career[aria-pressed="false"] { color: var(--category-career-text) !important; background: var(--category-career-bg) !important; border-color: var(--category-career-border) !important; }
+        #category-filters #filter-btn-inter[aria-pressed="true"] { color: #FFFFFF !important; background: var(--category-inter-active) !important; border-color: #184A40 !important; }
+        #category-filters #filter-btn-academic[aria-pressed="true"] { color: #FFFFFF !important; background: var(--category-academic-active) !important; border-color: #76233C !important; }
+        #category-filters #filter-btn-career[aria-pressed="true"] { color: #332B00 !important; background: var(--category-career-active) !important; border-color: #9C8700 !important; }
         #student-main-content > .bg-white {
             max-width: 56rem;
             margin-inline: auto;
@@ -241,9 +263,9 @@
             background: var(--surface);
             box-shadow: 0 3px 12px rgba(16, 24, 40, .06);
         }
-        #student-events-container > label[data-category="人際"] { border-left-color: #00A86B !important; }
-        #student-events-container > label[data-category="課業"] { border-left-color: #E91E63 !important; }
-        #student-events-container > label[data-category="職涯"] { border-left-color: #F4B400 !important; }
+        #student-events-container > label[data-category="人際"] { border-left-color: var(--category-inter-active) !important; }
+        #student-events-container > label[data-category="課業"] { border-left-color: var(--category-academic-active) !important; }
+        #student-events-container > label[data-category="職涯"] { border-left-color: var(--category-career-active) !important; }
         #student-events-container > label:hover {
             border-color: var(--line-strong) !important;
             border-color: var(--line-strong) !important;
@@ -255,11 +277,11 @@
             box-shadow: 0 0 0 3px rgba(0, 87, 184, .14);
         }
         #student-events-container > label[data-category="人際"]:hover,
-        #student-events-container > label[data-category="人際"]:has(input:checked) { border-left-color: #00A86B !important; }
+        #student-events-container > label[data-category="人際"]:has(input:checked) { border-left-color: var(--category-inter-active) !important; }
         #student-events-container > label[data-category="課業"]:hover,
-        #student-events-container > label[data-category="課業"]:has(input:checked) { border-left-color: #E91E63 !important; }
+        #student-events-container > label[data-category="課業"]:has(input:checked) { border-left-color: var(--category-academic-active) !important; }
         #student-events-container > label[data-category="職涯"]:hover,
-        #student-events-container > label[data-category="職涯"]:has(input:checked) { border-left-color: #F4B400 !important; }
+        #student-events-container > label[data-category="職涯"]:has(input:checked) { border-left-color: var(--category-career-active) !important; }
         #student-events-container h3 { color: var(--ink) !important; }
         #student-events-container .bg-gray-50 { background: #EEF8FF !important; }
 
@@ -1211,9 +1233,9 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.4';
-        const VERSION_UPDATED_AT = '2026/08/24 18:49';
-        const VERSION_UPDATED_AT_ISO = '2026-08-24T18:49:00+08:00';
+        const VERSION_LABEL = 'V11.5';
+        const VERSION_UPDATED_AT = '2026/08/24 19:43';
+        const VERSION_UPDATED_AT_ISO = '2026-08-24T19:43:00+08:00';
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
