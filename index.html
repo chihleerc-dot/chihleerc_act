@@ -1,10 +1,20 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V6｜2026-08-22 00:28 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V8｜2026-08-24 12:20 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
     <title>致理．心夥伴 - 活動報名系統</title>
+    <style id="anti-clickjacking">html{display:none!important}</style>
+    <script>
+        if (window.self === window.top) {
+            document.getElementById('anti-clickjacking').remove();
+        } else {
+            try { window.top.location = window.self.location; } catch (error) {}
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -619,7 +629,7 @@
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">姓名</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">系級</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">聯絡電話</th>
-                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200">LINE User ID</th>
+                                <th class="px-4 md:px-6 py-3 md:py-4 font-semibold sticky top-0 z-20 bg-gray-200 text-center" aria-label="LINE 綁定狀態"><i class="fa-brands fa-line text-green-600 text-lg"></i><span class="sr-only">LINE 綁定狀態</span></th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 font-semibold text-right sticky top-0 right-0 z-30 bg-gray-200 shadow-[-4px_0_10px_rgba(0,0,0,0.05)] border-l border-gray-300">操作</th>
                             </tr>
                         </thead>
@@ -993,7 +1003,7 @@
     <!-- Modal: 編輯學生 -->
     <div id="modal-edit-student" class="fixed inset-0 bg-black bg-opacity-60 z-[70] hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white p-5 md:p-6 rounded-xl shadow-2xl w-full max-w-md animate-fade-in custom-scroll mx-2">
-            <h4 class="font-bold text-lg md:text-xl text-chihlee-blue mb-4">編輯學生與 LINE 綁定</h4>
+            <h4 class="font-bold text-lg md:text-xl text-chihlee-blue mb-4">編輯學生資料</h4>
             <input type="hidden" id="edit-stu-original-id">
 
             <label class="block text-sm font-bold text-gray-700 mb-1">學號 (8碼) <span class="text-red-500">*</span></label>
@@ -1007,9 +1017,6 @@
 
             <label class="block text-sm font-bold text-gray-700 mb-1">聯絡電話</label>
             <input type="tel" id="edit-stu-phone" pattern="09\d{2}-\d{3}-\d{3}" title="請輸入格式為 09xx-xxx-xxx 的手機號碼" oninput="formatPhoneNumber(this)" placeholder="09xx-xxx-xxx" class="w-full border border-gray-300 p-2.5 rounded-md mb-3 focus:ring-chihlee-blue outline-none text-base md:text-sm">
-
-            <label class="block text-sm font-bold text-green-700 mb-1"><i class="fa-brands fa-line mr-1"></i>LINE User ID</label>
-            <input type="text" id="edit-stu-line" class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-green-500 outline-none text-base md:text-sm">
 
             <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-6">
                 <button onclick="closeModal('modal-edit-student')" class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
@@ -1027,10 +1034,11 @@
             </div>
             <div class="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4 mb-4 text-xs md:text-sm text-green-800 leading-relaxed">
                 <p class="font-bold mb-1">支援 Excel 欄位貼上，順序為：</p>
-                <p class="my-1 break-words leading-loose"><strong class="bg-green-200 px-1 rounded whitespace-nowrap">學制</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">系級</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">學號(8碼)</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">姓名</strong> ➔ <strong class="bg-green-300 px-1 rounded text-green-900 whitespace-nowrap">LINE ID(選填)</strong></p>
+                <p class="my-1 break-words leading-loose"><strong class="bg-green-200 px-1 rounded whitespace-nowrap">學制</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">系級</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">學號(8碼)</strong> ➔ <strong class="bg-green-200 px-1 rounded whitespace-nowrap">姓名</strong></p>
+                <p class="mt-2 opacity-90"><i class="fa-solid fa-shield-halved"></i> LINE 綁定資料請直接在 Google 試算表管理，不會傳到或顯示於前端。</p>
                 <p class="mt-2 opacity-90"><i class="fa-solid fa-circle-info"></i> 已存在學號將自動更新。支援空白分隔。</p>
             </div>
-            <textarea id="import-students-textarea" class="w-full h-48 md:h-64 border border-gray-300 rounded-md p-3 text-sm font-mono focus:ring-green-500 outline-none resize-none custom-scroll" placeholder="日四技 企四B 11102205 徐先生&#10;日四技 資管二A 11203301 王小明 U123..."></textarea>
+            <textarea id="import-students-textarea" class="w-full h-48 md:h-64 border border-gray-300 rounded-md p-3 text-sm font-mono focus:ring-green-500 outline-none resize-none custom-scroll" placeholder="日四技 企四B 11102205 徐先生&#10;日四技 資管二A 11203301 王小明"></textarea>
             <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-4">
                 <button onclick="closeModal('modal-import-students')" class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200">取消</button>
                 <button onclick="processImportStudents()" class="w-full sm:w-auto px-6 py-2.5 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 shadow">確認匯入</button>
@@ -1061,12 +1069,6 @@
     </div>
 
     <script>
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'chihlee_registered_events' && !state.isTeacherLoggedIn) {
-                renderStudentEvents();
-            }
-        });
-
         const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwcGcSGodBzE5EjYHvNoVjxAsWnyB5D53cB-JGc7IFoT8zmmosdenW9BsOSdCbHMS6vRg/exec';
 
         let state = {
@@ -1074,6 +1076,7 @@
             selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
             tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null, studentEditDraft: [],
             events: [], eventStats: {}, registrations: [], admins: [], students: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
+            studentIdentity: null, registeredEventIds: [],
             eventCounts: new Map()
         };
 
@@ -1148,7 +1151,16 @@
 
         const jsSafe = (str) => {
             if (str === null || str === undefined) return '';
-            return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+            // 這些值會放進雙引號 HTML attribute 內的單引號 JavaScript 字串；
+            // 必須同時處理 JavaScript 與 HTML attribute，瀏覽器不會把反斜線視為 HTML 跳脫。
+            const javascriptEscaped = String(str)
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/\n/g, '\\n')
+                .replace(/\r/g, '\\r')
+                .replace(/\u2028/g, '\\u2028')
+                .replace(/\u2029/g, '\\u2029');
+            return escapeHTML(javascriptEscaped);
         };
 
         function autoFillStudentName() {
@@ -1203,24 +1215,21 @@
             });
         }
 
-        function syncLocalRegisteredEvents(sid) {
-            if (!sid) return [];
-            let savedEventIds = [];
-            try { savedEventIds = JSON.parse(sessionStorage.getItem('chihlee_registered_events')) || []; } catch (error) {}
+        function syncRegisteredEventIds() {
             const validEventIds = new Set(state.events.map(event => String(event.id)));
-            return savedEventIds.map(String).filter(eventId => validEventIds.has(eventId));
+            state.registeredEventIds = (Array.isArray(state.registeredEventIds) ? state.registeredEventIds : [])
+                .map(String)
+                .filter(eventId => validEventIds.has(eventId));
+            return state.registeredEventIds;
         }
 
         function clearStudentData() {
-            sessionStorage.removeItem('chihlee_sid');
-            sessionStorage.removeItem('chihlee_sname');
-            sessionStorage.removeItem('chihlee_email');
-            sessionStorage.removeItem('chihlee_phone');
-            sessionStorage.removeItem('chihlee_registered_events');
+            state.studentIdentity = null;
+            state.registeredEventIds = [];
             state.myRegistrations = [];
             state.selectedEventIds = [];
             document.getElementById('student-identity-bar').classList.add('hidden');
-            showToast('本機綁定狀態已清除', 'success');
+            showToast('本次頁面的學生資料已清除', 'success');
             renderStudentEvents();
             loadSavedStudentInfo();
         }
@@ -1253,14 +1262,15 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_UPDATED_AT = '2026/08/22 00:30';
-        const VERSION_UPDATED_AT_ISO = '2026-08-20T22:03:00+08:00';
+        const VERSION_LABEL = 'V8';
+        const VERSION_UPDATED_AT = '2026/08/24 12:20';
+        const VERSION_UPDATED_AT_ISO = '2026-08-24T12:20:00+08:00';
 
         function updateVersionTime() {
             const el = document.getElementById('version-display');
             if (el) {
-                el.setAttribute('title', `版本更新時間：${VERSION_UPDATED_AT}`);
-                el.innerHTML = `<i class="fa-solid fa-code-commit mr-1" aria-hidden="true"></i><span class="sr-only">版本更新時間：</span><time datetime="${VERSION_UPDATED_AT_ISO}">${VERSION_UPDATED_AT}</time>`;
+                el.setAttribute('title', `版本：${VERSION_LABEL}｜更新時間：${VERSION_UPDATED_AT}`);
+                el.innerHTML = `<i class="fa-solid fa-code-commit mr-1" aria-hidden="true"></i><span class="sr-only">版本：</span><strong>${VERSION_LABEL}</strong><span aria-hidden="true">｜</span><span class="sr-only">更新時間：</span><time datetime="${VERSION_UPDATED_AT_ISO}">${VERSION_UPDATED_AT}</time>`;
             }
         }
 
@@ -1305,36 +1315,6 @@
             return false;
         }
 
-        async function syncStudentDataBackground() {
-            const savedSid = sessionStorage.getItem('chihlee_sid');
-            const savedName = sessionStorage.getItem('chihlee_sname');
-            const savedPhone = sessionStorage.getItem('chihlee_phone');
-            if (!savedSid || !savedName || !savedPhone || state.isTeacherLoggedIn) return;
-            try {
-                const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'queryStudent', sid: savedSid, sname: savedName, phone: savedPhone })
-                });
-                const res = await response.json();
-                if (res.success) {
-                    const eventMap = new Map();
-                    state.events.forEach(e => eventMap.set(String(e.id), e));
-                    let cloudEventIds = [];
-                    res.data.forEach(r => {
-                        const ev = eventMap.get(String(r.eventId));
-                        if(!ev) return;
-                        const validKeys = ev.sessions.map(s => s.date + '_' + (s.time || ''));
-                        const hasAttend = Array.isArray(r.sessionsData) && r.sessionsData.some(sd => sd.attend && validKeys.includes(sd.date + '_' + (sd.time || '')));
-                        if (hasAttend && !cloudEventIds.includes(String(r.eventId))) cloudEventIds.push(String(r.eventId));
-                    });
-                    sessionStorage.setItem('chihlee_registered_events', JSON.stringify(cloudEventIds));
-                    renderStudentEvents();
-                }
-            } catch(e) {}
-        }
-
         async function fetchInitialData() {
             showSkeletonLoading(true);
             try {
@@ -1357,7 +1337,7 @@
                             state.admins = [];
                             state.logs = [];
                             updateEventCounts();
-                            syncLocalRegisteredEvents(sessionStorage.getItem('chihlee_sid'));
+                            syncRegisteredEventIds();
                             renderStudentEvents();
                         }
                         updateVersionTime();
@@ -1389,7 +1369,6 @@
             renderStudentEvents();
             loadSavedStudentInfo();
             switchView('student');
-            syncStudentDataBackground();
         };
 
         async function reloadDataSilently(loadingText = '同步最新資料中...') {
@@ -1410,7 +1389,7 @@
                         if (!state.isTeacherLoggedIn) {
                             state.registrations = [];
                             updateEventCounts();
-                            syncLocalRegisteredEvents(sessionStorage.getItem('chihlee_sid'));
+                            syncRegisteredEventIds();
                             renderStudentEvents();
                         }
                     }
@@ -1477,6 +1456,31 @@
 
                 return (s1 < e2) && (s2 < e1);
             } catch(e) { return false; }
+        }
+
+        function findHistoricalRegistrationConflict(payloads, registrations) {
+            const eventMap = new Map(state.events.map(event => [String(event.id), event]));
+            for (const payload of payloads) {
+                const requestedSessions = (payload.sessionsData || []).filter(session => session && session.attend === true);
+                for (const registration of (Array.isArray(registrations) ? registrations : [])) {
+                    const existingEvent = eventMap.get(String(registration.eventId));
+                    const existingSessions = (registration.sessionsData || []).filter(session => session && session.attend === true);
+                    for (const requested of requestedSessions) {
+                        const conflict = existingSessions.find(existing =>
+                            String(existing.date || '') === String(requested.date || '') &&
+                            checkTimeConflict(existing.time, requested.time)
+                        );
+                        if (conflict) {
+                            return {
+                                title: existingEvent ? existingEvent.title : '已報名活動',
+                                date: String(conflict.date || ''),
+                                time: String(conflict.time || '')
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
         function customConfirm(message, onConfirm, title = '確認操作') {
@@ -1607,6 +1611,19 @@
         }
 
         async function logoutTeacher() {
+            const credentials = state.adminCreds;
+            if (credentials && credentials.acc && credentials.token) {
+                try {
+                    await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'logout', adminAcc: credentials.acc, adminToken: credentials.token })
+                    });
+                } catch (error) {
+                    // 即使網路中斷也先清除瀏覽器記憶體中的登入狀態；token 最遲仍會依後端 TTL 到期。
+                }
+            }
             state.adminCreds = null; state.isTeacherLoggedIn = false; state.currentUserRole = null; state.currentUserName = null;
             state.students = []; state.logs = []; state.admins = [];
             showToast('已安全登出', 'info'); switchView('student');
@@ -1681,8 +1698,8 @@
         function renderStudentEvents() {
             const container = document.getElementById('student-events-container'); container.innerHTML = '';
 
-            let mySavedEvents = [];
-            const savedSid = sessionStorage.getItem('chihlee_sid');
+            const savedSid = state.studentIdentity ? state.studentIdentity.sid : '';
+            const mySavedEvents = syncRegisteredEventIds();
 
             const idBar = document.getElementById('student-identity-bar');
             if (idBar) {
@@ -1692,12 +1709,6 @@
                 } else {
                     idBar.classList.add('hidden');
                 }
-            }
-
-            if (savedSid && !state.isTeacherLoggedIn) {
-                mySavedEvents = syncLocalRegisteredEvents(savedSid);
-            } else {
-                try { mySavedEvents = JSON.parse(sessionStorage.getItem('chihlee_registered_events')) || []; } catch(e){}
             }
 
             const now = new Date();
@@ -1819,12 +1830,12 @@
         }
 
         function loadSavedStudentInfo() {
-            try {
-                document.getElementById('reg-email').value = sessionStorage.getItem('chihlee_email') || ''; document.getElementById('reg-student-id').value = sessionStorage.getItem('chihlee_sid') || '';
-                document.getElementById('reg-name').value = sessionStorage.getItem('chihlee_sname') || ''; document.getElementById('reg-phone').value = sessionStorage.getItem('chihlee_phone') || '';
-
-                autoFillStudentName();
-            } catch(e) {}
+            const identity = state.studentIdentity || {};
+            document.getElementById('reg-email').value = identity.email || '';
+            document.getElementById('reg-student-id').value = identity.sid || '';
+            document.getElementById('reg-name').value = identity.name || '';
+            document.getElementById('reg-phone').value = identity.phone || '';
+            autoFillStudentName();
         }
 
         function getMealOptionsHtml(event) {
@@ -1864,11 +1875,11 @@
 
                 if (!hasConflict) {
                     const sidInput = document.getElementById('reg-student-id');
-                    const currentSid = (sidInput && sidInput.value.trim()) ? sidInput.value.trim() : sessionStorage.getItem('chihlee_sid');
+                    const currentSid = (sidInput && sidInput.value.trim()) ? sidInput.value.trim() : (state.studentIdentity ? state.studentIdentity.sid : '');
 
                     if (currentSid) {
                         const myConflictSessions = [];
-                        const historicalRegs = state.registrations.filter(r => String(r.studentId) === currentSid);
+                        const historicalRegs = Array.isArray(state.myRegistrations) ? state.myRegistrations : [];
                         for (const r of historicalRegs) {
                             const rEv = state.events.find(e => String(e.id) === String(r.eventId));
                             if (!rEv) continue;
@@ -2014,8 +2025,7 @@
             }
 
             let duplicateEventTitles = [];
-            let locallyRegisteredEvents = [];
-            try { locallyRegisteredEvents = JSON.parse(sessionStorage.getItem('chihlee_registered_events')) || []; } catch (error) {}
+            const locallyRegisteredEvents = syncRegisteredEventIds();
             state.selectedEventIds.forEach(eventId => {
                 const isDup = locallyRegisteredEvents.some(savedEventId => String(savedEventId) === String(eventId));
                 if (isDup) {
@@ -2050,21 +2060,55 @@
                 return showToast('您尚未勾選任何預約場次！', 'error');
             }
 
+            // 系列活動取消超過一半場次時只提醒，不強制阻擋報名。
             let seriesWarningMsg = '';
-            for (let p of payloads) {
-                const ev = state.events.find(e => String(e.id) === String(p.eventId));
-                if (ev && ev.isSeries) {
-                    const attendCount = p.sessionsData.filter(sd => sd.attend).length;
-                    if (attendCount > 0 && attendCount < (ev.sessions.length / 2)) {
-                        seriesWarningMsg = `<div class="text-left text-purple-700">您在<span class="font-bold">「${escapeHTML(ev.title)}」</span>取消了過多場次。<br><br>為確保活動成效，建議盡量全程參與。確定只報名您勾選的場次嗎？</div>`;
-                        break;
-                    }
+            for (const payload of payloads) {
+                const event = state.events.find(item => String(item.id) === String(payload.eventId));
+                if (!event || event.isSeries !== true) continue;
+                const attendCount = payload.sessionsData.filter(session => session.attend === true).length;
+                if (attendCount > 0 && attendCount < (event.sessions.length / 2)) {
+                    seriesWarningMsg = `<div class="text-left text-purple-700">您在<span class="font-bold">「${escapeHTML(event.title)}」</span>取消了過多場次。<br><br>為確保活動成效，建議盡量全程參與。確定只報名您勾選的場次嗎？</div>`;
+                    break;
                 }
             }
 
             const proceedSubmit = async () => {
-                try { sessionStorage.setItem('chihlee_email', email); sessionStorage.setItem('chihlee_sid', sid); sessionStorage.setItem('chihlee_sname', sname); sessionStorage.setItem('chihlee_phone', phone); } catch (err) {}
+                state.studentIdentity = { sid, name: sname, phone, email };
                 showGlobalLoading(true, '安全驗證與資料處理中...');
+
+                // 先以三項身分資料查詢本人既有報名，讓前端能在真正寫入前立即提示衝堂；
+                // 後端仍會在 ScriptLock 內再次檢查，避免修改 API 請求或同時送出時繞過。
+                try {
+                    const queryResponse = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'queryStudent', sid, sname, phone })
+                    });
+                    const queryResult = await queryResponse.json();
+                    if (queryResult.success) {
+                        state.myRegistrations = Array.isArray(queryResult.data) ? queryResult.data : [];
+                        state.registeredEventIds = [...new Set(state.myRegistrations.map(registration => String(registration.eventId)))];
+
+                        const duplicate = payloads.find(payload => state.registeredEventIds.includes(String(payload.eventId)));
+                        if (duplicate) {
+                            const event = state.events.find(item => String(item.id) === String(duplicate.eventId));
+                            showGlobalLoading(false);
+                            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
+                            return showToast(`已報名過：${event ? event.title : '此活動'}，請勿重複報名`, 'error');
+                        }
+
+                        const conflict = findHistoricalRegistrationConflict(payloads, state.myRegistrations);
+                        if (conflict) {
+                            const when = [conflict.date, conflict.time].filter(Boolean).join(' ');
+                            showGlobalLoading(false);
+                            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
+                            return showToast(`該時段您已報名「${conflict.title}」${when ? `（${when}）` : ''}，如仍要報名請聯絡輔導員取消原報名`, 'error');
+                        }
+                    }
+                } catch (error) {
+                    // 首次報名或查詢暫時失敗時仍交由後端做最終身分、重複報名與衝堂檢查。
+                }
 
                 try {
                     const pubRes = await fetch(GAS_API_URL, {
@@ -2112,9 +2156,10 @@
                     const res = await response.json();
 
                     if (res.success) {
-                        let mySavedEvents = JSON.parse(sessionStorage.getItem('chihlee_registered_events')) || [];
-                        payloads.forEach(p => { if (!mySavedEvents.includes(p.eventId)) mySavedEvents.push(p.eventId); });
-                        sessionStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents));
+                        payloads.forEach(p => {
+                            if (!state.registeredEventIds.some(eventId => String(eventId) === String(p.eventId))) state.registeredEventIds.push(String(p.eventId));
+                            state.myRegistrations.push({ eventId: p.eventId, sessionsData: p.sessionsData });
+                        });
 
                         closeModal('modal-register');
                         showSuccessAndCalendar(allCheckedSessions);
@@ -2136,9 +2181,12 @@
             };
 
             if (seriesWarningMsg) {
-                if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
                 customConfirm(seriesWarningMsg, () => {
-                    if(submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...'; }
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...';
+                    }
                     proceedSubmit();
                 }, '⚠️ 系列活動報名提醒');
             } else {
@@ -2150,9 +2198,10 @@
 
         function openQueryModal() {
             switchView('student');
-            const savedSid = sessionStorage.getItem('chihlee_sid');
-            const savedName = sessionStorage.getItem('chihlee_sname');
-            const savedPhone = sessionStorage.getItem('chihlee_phone');
+            const identity = state.studentIdentity || {};
+            const savedSid = identity.sid || '';
+            const savedName = identity.name || '';
+            const savedPhone = identity.phone || '';
             document.getElementById('query-student-id').value = savedSid || '';
             document.getElementById('query-name').value = savedName || '';
             document.getElementById('query-phone').value = savedPhone || '';
@@ -2192,10 +2241,8 @@
                         if (hasAttend && !mySavedEvents.includes(String(r.eventId))) mySavedEvents.push(String(r.eventId));
                     });
 
-                    sessionStorage.setItem('chihlee_sid', sid);
-                    sessionStorage.setItem('chihlee_sname', sname);
-                    sessionStorage.setItem('chihlee_phone', phone);
-                    sessionStorage.setItem('chihlee_registered_events', JSON.stringify(mySavedEvents));
+                    state.studentIdentity = { sid, name: sname, phone, email: state.studentIdentity ? (state.studentIdentity.email || '') : '' };
+                    state.registeredEventIds = mySavedEvents;
 
                     const idBar = document.getElementById('student-identity-bar');
                     if(idBar && !state.isTeacherLoggedIn) {
@@ -2254,7 +2301,7 @@
                     const isoStart = `${dateStr}T${timeStartClean}`; const isoEnd = `${dateStr}T${timeEndStr}`; const loc = session.location || ev.location;
                     const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}`;
                     let statusHtml = sd.attend ? `<span class="font-bold text-blue-700 text-xs md:text-sm bg-blue-50 px-2 py-1 rounded border border-blue-100 flex-shrink-0">${escapeHTML(sd.meal)}</span>` : `<span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded flex-shrink-0">未參加</span>`;
-                    return `<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-3 border-b border-gray-100 last:border-0 gap-2 px-1"><div class="flex flex-col tabular-nums"><div class="flex items-center flex-wrap"><span class="${sd.attend ? 'text-gray-800' : 'text-gray-400 line-through'} font-medium mr-1">${escapeHTML(session.date)} <span class="hidden sm:inline">${getDayOfWeek(session.date)}</span> <span class="text-gray-500 text-xs ml-1 font-bold">${escapeHTML(session.time)}</span></span>${sd.attend ? `<a href="${calUrl}" target="_blank" title="加入行事曆" class="ml-1 text-blue-500 hover:text-blue-700 transition text-lg drop-shadow-sm"><i class="fa-regular fa-calendar-plus"></i></a>` : ''}</div><span class="text-[10px] md:text-xs text-gray-500 mt-1 sm:mt-0.5 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(loc)}</span></div><div class="flex items-center justify-end sm:justify-start">${statusHtml}</div></div>`;
+                    return `<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-3 border-b border-gray-100 last:border-0 gap-2 px-1"><div class="flex flex-col tabular-nums"><div class="flex items-center flex-wrap"><span class="${sd.attend ? 'text-gray-800' : 'text-gray-400 line-through'} font-medium mr-1">${escapeHTML(session.date)} <span class="hidden sm:inline">${getDayOfWeek(session.date)}</span> <span class="text-gray-500 text-xs ml-1 font-bold">${escapeHTML(session.time)}</span></span>${sd.attend ? `<a href="${escapeHTML(calUrl)}" target="_blank" rel="noopener noreferrer" title="將 ${escapeHTML(ev.title)}｜${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" aria-label="將 ${escapeHTML(ev.title)} ${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" class="ml-1 text-blue-500 hover:text-blue-700 transition text-lg drop-shadow-sm"><i class="fa-regular fa-calendar-plus"></i></a>` : ''}</div><span class="text-[10px] md:text-xs text-gray-500 mt-1 sm:mt-0.5 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(loc)}</span></div><div class="flex items-center justify-end sm:justify-start">${statusHtml}</div></div>`;
                 }).join('');
                 container.innerHTML += `<div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden transition-all duration-200"><div class="absolute top-0 left-0 w-1.5 h-full ${tagColor.split(' ')[0]}"></div><div class="mb-3 pl-3 flex justify-between items-start"><div><div class="flex items-center gap-2 mb-1.5"><span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded border ${tagColor}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-pink-100 text-pink-700 border border-pink-200">預約</span>` : ''}</div><h4 class="font-bold text-gray-800 text-lg md:text-xl leading-tight mb-0 break-words">${escapeHTML(ev.title)}</h4></div></div><div class="bg-gray-50 p-2 sm:p-4 rounded-lg border border-gray-100 ml-1.5">${sessHtml}</div></div>`;
             });
@@ -2286,7 +2333,8 @@
 
                 const isoStart = `${dateStr}T${timeStartClean}`; const isoEnd = `${dateStr}T${timeEndStr}`; const loc = item.sessionLoc || item.event.location;
                 const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.event.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}`;
-                return `<a href="${url}" target="_blank" class="block w-full py-3 bg-blue-50 text-chihlee-blue font-bold rounded-md shadow-sm border border-blue-200 hover:bg-blue-100 transition text-sm md:text-base text-center mb-2"><i class="fa-regular fa-calendar-plus mr-1"></i> 加入 ${escapeHTML(item.event.title)}</a>`;
+                const summary = `${item.event.title}｜${item.sessionDate} ${item.sessionTime}`;
+                return `<div class="flex items-center justify-between gap-3 py-3 border-b border-gray-100 last:border-0"><div class="min-w-0 text-left"><div class="font-bold text-gray-800 break-words">${escapeHTML(item.event.title)}</div><div class="text-sm text-gray-600 tabular-nums">${escapeHTML(item.sessionDate)} ${getDayOfWeek(item.sessionDate)}　${escapeHTML(item.sessionTime)}</div></div><a href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer" title="將 ${escapeHTML(summary)} 加入行事曆" aria-label="將 ${escapeHTML(summary)} 加入行事曆" class="flex-shrink-0 inline-flex items-center justify-center w-11 h-11 text-chihlee-blue bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition text-xl"><i class="fa-regular fa-calendar-plus"></i></a></div>`;
             }).join('');
             openModal('modal-success');
         }
@@ -2380,9 +2428,7 @@
                             </div>`;
                 }).join('');
 
-                const deleteBtnHtml = state.currentUserRole === 'admin'
-                    ? `<button onclick="deleteAdminEvent('${jsSafe(ev.id)}')" title="刪除活動" class="text-red-500 hover:bg-red-50 px-2 py-1.5 rounded transition text-lg mt-1 md:mt-0"><i class="fa-solid fa-trash"></i></button>`
-                    : `<button disabled title="僅管理員可刪除" class="text-gray-300 cursor-not-allowed px-2 py-1.5 rounded transition text-lg mt-1 md:mt-0"><i class="fa-solid fa-trash"></i></button>`;
+                const deleteBtnHtml = `<button onclick="deleteAdminEvent('${jsSafe(ev.id)}')" title="刪除活動" class="text-red-500 hover:bg-red-50 px-2 py-1.5 rounded transition text-lg mt-1 md:mt-0"><i class="fa-solid fa-trash"></i></button>`;
 
                 const tr = document.createElement('tr');
                 tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white group`;
@@ -2443,9 +2489,7 @@
                     const safeEdu = s.eduSystem != null ? String(s.eduSystem).trim() : '';
                     const safeClass = s.className != null ? String(s.className).trim() : '';
                     const safePhone = s.phone != null ? String(s.phone).trim() : '';
-                    const safeLine = s.lineId != null ? String(s.lineId).trim() : '';
-
-                    const hasLine = safeLine !== '';
+                    const hasLine = s.lineBound === true;
                     const displayClass = (safeEdu || safeClass) ? `${safeEdu}${safeClass}` : '-';
 
                     return `<tr class="hover:bg-blue-50 even:bg-slate-50 odd:bg-white transition border-b border-gray-100 group">
@@ -2457,7 +2501,7 @@
                         <td class="px-4 md:px-6 py-4 text-gray-600 text-xs md:text-sm whitespace-nowrap">${escapeHTML(safePhone) || '-'}</td>
                         <td class="px-4 md:px-6 py-4">
                             <div class="flex items-center text-xs md:text-sm">
-                                ${hasLine ? `<i class="fa-brands fa-line text-green-500 text-lg mr-1" title="${escapeHTML(safeLine)}"></i><span class="text-green-700 font-bold hidden md:inline truncate max-w-[150px]">${escapeHTML(safeLine)}</span>` : '<i class="fa-brands fa-line text-gray-300 text-lg mr-1"></i><span class="text-gray-400 italic hidden md:inline">未綁定</span>'}
+                                ${hasLine ? '<i class="fa-brands fa-line text-green-500 text-lg" title="已綁定 LINE" aria-hidden="true"></i><span class="sr-only">已綁定 LINE</span>' : '<i class="fa-brands fa-line text-gray-300 text-lg" title="未綁定 LINE" aria-hidden="true"></i><span class="sr-only">未綁定 LINE</span>'}
                             </div>
                         </td>
                         <td class="px-4 md:px-6 py-4 text-right sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] border-l border-gray-100">
@@ -2683,10 +2727,6 @@
         }
 
         async function deleteAdminEvent(eventId) {
-            if (state.currentUserRole !== 'admin') {
-                return showToast('僅管理員可刪除', 'error');
-            }
-
             const ev = state.events.find(e => String(e.id) === String(eventId)); if (!ev) return;
             customConfirm(`確定徹底刪除「${escapeHTML(ev.title)}」？\n(報名紀錄也會一併移除)`, async () => {
                 showGlobalLoading(true, '刪除中...');
@@ -3136,8 +3176,7 @@
                         const safeId = p.studentId != null ? String(p.studentId).trim() : '';
                         const safeName = p.name != null ? String(p.name).trim() : '未知名稱';
                         const studentGlobal = state.students.find(s => s && s.id != null && String(s.id).trim() === safeId);
-                        const safeLine = studentGlobal && studentGlobal.lineId != null ? String(studentGlobal.lineId).trim() : '';
-                        const hasLine = safeLine !== '';
+                        const hasLine = Boolean(studentGlobal && studentGlobal.lineBound === true);
                         if (hasLine) hasValidUsers = true;
 
                         const preEventTime = p.lineNotifiedAt ? `<span class="text-green-600 text-[10px] md:text-xs font-bold bg-green-100 px-2 py-1 rounded shadow-sm whitespace-nowrap"><i class="fa-solid fa-check mr-1 hidden sm:inline"></i>${escapeHTML(formatSafeDate(p.lineNotifiedAt))}</span>` : `<span class="text-gray-400 text-xs">未發送</span>`;
@@ -3145,7 +3184,7 @@
 
                         return `<tr class="hover:bg-green-50 even:bg-slate-50 odd:bg-white transition border-b border-gray-100 last:border-0">
                             <td class="px-3 md:px-4 py-3 text-center sticky left-0 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-200">
-                                <input type="checkbox" onchange="updateSelectAllState()" class="notify-checkbox w-4 h-4 cursor-pointer rounded text-green-600 focus:ring-green-600 border-gray-300" value="${p.id}" ${hasLine ? '' : 'disabled'}>
+                                <input type="checkbox" onchange="updateSelectAllState()" class="notify-checkbox w-4 h-4 cursor-pointer rounded text-green-600 focus:ring-green-600 border-gray-300" value="${escapeHTML(p.id)}" ${hasLine ? '' : 'disabled'}>
                             </td>
                             <td class="px-3 md:px-4 py-3 font-medium text-gray-900 flex items-center whitespace-normal break-words min-w-[120px]">${escapeHTML(safeName)} ${hasLine ? '<i class="fa-brands fa-line text-green-500 text-lg ml-2 drop-shadow-sm flex-shrink-0" title="已綁定"></i>' : '<i class="fa-brands fa-line text-gray-300 text-lg ml-2 flex-shrink-0" title="未綁定"></i>'}</td>
                             <td class="px-3 md:px-4 py-3 whitespace-nowrap align-middle">${preEventTime}</td>
@@ -3279,7 +3318,6 @@
             document.getElementById('edit-stu-name').value = s.name != null ? s.name : '';
             document.getElementById('edit-stu-class').value = ((s.eduSystem != null ? s.eduSystem : '') + (s.className != null ? s.className : '')).trim();
             document.getElementById('edit-stu-phone').value = s.phone != null ? s.phone : '';
-            document.getElementById('edit-stu-line').value = s.lineId != null ? s.lineId : '';
             openModal('modal-edit-student');
         }
 
@@ -3289,8 +3327,6 @@
             const name = document.getElementById('edit-stu-name').value.trim();
             const fullClass = document.getElementById('edit-stu-class').value.trim();
             const phone = document.getElementById('edit-stu-phone').value.trim();
-            const line = document.getElementById('edit-stu-line').value.trim();
-
             if(!newSid || !name) return showToast('學號與姓名不可為空', 'error');
             if (newSid !== oldSid && state.students.some(st => st && st.id != null && String(st.id).trim() === newSid)) return showToast('該學號已存在', 'error');
 
@@ -3307,7 +3343,7 @@
                     body: JSON.stringify({
                         action: 'updateStudent',
                         oldSid,
-                        data: { id: newSid, name, eduSystem: eduSys, className, phone, lineId: line },
+                        data: { id: newSid, name, eduSystem: eduSys, className, phone },
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
                     })
@@ -3330,7 +3366,7 @@
             const lines = dataString.split('\n'); let newStudents = [];
             lines.forEach(line => {
                 const cleanLine = line.trim(); if (!cleanLine) return;
-                let eduSystem = '', className = '', id = '', name = '', lineId = '';
+                let eduSystem = '', className = '', id = '', name = '';
 
                 const tabParts = cleanLine.split(/\t+/);
                 if (tabParts.length >= 4) {
@@ -3338,7 +3374,6 @@
                     className = tabParts[1].trim();
                     id = tabParts[2].trim();
                     name = tabParts[3].trim();
-                    lineId = tabParts.length > 4 ? tabParts[4].trim() : '';
                 }
                 else {
                     const spaceParts = cleanLine.split(/\s+/).filter(p => p !== '');
@@ -3347,32 +3382,18 @@
                         className = spaceParts[1];
                         id = spaceParts[2];
 
-                        const lastPart = spaceParts[spaceParts.length - 1];
-                        if (lastPart.length >= 33 && lastPart.startsWith('U')) {
-                            lineId = lastPart;
-                            name = spaceParts.slice(3, spaceParts.length - 1).join(' ');
-                        } else {
-                            name = spaceParts.slice(3).join(' ');
-                        }
+                        name = spaceParts.slice(3).join(' ');
                     } else {
                         const match = cleanLine.match(/^(\S+)\s+(\S+)\s+(\d{8,})\s+(.*)$/);
                         if (match) {
                             eduSystem = match[1].trim();
                             className = match[2].trim();
                             id = match[3].trim();
-                            let remainingText = match[4].trim();
-                            const parts = remainingText.split(/\s+/);
-                            const lastP = parts[parts.length - 1];
-                            if (lastP.length >= 33 && lastP.startsWith('U')) {
-                                lineId = lastP;
-                                name = parts.slice(0, parts.length - 1).join(' ');
-                            } else {
-                                name = remainingText;
-                            }
+                            name = match[4].trim();
                         }
                     }
                 }
-                if (id && name) newStudents.push({ id, name, eduSystem, className, phone: '', email: '', lineId });
+                if (id && name) newStudents.push({ id, name, eduSystem, className, phone: '', email: '' });
             });
             if(newStudents.length === 0) return showToast('無法解析資料，請確認格式', 'error');
 
@@ -3428,7 +3449,7 @@
                     const studentGlobal = state.students.find(s => s && s.id != null && String(s.id).trim() === String(p.studentId).trim());
                     const safeName = p.name || '未知名稱';
                     const displayClass = studentGlobal ? `${escapeHTML(studentGlobal.eduSystem || '')}${escapeHTML(studentGlobal.className || '')}` : '-';
-                    const hasLine = studentGlobal && studentGlobal.lineId;
+                    const hasLine = Boolean(studentGlobal && studentGlobal.lineBound === true);
 
                     let sData = Array.isArray(p.sessionsData) ? p.sessionsData : [];
                     let hasAttend = false;
