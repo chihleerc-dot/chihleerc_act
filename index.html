@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.6｜2026-08-24 22:14 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.7｜2026-08-24 22:55 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -29,7 +29,7 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-enter { animation: slideUp 0.3s ease-out forwards; }
         .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -404,7 +404,14 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #8394A3; }
 
         #toast-container { pointer-events: none; }
-        #toast-container > div { border: 1px solid rgba(255,255,255,.25); border-radius: 8px !important; }
+        #toast-container > div {
+            width: 100%;
+            max-width: 100%;
+            pointer-events: none;
+            overflow-wrap: anywhere;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 8px !important;
+        }
         #global-loader { background: rgba(244,247,250,.92) !important; }
 
         @media (max-width: 767px) {
@@ -428,6 +435,32 @@
                 width: 100% !important;
             }
             .session-delete-label { display: inline; }
+            #bulk-action-bar { bottom: calc(.75rem + env(safe-area-inset-bottom)) !important; }
+            #toast-container {
+                bottom: calc(6.5rem + env(safe-area-inset-bottom)) !important;
+                width: calc(100% - 1rem) !important;
+                max-width: 28rem !important;
+            }
+            [id^="modal-"] { padding: .5rem !important; }
+            [id^="modal-"] > div {
+                width: 100% !important;
+                max-width: calc(100vw - 1rem) !important;
+                max-height: calc(100dvh - 1rem) !important;
+                margin: 0 !important;
+            }
+            #modal-participants .participants-modal-header { padding: 1rem !important; gap: .75rem !important; }
+            #modal-participants .participants-modal-actions {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+                width: 100% !important;
+            }
+            #modal-participants .participants-modal-actions button { min-width: 0 !important; padding-inline: .6rem !important; }
+            #modal-participants .participants-modal-actions button:last-child { grid-column: 1 / -1; width: 100% !important; }
+            #modal-notify > div, #modal-participants > div { min-height: 0; }
+            #modal-notify > div > div:nth-child(2), #modal-participants > div > div:last-child { min-height: 0; }
+            #modal-notify .rounded-b-xl { padding-bottom: calc(1rem + env(safe-area-inset-bottom)) !important; }
+            #modal-confirm > div { overflow-y: auto; }
+            #data-quality-summary > div { min-width: 0; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -556,6 +589,7 @@
             <div class="flex space-x-2 md:space-x-4 mb-4 md:mb-6 border-b pb-2 overflow-x-auto no-scrollbar whitespace-nowrap">
                 <button id="tabActivityList" onclick="switchAdminTab('list')" class="font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition text-sm md:text-base">活動列表</button>
                 <button id="tabActivityLog" onclick="switchAdminTab('log')" class="text-gray-500 hover:text-gray-800 pb-1 px-2 transition text-sm md:text-base">動態紀錄</button>
+                <button id="tabDataQuality" onclick="switchAdminTab('quality')" class="text-gray-500 hover:text-gray-800 pb-1 px-2 transition text-sm md:text-base">資料檢查</button>
             </div>
 
             <!-- 骨架屏載入 (後台用) -->
@@ -668,7 +702,7 @@
                     <p class="text-xs md:text-sm text-gray-500 mb-3">請確認您可以出席的場次並選擇用餐。一對一活動僅限單選。</p>
                     <div id="dynamic-meal-section" class="space-y-4 mb-6"></div>
 
-                    <div class="mt-6 md:mt-8 flex justify-end space-x-3 pb-2">
+                    <div class="mt-6 md:mt-8 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pb-2">
                         <button type="button" onclick="closeModal('modal-register')" class="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition font-medium w-full md:w-auto text-sm md:text-base">取消</button>
                         <button type="submit" id="btn-submit-registration" class="px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-md hover:bg-yellow-600 transition shadow w-full md:w-auto flex items-center justify-center text-sm md:text-base">確認送出</button>
                     </div>
@@ -839,7 +873,7 @@
                             <textarea id="edit-description" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none resize-y text-base md:text-sm"></textarea>
                         </div>
                     </div>
-                    <div class="mt-6 md:mt-8 flex justify-end space-x-3 pb-2">
+                    <div class="mt-6 md:mt-8 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pb-2">
                         <button type="button" onclick="safeCloseEditEvent()" class="w-full md:w-auto px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200 transition">取消</button>
                         <button type="submit" id="btn-submit-edit-event" class="w-full md:w-auto px-6 py-2.5 bg-chihlee-blue text-white font-bold rounded-md hover:bg-opacity-90 transition shadow">儲存</button>
                     </div>
@@ -864,6 +898,38 @@
                         <i class="fa-solid fa-user-plus mr-2"></i> 個管老師新增
                     </button>
                     <button type="button" onclick="closeModal('modal-participants')" aria-label="關閉報名名單" title="關閉" class="col-span-2 sm:col-span-1 sm:w-11 bg-white text-gray-500 hover:text-gray-800 px-3 py-2.5 rounded-lg border border-gray-300 transition flex justify-center items-center text-xl flex-shrink-0"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <!-- 試算表資料品質檢查：只顯示列號與問題類型，不把儲存格內容帶到前端。 -->
+            <div id="adminDataQualitySection" class="hidden w-full">
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="p-4 md:p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <h2 class="text-lg md:text-xl font-bold text-chihlee-blue">試算表資料檢查</h2>
+                            <p class="text-xs md:text-sm text-gray-600 mt-1">報告只顯示工作表、列號、欄位及問題類型，不顯示學生資料、密碼或 LINE 綁定內容。</p>
+                        </div>
+                        <button id="btn-run-data-quality" type="button" onclick="loadDataQualityReport()" class="w-full sm:w-auto bg-chihlee-blue text-white px-4 py-2.5 rounded-lg shadow hover:bg-opacity-90 transition flex items-center justify-center text-sm font-bold flex-shrink-0">
+                            <i class="fa-solid fa-shield-halved mr-2"></i>開始檢查
+                        </button>
+                    </div>
+                    <div id="data-quality-summary" class="hidden p-4 md:p-6 grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 bg-blue-50/30"></div>
+                    <div class="overflow-x-auto custom-scroll">
+                        <table class="w-full text-left text-sm whitespace-nowrap min-w-[720px]">
+                            <thead class="bg-gray-200 text-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 font-semibold">等級</th>
+                                    <th class="px-4 py-3 font-semibold">工作表</th>
+                                    <th class="px-4 py-3 font-semibold">列號</th>
+                                    <th class="px-4 py-3 font-semibold">欄位</th>
+                                    <th class="px-4 py-3 font-semibold">檢查結果</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-quality-tbody" class="divide-y divide-gray-100 bg-white">
+                                <tr><td colspan="5" class="px-4 py-10 text-center text-gray-500 whitespace-normal">按「開始檢查」後才會讀取資料結構。</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -952,6 +1018,9 @@
                         </button>
                     </div>
                 </div>
+                <div id="line-usage-summary" class="mt-3 rounded-lg border border-green-200 bg-white px-3 py-2 text-xs md:text-sm font-bold text-green-800 flex flex-wrap items-center gap-x-3 gap-y-1" aria-live="polite">
+                    <span><i class="fa-solid fa-chart-simple mr-1"></i>本月 LINE 用量載入中</span>
+                </div>
             </div>
 
             <div class="flex-grow overflow-y-auto bg-gray-50 flex flex-col p-4 md:p-6 gap-4 md:gap-6 custom-scroll">
@@ -1026,6 +1095,7 @@
             selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
             tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null,
             events: [], eventStats: {}, counselors: [], registrations: [], admins: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
+            lineUsage: { month: '', used: 0, limit: 200, remaining: 200 }, dataQualityReport: null,
             studentIdentity: null, registeredEventIds: [],
             eventCounts: new Map()
         };
@@ -1214,9 +1284,9 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.6';
-        const VERSION_UPDATED_AT = '2026/08/24 22:14';
-        const VERSION_UPDATED_AT_ISO = '2026-08-24T22:14:00+08:00';
+        const VERSION_LABEL = 'V11.7';
+        const VERSION_UPDATED_AT = '2026/08/24 22:55';
+        const VERSION_UPDATED_AT_ISO = '2026-08-24T22:55:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
@@ -1249,8 +1319,12 @@
                 !isPlainObject(data) || typeof data.id !== 'string' || typeof data.name !== 'string'
             )) throw new Error('學生資料格式不正確');
             if (action === 'sendLineNotification' && (
-                typeof response.successCount !== 'number' || typeof response.failCount !== 'number' || !Array.isArray(response.failedStudents)
+                typeof response.successCount !== 'number' || typeof response.failCount !== 'number' || !Array.isArray(response.failedStudents) ||
+                !isPlainObject(response.lineUsage)
             )) throw new Error('LINE 發送結果格式不正確');
+            if (action === 'getDataQualityReport' && (
+                !isPlainObject(data) || !isPlainObject(data.summary) || !Array.isArray(data.issues)
+            )) throw new Error('資料檢查報告格式不正確');
             if (isPlainObject(data) && data.events !== undefined) {
                 validateEventArray(data.events, '公開');
                 if (!isPlainObject(data.eventStats) || !Array.isArray(data.counselors)) throw new Error('公開資料格式不正確');
@@ -1262,6 +1336,10 @@
                 if (!Array.isArray(fullData.registrations) || !Array.isArray(fullData.logs) || !Array.isArray(fullData.admins)) {
                     throw new Error('後台清單格式不正確');
                 }
+                if (
+                    !isPlainObject(fullData.lineUsage) || typeof fullData.lineUsage.used !== 'number' ||
+                    typeof fullData.lineUsage.limit !== 'number' || typeof fullData.lineUsage.remaining !== 'number'
+                ) throw new Error('LINE 用量格式不正確');
                 fullData.registrations.forEach(registration => {
                     if (!isPlainObject(registration) || !Array.isArray(registration.sessionsData)) throw new Error('報名場次格式不正確');
                 });
@@ -1337,7 +1415,7 @@
             const messageSpan = document.createElement('span');
             messageSpan.textContent = String(message == null ? '' : message);
             toast.appendChild(messageSpan);
-            container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 100%)'; toast.style.transition = 'all 0.3s ease-in'; setTimeout(() => toast.remove(), 300); }, 3000);
+            container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(16px)'; toast.style.transition = 'all 0.3s ease-in'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
         function openModal(id) {
@@ -1465,6 +1543,7 @@
                             state.registrations = normalizeRegistrations(authData.data.fullData.registrations);
                             state.logs = authData.data.fullData.logs;
                             state.admins = authData.data.fullData.admins;
+                            state.lineUsage = authData.data.fullData.lineUsage;
                             updateEventCounts();
                             renderTeacherDashboard();
                         } else if (checkTokenExpiration(authData)) {
@@ -1668,6 +1747,7 @@
                     state.registrations = normalizeRegistrations(user.fullData.registrations);
                     state.logs = user.fullData.logs;
                     state.admins = user.fullData.admins;
+                    state.lineUsage = user.fullData.lineUsage;
                     if (refreshedPublicData) {
                         state.eventStats = refreshedPublicData.eventStats;
                         state.counselors = refreshedPublicData.counselors;
@@ -2404,13 +2484,90 @@
         function switchAdminTab(tab) {
             document.getElementById('adminActivitySection').classList.toggle('hidden', tab !== 'list');
             document.getElementById('adminLogSection').classList.toggle('hidden', tab !== 'log');
+            document.getElementById('adminDataQualitySection').classList.toggle('hidden', tab !== 'quality');
 
             const activeTabClass = 'font-bold text-gray-800 border-b-2 border-chihlee-blue pb-1 px-2 transition whitespace-nowrap text-sm md:text-base';
             const defaultTabClass = 'text-gray-500 hover:text-gray-800 pb-1 px-2 transition whitespace-nowrap text-sm md:text-base';
 
             document.getElementById('tabActivityList').className = tab === 'list' ? activeTabClass : defaultTabClass;
             document.getElementById('tabActivityLog').className = tab === 'log' ? activeTabClass : defaultTabClass;
+            document.getElementById('tabDataQuality').className = tab === 'quality' ? activeTabClass : defaultTabClass;
             if (tab === 'log') renderLogs();
+            if (tab === 'quality' && state.dataQualityReport) renderDataQualityReport(state.dataQualityReport);
+        }
+
+        function renderLineUsageSummary() {
+            const container = document.getElementById('line-usage-summary');
+            if (!container) return;
+            const usage = state.lineUsage && typeof state.lineUsage === 'object'
+                ? state.lineUsage
+                : { month: '', used: 0, limit: 200, remaining: 200 };
+            const used = Math.max(0, Number(usage.used) || 0);
+            const limit = Math.max(1, Number(usage.limit) || 200);
+            const remaining = Math.max(0, Number(usage.remaining) || 0);
+            const statusClass = remaining <= 20 ? 'text-red-700' : remaining <= 60 ? 'text-orange-700' : 'text-green-800';
+            container.innerHTML = `<span class="${statusClass}"><i class="fa-solid fa-chart-simple mr-1"></i>本系統 ${escapeHTML(usage.month || '本月')} 已成功發送 ${used}／${limit} 則</span><span class="${statusClass}">剩餘 ${remaining} 則</span><span class="text-gray-500 font-medium">僅統計成功發送，不含失敗訊息</span>`;
+        }
+
+        async function loadDataQualityReport() {
+            if (!state.isTeacherLoggedIn || !state.adminCreds) return showToast('請先登入後台', 'error');
+            const button = document.getElementById('btn-run-data-quality');
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>檢查中';
+            }
+            showGlobalLoading(true, '檢查試算表資料...');
+            try {
+                const response = await apiRequest({
+                    action: 'getDataQualityReport',
+                    adminAcc: state.adminCreds.acc,
+                    adminToken: state.adminCreds.token
+                });
+                if (checkTokenExpiration(response)) return;
+                if (!response.success) return showToast(response.error || '資料檢查失敗', 'error');
+                state.dataQualityReport = response.data;
+                renderDataQualityReport(response.data);
+                const total = Number(response.data.summary.totalIssues) || 0;
+                showToast(total === 0 ? '資料檢查完成，未發現異常' : `資料檢查完成，共發現 ${total} 項問題`, total === 0 ? 'success' : 'info');
+            } catch (error) {
+                showToast(getRequestErrorMessage(error, '資料檢查失敗'), 'error');
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fa-solid fa-shield-halved mr-2"></i>重新檢查';
+                }
+                showGlobalLoading(false);
+            }
+        }
+
+        function renderDataQualityReport(report) {
+            if (!report || !report.summary || !Array.isArray(report.issues)) return;
+            const summary = report.summary;
+            const summaryContainer = document.getElementById('data-quality-summary');
+            const tbody = document.getElementById('data-quality-tbody');
+            const cards = [
+                ['檢查資料列', Number(summary.checkedRows) || 0, 'text-chihlee-blue', 'bg-blue-50 border-blue-200'],
+                ['錯誤', Number(summary.errorCount) || 0, 'text-red-700', 'bg-red-50 border-red-200'],
+                ['提醒', Number(summary.warningCount) || 0, 'text-orange-700', 'bg-orange-50 border-orange-200'],
+                ['檢查時間', formatSafeDate(report.checkedAt) || '-', 'text-gray-700', 'bg-gray-50 border-gray-200']
+            ];
+            summaryContainer.innerHTML = cards.map(([label, value, textClass, boxClass]) => `<div class="${boxClass} border rounded-lg p-3 min-w-0"><div class="text-xs text-gray-600 font-bold">${escapeHTML(label)}</div><div class="${textClass} font-bold text-base md:text-lg break-words">${escapeHTML(value)}</div></div>`).join('');
+            summaryContainer.classList.remove('hidden');
+
+            if (report.issues.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 text-center text-green-700 font-bold whitespace-normal"><i class="fa-solid fa-circle-check mr-2"></i>目前未發現資料結構或格式異常</td></tr>';
+                return;
+            }
+            tbody.innerHTML = report.issues.map(issue => {
+                const isError = issue.severity === 'error';
+                const badge = isError
+                    ? '<span class="inline-flex px-2 py-1 rounded bg-red-100 text-red-700 font-bold">錯誤</span>'
+                    : '<span class="inline-flex px-2 py-1 rounded bg-orange-100 text-orange-700 font-bold">提醒</span>';
+                return `<tr class="hover:bg-blue-50"><td class="px-4 py-3">${badge}</td><td class="px-4 py-3 font-bold">${escapeHTML(issue.sheet)}</td><td class="px-4 py-3 tabular-nums">${escapeHTML(issue.row)}</td><td class="px-4 py-3">${escapeHTML(issue.field)}</td><td class="px-4 py-3 whitespace-normal min-w-[260px]">${escapeHTML(issue.message)}</td></tr>`;
+            }).join('');
+            if (summary.truncated) {
+                tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="5" class="px-4 py-3 text-center text-orange-700 font-bold whitespace-normal">問題過多，畫面只顯示前 300 項；請先修正後重新檢查。</td></tr>');
+            }
         }
 
         function renderTeacherDashboard(page = null) {
@@ -3223,6 +3380,7 @@
                 if (!ev) { showToast('找不到活動', 'error'); return; }
 
                 document.getElementById('notify-event-subtitle').innerText = ev.title || '未命名活動';
+                renderLineUsageSummary();
                 document.getElementById('selectAllNotify').checked = false;
 
                 const templateSelect = document.getElementById('line-template-select');
@@ -3321,8 +3479,18 @@
             if (selectedCount === 0) return showToast('請勾選要發送的學生！', 'error');
             if (!message) return showToast('推播文案不可為空！', 'error');
 
+            const usage = state.lineUsage || { used: 0, limit: 200, remaining: 200, month: '本月' };
+            const used = Math.max(0, Number(usage.used) || 0);
+            const limit = Math.max(1, Number(usage.limit) || 200);
+            const remaining = Math.max(0, Number(usage.remaining) || 0);
+            const projectedUsed = used + selectedCount;
+            const projectedRemaining = Math.max(0, limit - projectedUsed);
+            const quotaWarning = selectedCount > remaining
+                ? '<p class="font-bold text-red-700">⚠️ 本次人數超過系統目前記錄的剩餘額度，LINE 可能拒絕部分或全部訊息。</p>'
+                : `<p>若全部成功，預估本月累計 <strong>${projectedUsed}／${limit}</strong> 則，剩餘 <strong>${projectedRemaining}</strong> 則。</p>`;
+
             customConfirm(
-                `<div class="text-left space-y-3"><p class="font-bold text-red-700">LINE 官方帳號每月免費推播額度只有 200 則，請妥善運用。</p><p>每發送給 1 位學生會使用 1 則額度；本次預計發送 <strong>${selectedCount}</strong> 則。</p><p class="text-sm text-gray-600">請再次確認發送對象與內容。按「取消」不會發送，按「確定」才會送出。</p></div>`,
+                `<div class="text-left space-y-3"><p class="font-bold text-red-700">LINE 官方帳號每月免費推播額度只有 200 則，請妥善運用。</p><p>${escapeHTML(usage.month || '本月')}目前已成功發送 <strong>${used}／${limit}</strong> 則；本次預計發送 <strong>${selectedCount}</strong> 則。</p>${quotaWarning}<p class="text-sm text-gray-600">系統只累計成功發送的訊息。按「取消」不會發送，按「確定」才會送出。</p></div>`,
                 sendLineNotificationNow,
                 'LINE 推播額度提醒'
             );
@@ -3358,6 +3526,8 @@
                 });
                 if (checkTokenExpiration(res)) return;
                 if (res.success) {
+                    state.lineUsage = res.lineUsage;
+                    renderLineUsageSummary();
                     if (res.failCount > 0 && res.failedStudents && res.failedStudents.length > 0) {
                         customConfirm(`✅ 成功: ${res.successCount} 人<br>❌ 失敗: ${res.failCount} 人<br><br>【發送失敗名單】(未綁定或異常):<br><div class="text-sm text-red-600 mt-2 max-h-32 overflow-y-auto text-left bg-red-50 p-2 rounded border border-red-100">${res.failedStudents.map(escapeHTML).join('<br>')}</div>`, () => {}, '發送結果與清單');
                     } else if (res.successCount > 0) {
