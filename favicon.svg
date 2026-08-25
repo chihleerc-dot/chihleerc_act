@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">致理．心夥伴</title>
+  <desc id="desc">深藍色圓角方形，兩位白色夥伴與中央金色愛心</desc>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="#0057B8"/>
+  <circle cx="176" cy="176" r="52" fill="#FFFFFF"/>
+  <circle cx="336" cy="176" r="52" fill="#FFFFFF"/>
+  <path d="M72 388c7-93 51-142 104-142 36 0 67 22 80 60 13-38 44-60 80-60 53 0 97 49 104 142H72Z" fill="#FFFFFF"/>
+  <path d="M256 373c-12-12-72-54-72-101 0-29 21-50 49-50 17 0 31 8 41 22 10-14 24-22 41-22 28 0 49 21 49 50 0 47-60 89-72 101l-18 16-18-16Z" fill="#F4B400" stroke="#0057B8" stroke-width="16" stroke-linejoin="round"/>
+</svg>
