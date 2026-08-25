@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.7｜2026-08-24 22:55 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.8｜2026-08-25 10:46 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -37,6 +37,7 @@
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .publication-status-unpublished { background: #64748B; color: #FFFFFF; }
 
         /* 2026 UI refresh: category-aware, sharp and accessible */
         :root {
@@ -639,7 +640,7 @@
                         </colgroup>
                         <thead class="bg-gray-200 text-gray-700 text-sm shadow-sm sticky top-0 z-20">
                             <tr>
-                                <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold sticky left-0 bg-gray-200 z-30 w-24 border-r border-gray-300">分類</th>
+                                <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold sticky left-0 bg-gray-200 z-30 w-24 border-r border-gray-300">分類／形式</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold md:sticky md:left-[110px] bg-gray-200 md:z-30 shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-gray-300">活動名稱/承辦人</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-left font-semibold">場次時間/地點</th>
                                 <th class="px-4 md:px-6 py-3 md:py-4 text-center font-semibold">報名狀態</th>
@@ -805,13 +806,14 @@
                                     </div>
                                 </label>
                                 <label class="flex items-start space-x-2 cursor-pointer p-2 rounded hover:bg-white transition border border-transparent hover:border-gray-200">
-                                    <input type="radio" name="edit-activity-type" value="ooo" onchange="handleActivityTypeChange(); markDirty()" class="mt-0.5 w-4 h-4 text-pink-600 focus:ring-pink-600">
+                                    <input type="radio" name="edit-activity-type" value="ooo" onchange="handleActivityTypeChange(); markDirty()" class="mt-0.5 w-4 h-4 text-red-600 focus:ring-red-600">
                                     <div>
-                                        <span class="text-sm font-bold text-pink-700">個別預約 / 一對一</span>
-                                        <p class="text-xs text-pink-600 mt-0.5 opacity-80">強制單場限額 1 人，學生僅能單選。</p>
+                                        <span class="text-sm font-bold text-red-700">個別預約 / 一對一</span>
+                                        <p class="text-xs text-red-600 mt-0.5 opacity-80">強制單場限額 1 人，學生僅能單選。</p>
                                     </div>
                                 </label>
                             </div>
+                            <p id="edit-activity-type-note" class="hidden mt-2 text-xs font-medium leading-relaxed" aria-live="polite"></p>
                         </div>
 
                         <div class="bg-gray-50 p-3 md:p-4 rounded-lg border border-gray-200">
@@ -856,6 +858,9 @@
                                     </label>
                                     <label class="flex items-center space-x-1 cursor-pointer bg-white px-2 py-1 rounded border border-gray-200">
                                         <input type="checkbox" name="edit-loc-quick" value="心測室" class="w-4 h-4 text-chihlee-blue rounded border-gray-300"> <span class="text-xs md:text-sm">心測室</span>
+                                    </label>
+                                    <label class="flex items-center space-x-1 cursor-pointer bg-white px-2 py-1 rounded border border-gray-200">
+                                        <input type="checkbox" name="edit-loc-quick" value="Google Meet會議室" class="w-4 h-4 text-chihlee-blue rounded border-gray-300"> <span class="text-xs md:text-sm">Google Meet會議室</span>
                                     </label>
                                 </div>
                                 <input type="text" id="edit-loc-custom" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-base md:text-sm" placeholder="其他主地點填此處...">
@@ -1284,8 +1289,8 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.7';
-        const VERSION_UPDATED_AT = '2026/08/24 22:55';
+        const VERSION_LABEL = 'V11.8';
+        const VERSION_UPDATED_AT = '2026/08/25 10:46';
         const VERSION_UPDATED_AT_ISO = '2026-08-24T22:55:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
@@ -1569,6 +1574,16 @@
 
         function getEventRegistrationCount(eventId) {
             return state.eventCounts.get(String(eventId)) || 0;
+        }
+
+        function splitLocationLabels(value) {
+            return String(value || '').split('、').map(location => location.trim()).filter(Boolean);
+        }
+
+        function renderLocationBadges(value) {
+            const locations = splitLocationLabels(value);
+            if (locations.length === 0) return '<span class="text-gray-400">未設定</span>';
+            return locations.map(location => `<span class="inline-flex items-center max-w-full px-2 py-0.5 rounded-full border border-gray-300 bg-white text-gray-600 whitespace-normal break-words">${escapeHTML(location)}</span>`).join('');
         }
 
         function getDayOfWeek(dateString) {
@@ -1927,7 +1942,7 @@
                 const sessionsHTML = ev.sessions.map((s, i) => {
                     const prefix = isSeries ? `<span class="inline-block w-12 text-right mr-1.5 flex-shrink-0 text-gray-400">第${i+1}場:</span>` : '';
                     const expired = isSessionExpired(s, now);
-                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums ${expired ? 'opacity-55' : ''}"><div class="flex items-center ${expired ? 'text-gray-400 line-through' : 'text-chihlee-gold'} font-medium text-xs md:text-sm whitespace-nowrap"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-20 text-center inline-block font-bold ${expired ? 'text-gray-400' : 'text-gray-600'}">${escapeHTML(s.time)}</span>${expired ? '<span class="ml-2 no-underline text-[10px] font-bold bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">已過期</span>' : ''}</div><span class="text-[10px] md:text-xs text-gray-500 mt-0.5 ml-6 pl-1 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(s.location || ev.location)}</span></div>`;
+                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums ${expired ? 'opacity-55' : ''}"><div class="flex items-center ${expired ? 'text-gray-400 line-through' : 'text-chihlee-gold'} font-medium text-xs md:text-sm whitespace-nowrap"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-20 text-center inline-block font-bold ${expired ? 'text-gray-400' : 'text-gray-600'}">${escapeHTML(s.time)}</span>${expired ? '<span class="ml-2 no-underline text-[10px] font-bold bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">已過期</span>' : ''}</div><div class="text-[10px] md:text-xs text-gray-500 mt-1 ml-6 pl-1 flex items-start gap-1"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(s.location || ev.location)}</span></div></div>`;
                 }).join('');
 
                 const label = document.createElement('label');
@@ -1957,7 +1972,7 @@
                         <div class="flex-grow min-w-0">
                             <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
                                 <span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded border ${tagColor}">${escapeHTML(ev.category)}</span>
-                                ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-pink-100 text-pink-700 border border-pink-200 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
+                                ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
                                 ${isSeries ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200 whitespace-nowrap">共 ${ev.sessions.length} 場</span>` : ''}
                                 ${mealStr}
                                 ${isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200 shadow-sm whitespace-nowrap">✅ 您已報名</span>` : ''}
@@ -2445,7 +2460,7 @@
                     let statusHtml = sd.attend ? `<span class="font-bold text-blue-700 text-xs md:text-sm bg-blue-50 px-2 py-1 rounded border border-blue-100 flex-shrink-0">${escapeHTML(normalizeMealChoice(sd.meal))}</span>` : `<span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded flex-shrink-0">未參加</span>`;
                     return `<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-3 border-b border-gray-100 last:border-0 gap-2 px-1"><div class="flex flex-col tabular-nums"><div class="flex items-center flex-wrap"><span class="${sd.attend ? 'text-gray-800' : 'text-gray-400 line-through'} font-medium mr-1">${escapeHTML(session.date)} <span class="hidden sm:inline">${getDayOfWeek(session.date)}</span> <span class="text-gray-500 text-xs ml-1 font-bold">${escapeHTML(session.time)}</span></span>${sd.attend ? `<a href="${escapeHTML(calUrl)}" target="_blank" rel="noopener noreferrer" title="將 ${escapeHTML(ev.title)}｜${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" aria-label="將 ${escapeHTML(ev.title)} ${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" class="ml-1 text-blue-500 hover:text-blue-700 transition text-lg drop-shadow-sm"><i class="fa-regular fa-calendar-plus"></i></a>` : ''}</div><span class="text-[10px] md:text-xs text-gray-500 mt-1 sm:mt-0.5 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(loc)}</span></div><div class="flex items-center justify-end sm:justify-start">${statusHtml}</div></div>`;
                 }).join('');
-                container.innerHTML += `<div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden transition-all duration-200"><div class="absolute top-0 left-0 w-1.5 h-full ${tagColor.split(' ')[0]}"></div><div class="mb-3 pl-3 flex justify-between items-start"><div><div class="flex items-center gap-2 mb-1.5"><span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded border ${tagColor}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-pink-100 text-pink-700 border border-pink-200">預約</span>` : ''}</div><h4 class="font-bold text-gray-800 text-lg md:text-xl leading-tight mb-0 break-words">${escapeHTML(ev.title)}</h4></div></div><div class="bg-gray-50 p-2 sm:p-4 rounded-lg border border-gray-100 ml-1.5">${sessHtml}</div></div>`;
+                container.innerHTML += `<div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden transition-all duration-200"><div class="absolute top-0 left-0 w-1.5 h-full ${tagColor.split(' ')[0]}"></div><div class="mb-3 pl-3 flex justify-between items-start"><div><div class="flex items-center gap-2 mb-1.5"><span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded border ${tagColor}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300">預約</span>` : ''}</div><h4 class="font-bold text-gray-800 text-lg md:text-xl leading-tight mb-0 break-words">${escapeHTML(ev.title)}</h4></div></div><div class="bg-gray-50 p-2 sm:p-4 rounded-lg border border-gray-100 ml-1.5">${sessHtml}</div></div>`;
             });
         }
 
@@ -2631,8 +2646,16 @@
                 const isSeries = ev.isSeries === true;
                 const pCount = getEventRegistrationCount(ev.id);
                 const isFull = ev.capacity && pCount >= ev.capacity;
-                let tagColor = 'bg-gray-100 text-gray-600';
-                if(ev.category === '職涯') tagColor = 'bg-cat-career-bg text-cat-career-text'; if(ev.category === '人際') tagColor = 'bg-cat-inter-bg text-cat-inter-text'; if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text';
+                let tagColor = 'bg-white text-gray-600 border-gray-400';
+                if(ev.category === '職涯') tagColor = 'bg-white text-cat-career-text border-cat-career-text';
+                if(ev.category === '人際') tagColor = 'bg-white text-cat-inter-text border-cat-inter-text';
+                if(ev.category === '課業') tagColor = 'bg-white text-cat-academic-text border-cat-academic-text';
+                const mainLocationBadges = splitLocationLabels(ev.location).length > 1
+                    ? `<div class="mt-2 flex items-start gap-1 text-[10px] md:text-xs"><i class="fa-solid fa-location-dot text-gray-400 mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(ev.location)}</span></div>`
+                    : '';
+                const publicationStatusHtml = ev.isPublished
+                    ? '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap bg-green-600 text-white"><i class="fa-solid fa-eye mr-1"></i>已公開</span>'
+                    : '<span class="publication-status-unpublished inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-eye-slash mr-1"></i>未公開</span>';
 
                 const datesHTML = ev.sessions.map((s, idx) => {
                     const numHtml = ev.sessions.length > 1 ? `<span class="inline-block w-4 text-right mr-1.5 text-gray-500 font-medium">${idx+1}.</span>` : '';
@@ -2647,7 +2670,7 @@
                                 <div class="flex flex-wrap items-center whitespace-normal break-words mb-0.5">
                                     ${numHtml}<span class="font-medium ${dateTextColor}">${escapeHTML(s.date)}</span><span class="hidden md:inline font-medium ${dateTextColor} ml-1">${getDayOfWeek(s.date)}</span> <span class="${timeTextColor} mx-1 inline-block font-bold">${escapeHTML(s.time)}</span>
                                 </div>
-                                <span class="text-gray-500 text-[10px] md:text-xs ml-4 break-words max-w-[150px] md:max-w-none"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(s.location || ev.location)}</span>
+                                <div class="text-gray-500 text-[10px] md:text-xs ml-4 mt-1 flex items-start gap-1 min-w-0"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(s.location || ev.location)}</span></div>
                             </div>`;
                 }).join('');
 
@@ -2660,14 +2683,14 @@
                 tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white group`;
                 tr.innerHTML = `
                     <td class="px-4 md:px-6 py-4 align-top sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100">
-                        <span class="inline-block px-2 py-0.5 rounded text-[10px] md:text-xs font-semibold ${tagColor} whitespace-nowrap">${escapeHTML(ev.category)}</span>
-                        <br><span class="inline-block px-2 py-0.5 mt-1 rounded text-[10px] md:text-xs font-bold whitespace-nowrap ${ev.isPublished ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}"><i class="fa-solid ${ev.isPublished ? 'fa-eye' : 'fa-eye-slash'} mr-1"></i>${ev.isPublished ? '已公開' : '未公開'}</span>
-                        ${ev.isOneOnOne ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-[10px] md:text-xs font-bold bg-pink-100 text-pink-700 whitespace-nowrap">一對一</span>' : ''}
+                        <span class="inline-block px-2 py-0.5 rounded-full border-2 text-[10px] md:text-xs font-semibold ${tagColor} whitespace-nowrap">${escapeHTML(ev.category)}</span>
+                        ${ev.isOneOnOne ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded-md text-[10px] md:text-xs font-bold bg-red-100 text-red-700 border border-red-300 whitespace-nowrap">一對一</span>' : ''}
                         ${isSeries ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-[10px] md:text-xs font-bold bg-purple-100 text-purple-700 whitespace-nowrap">系列</span>' : ''}
                     </td>
                     <td class="px-4 md:px-6 py-4 align-top font-medium ${isPast ? 'text-gray-500' : 'text-gray-900'} md:sticky md:left-[110px] md:z-10 bg-inherit shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100">
-                        <div class="admin-event-title whitespace-normal leading-relaxed">${escapeHTML(ev.title)}</div>
+                        <div class="flex flex-wrap items-start gap-2 whitespace-normal leading-relaxed">${publicationStatusHtml}<span class="admin-event-title min-w-0 break-words">${escapeHTML(ev.title)}</span></div>
                         <span class="text-xs text-gray-500 block mt-2 whitespace-nowrap"><i class="fa-solid fa-user-tie mr-1"></i>${escapeHTML(ev.teacher || '未設定')}</span>
+                        ${mainLocationBadges}
                     </td>
                     <td class="px-4 md:px-6 py-4 text-xs md:text-sm leading-relaxed align-top">${datesHTML}</td>
                     <td class="px-4 md:px-6 py-4 text-center align-middle">
@@ -2722,6 +2745,31 @@
             }
         }
 
+        function configureActivityTypeEditing(isExistingEvent) {
+            const lockedForStaff = Boolean(isExistingEvent) && state.currentUserRole !== 'admin';
+            const note = document.getElementById('edit-activity-type-note');
+            document.querySelectorAll('input[name="edit-activity-type"]').forEach(radio => {
+                radio.disabled = lockedForStaff;
+                const label = radio.closest('label');
+                if (label) {
+                    label.classList.toggle('opacity-60', lockedForStaff);
+                    label.classList.toggle('cursor-not-allowed', lockedForStaff);
+                    label.classList.toggle('cursor-pointer', !lockedForStaff);
+                }
+            });
+            if (!note) return;
+            if (lockedForStaff) {
+                note.textContent = '活動建立後，staff 不可更改活動形式；如需調整請由管理員處理。';
+                note.className = 'mt-2 text-xs font-medium leading-relaxed text-red-700';
+            } else if (isExistingEvent && state.currentUserRole === 'admin') {
+                note.textContent = '管理員可調整活動形式；系列活動至少需 2 場，一對一活動若已有報名則不可轉換。';
+                note.className = 'mt-2 text-xs font-medium leading-relaxed text-purple-700';
+            } else {
+                note.textContent = '';
+                note.className = 'hidden mt-2 text-xs font-medium leading-relaxed';
+            }
+        }
+
         function syncTempSessions() {
             for(let i = 0; i < state.tempSessions.length; i++) {
                 const dateEl = document.getElementById(`sesDate_${i}`); const timeEl = document.getElementById(`sesTime_${i}`); const locEl = document.getElementById(`sesLoc_${i}`);
@@ -2735,7 +2783,7 @@
                 <div class="session-edit-row bg-white p-2.5 rounded-md border border-gray-200">
                     <input type="date" id="sesDate_${idx}" value="${String(s.date).replace(/\//g, '-')}" onchange="markDirty()" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
                     <input type="text" id="sesTime_${idx}" value="${escapeHTML(s.time)}" oninput="markDirty()" onblur="formatTimeRange(this); syncTempSessions();" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm" placeholder="如 18:00-20:00">
-                    <input type="text" id="sesLoc_${idx}" value="${escapeHTML(s.location || '')}" maxlength="10" oninput="markDirty()" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-yellow-50 placeholder-gray-400" placeholder="獨立地點（最多10字）">
+                    <input type="text" id="sesLoc_${idx}" value="${escapeHTML(s.location || '')}" maxlength="20" oninput="markDirty()" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-yellow-50 placeholder-gray-400" placeholder="本場地點（未填沿用主地點）">
                     <button type="button" aria-label="刪除第 ${idx + 1} 場" onclick="removeTempSession(${idx}); markDirty();" class="session-delete-button text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-800 rounded-md transition text-sm font-bold shadow-sm"><i class="fa-solid fa-trash"></i><span class="session-delete-label">刪除</span></button>
                 </div>`).join('');
         }
@@ -2787,7 +2835,7 @@
                 document.getElementById('edit-modal-title').innerText = '新增活動'; document.getElementById('edit-id').value = ''; state.tempTags = []; state.tempSessions = [{date: '', time: '', location: ''}];
                 document.querySelector('input[name="edit-activity-type"][value="normal"]').checked = true;
             }
-            renderTempTags(); renderTempSessions(); handleActivityTypeChange(); openModal('modal-edit-event');
+            renderTempTags(); renderTempSessions(); configureActivityTypeEditing(Boolean(eventId)); handleActivityTypeChange(); openModal('modal-edit-event');
         }
 
         async function submitEventEdit(e) {
@@ -2808,10 +2856,14 @@
                     if(!timeRegex.test(t)) {
                         return showToast(`第 ${i+1} 場時間格式錯誤！請依照 HH:MM-HH:MM (如: 09:30-12:00)`, 'error');
                     }
+                    const sessionLocation = (locEl && locEl.value.trim()) ? locEl.value.trim() : '';
+                    if (mainLocs.length > 1 && !sessionLocation) {
+                        return showToast(`已選擇多個主地點，第 ${i+1} 場請填寫本場實際地點`, 'error');
+                    }
                     finalSessions.push({
                         date: dateEl.value.replace(/-/g, '/'),
                         time: t,
-                        location: (locEl && locEl.value.trim()) ? locEl.value.trim() : mainLocationString
+                        location: sessionLocation || mainLocationString
                     });
                 } else {
                     if (t || (locEl && locEl.value.trim())) {
@@ -2826,9 +2878,9 @@
             if (state.tempTags.length > 3 || state.tempTags.some(tag => typeof tag !== 'string' || !tag.trim() || tag.trim().length > 10)) {
                 return showToast('活動標籤最多 3 個，每個含 # 最多 10 個字', 'error');
             }
-            const invalidSessionLocationIndex = finalSessions.findIndex(session => !session.location || session.location.length > 10);
+            const invalidSessionLocationIndex = finalSessions.findIndex(session => !session.location || session.location.length > 20);
             if (invalidSessionLocationIndex !== -1) {
-                return showToast(`第 ${invalidSessionLocationIndex + 1} 場地點必須為 1 至 10 個字`, 'error');
+                return showToast(`第 ${invalidSessionLocationIndex + 1} 場地點必須為 1 至 20 個字`, 'error');
             }
 
             for (let i = 0; i < finalSessions.length; i++) {
@@ -2848,6 +2900,9 @@
             const activityType = document.querySelector('input[name="edit-activity-type"]:checked').value;
             const isOoo = activityType === 'ooo';
             const isSeriesEvent = activityType === 'series';
+            if (isSeriesEvent && finalSessions.length < 2) {
+                return showToast('系列活動至少需要設定 2 個場次', 'error');
+            }
             const finalCapacity = isOoo ? finalSessions.length : parseInt(document.getElementById('edit-capacity').value);
 
             const submitBtn = document.getElementById('btn-submit-edit-event');
@@ -2867,12 +2922,31 @@
 
             if (id) {
                 const currentCount = getEventRegistrationCount(id);
-                if (finalCapacity < currentCount) {
+                const existingEvent = state.events.find(event => String(event.id) === String(id));
+                const oldType = existingEvent && existingEvent.isOneOnOne ? 'ooo' : (existingEvent && existingEvent.isSeries ? 'series' : 'normal');
+                const typeChanged = oldType !== activityType;
+                if (typeChanged && state.currentUserRole !== 'admin') {
                     restoreSubmitBtn();
-                    customConfirm(`人數上限 (${finalCapacity}) 小於已報名人數 (${currentCount})。<br><br>確定要強制下修嗎？`, () => {
+                    return showToast('只有管理員可以更改既有活動的活動形式', 'error');
+                }
+                if (typeChanged && currentCount > 0 && (oldType === 'ooo' || activityType === 'ooo')) {
+                    restoreSubmitBtn();
+                    return showToast('一對一活動已有報名資料，無法轉換活動形式', 'error');
+                }
+
+                const warnings = [];
+                if (finalCapacity < currentCount) {
+                    warnings.push(`人數上限 (${finalCapacity}) 小於已報名人數 (${currentCount})。`);
+                }
+                if (typeChanged && currentCount > 0) {
+                    warnings.push('此活動已有報名資料。更改活動形式後，既有學生只保留原本報名場次；新增場次不會自動替學生報名。');
+                }
+                if (warnings.length > 0) {
+                    restoreSubmitBtn();
+                    customConfirm(`${warnings.join('<br><br>')}<br><br>確定要繼續儲存嗎？`, () => {
                         if(submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-70', 'cursor-not-allowed'); submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...'; }
                         proceedSubmitEventEdit(id, mainLocationString, finalSessions, isOoo, isSeriesEvent, finalCapacity, restoreSubmitBtn);
-                    }, '⚠️ 人數上限警告');
+                    }, '⚠️ 活動修改提醒');
                     return;
                 }
             }
