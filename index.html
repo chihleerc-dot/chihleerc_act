@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.10｜2026-08-25 14:33 -->
+<!-- 致理．心夥伴 - 活動報名系統｜安全強化版 V11.11｜2026-08-26 09:52 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -11,12 +11,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="致理．心夥伴">
-    <link rel="icon" href="favicon.ico?v=11.10-20260825" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=11.10-20260825">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=11.10-20260825">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=11.10-20260825">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=11.10-20260825">
-    <link rel="manifest" href="site.webmanifest?v=11.10-20260825">
+    <link rel="icon" href="favicon.ico?v=11.11-20260826" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=11.11-20260826">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=11.11-20260826">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=11.11-20260826">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=11.11-20260826">
+    <link rel="manifest" href="site.webmanifest?v=11.11-20260826">
     <style id="anti-clickjacking">html{display:none!important}</style>
     <script>
         if (window.self === window.top) {
@@ -47,6 +47,7 @@
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .publication-status-published { background: #15803D; color: #FFFFFF; }
         .publication-status-unpublished { background: #64748B; color: #FFFFFF; }
 
         /* 2026 UI refresh: category-aware, sharp and accessible */
@@ -233,9 +234,26 @@
         #filter-btn-inter[aria-pressed="false"] { color: #006B4F !important; background: #E0FFF2 !important; border-color: #00A86B !important; }
         #filter-btn-academic[aria-pressed="false"] { color: #97123D !important; background: #FFE7EF !important; border-color: #E91E63 !important; }
         #filter-btn-career[aria-pressed="false"] { color: #6A4200 !important; background: #FFF4BF !important; border-color: #E09A00 !important; }
-        #category-filters #filter-btn-inter[aria-pressed="true"] { color: #FFFFFF !important; background: #007A55 !important; border-color: #007A55 !important; }
-        #category-filters #filter-btn-academic[aria-pressed="true"] { color: #FFFFFF !important; background: #C2185B !important; border-color: #C2185B !important; }
-        #category-filters #filter-btn-career[aria-pressed="true"] { color: #102A43 !important; background: #F4B400 !important; border-color: #B97800 !important; }
+        #category-filters #filter-btn-inter[aria-pressed="true"] { color: #006B4F !important; background: #E0FFF2 !important; border-color: #00A86B !important; box-shadow: 0 0 0 3px rgba(0, 168, 107, .18) !important; }
+        #category-filters #filter-btn-academic[aria-pressed="true"] { color: #97123D !important; background: #FFE7EF !important; border-color: #E91E63 !important; box-shadow: 0 0 0 3px rgba(233, 30, 99, .16) !important; }
+        #category-filters #filter-btn-career[aria-pressed="true"] { color: #6A4200 !important; background: #FFF4BF !important; border-color: #E09A00 !important; box-shadow: 0 0 0 3px rgba(224, 154, 0, .18) !important; }
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: max-content;
+            padding: .2rem .65rem;
+            border: 2px solid;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 750;
+            line-height: 1.15rem;
+            white-space: nowrap;
+        }
+        .category-pill-inter { color: #006B4F; background: #E0FFF2; border-color: #00A86B; }
+        .category-pill-academic { color: #97123D; background: #FFE7EF; border-color: #E91E63; }
+        .category-pill-career { color: #6A4200; background: #FFF4BF; border-color: #E09A00; }
+        .category-pill-neutral { color: #475569; background: #F8FAFC; border-color: #94A3B8; }
         #student-main-content > .bg-white {
             max-width: 56rem;
             margin-inline: auto;
@@ -1179,6 +1197,20 @@
             return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         };
 
+        function getCategoryBadgeClass(category) {
+            if (category === '人際') return 'category-pill category-pill-inter';
+            if (category === '課業') return 'category-pill category-pill-academic';
+            if (category === '職涯') return 'category-pill category-pill-career';
+            return 'category-pill category-pill-neutral';
+        }
+
+        function getCategoryAccentClass(category) {
+            if (category === '人際') return 'bg-cat-inter-bg';
+            if (category === '課業') return 'bg-cat-academic-bg';
+            if (category === '職涯') return 'bg-cat-career-bg';
+            return 'bg-gray-100';
+        }
+
         const jsSafe = (str) => {
             if (str === null || str === undefined) return '';
             // 這些值會放進雙引號 HTML attribute 內的單引號 JavaScript 字串；
@@ -1299,9 +1331,9 @@
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.10';
-        const VERSION_UPDATED_AT = '2026/08/25 14:33';
-        const VERSION_UPDATED_AT_ISO = '2026-08-25T14:33:00+08:00';
+        const VERSION_LABEL = 'V11.11';
+        const VERSION_UPDATED_AT = '2026/08/26 09:52';
+        const VERSION_UPDATED_AT_ISO = '2026-08-26T09:52:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
@@ -1927,10 +1959,7 @@
             visibleEvents.sort((a, b) => getNextUpcomingSessionDate(a, now) - getNextUpcomingSessionDate(b, now));
 
             visibleEvents.forEach(ev => {
-                let tagColor = 'bg-gray-100 text-gray-600 border-gray-200';
-                if(ev.category === '職涯') tagColor = 'bg-cat-career-bg text-cat-career-text border-cat-career-text border-opacity-30';
-                if(ev.category === '人際') tagColor = 'bg-cat-inter-bg text-cat-inter-text border-cat-inter-text border-opacity-30';
-                if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text border-cat-academic-text border-opacity-30';
+                const categoryBadgeClass = getCategoryBadgeClass(ev.category);
 
                 const safeEvId = String(ev.id);
                 const currentCount = getEventRegistrationCount(ev.id);
@@ -1981,7 +2010,7 @@
                     <div class="flex-grow flex flex-col md:flex-row gap-3 md:gap-4 w-full justify-between overflow-hidden">
                         <div class="flex-grow min-w-0">
                             <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
-                                <span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded border ${tagColor}">${escapeHTML(ev.category)}</span>
+                                <span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>
                                 ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
                                 ${isSeries ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200 whitespace-nowrap">共 ${ev.sessions.length} 場</span>` : ''}
                                 ${mealStr}
@@ -2440,10 +2469,8 @@
 
             sortedRegs.forEach(reg => {
                 const ev = eventMap.get(String(reg.eventId)) || reg.eventSummary;
-                let tagColor = 'bg-gray-100 text-gray-600 border-gray-200';
-                if(ev.category === '職涯') tagColor = 'bg-cat-career-bg text-cat-career-text border-cat-career-text border-opacity-30';
-                if(ev.category === '人際') tagColor = 'bg-cat-inter-bg text-cat-inter-text border-cat-inter-text border-opacity-30';
-                if(ev.category === '課業') tagColor = 'bg-cat-academic-bg text-cat-academic-text border-cat-academic-text border-opacity-30';
+                const categoryBadgeClass = getCategoryBadgeClass(ev.category);
+                const categoryAccentClass = getCategoryAccentClass(ev.category);
 
                 const sessHtml = reg.sessionsData.map((sd, idx) => {
                     const session = ev.sessions.find(s => s.date === sd.date && (s.time === sd.time || !sd.time)) || ev.sessions[idx];
@@ -2470,7 +2497,7 @@
                     let statusHtml = sd.attend ? `<span class="font-bold text-blue-700 text-xs md:text-sm bg-blue-50 px-2 py-1 rounded border border-blue-100 flex-shrink-0">${escapeHTML(normalizeMealChoice(sd.meal))}</span>` : `<span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded flex-shrink-0">未參加</span>`;
                     return `<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-3 border-b border-gray-100 last:border-0 gap-2 px-1"><div class="flex flex-col tabular-nums"><div class="flex items-center flex-wrap"><span class="${sd.attend ? 'text-gray-800' : 'text-gray-400 line-through'} font-medium mr-1">${escapeHTML(session.date)} <span class="hidden sm:inline">${getDayOfWeek(session.date)}</span> <span class="text-gray-500 text-xs ml-1 font-bold">${escapeHTML(session.time)}</span></span>${sd.attend ? `<a href="${escapeHTML(calUrl)}" target="_blank" rel="noopener noreferrer" title="將 ${escapeHTML(ev.title)}｜${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" aria-label="將 ${escapeHTML(ev.title)} ${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" class="ml-1 text-blue-500 hover:text-blue-700 transition text-lg drop-shadow-sm"><i class="fa-regular fa-calendar-plus"></i></a>` : ''}</div><span class="text-[10px] md:text-xs text-gray-500 mt-1 sm:mt-0.5 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(loc)}</span></div><div class="flex items-center justify-end sm:justify-start">${statusHtml}</div></div>`;
                 }).join('');
-                container.innerHTML += `<div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden transition-all duration-200"><div class="absolute top-0 left-0 w-1.5 h-full ${tagColor.split(' ')[0]}"></div><div class="mb-3 pl-3 flex justify-between items-start"><div><div class="flex items-center gap-2 mb-1.5"><span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded border ${tagColor}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300">預約</span>` : ''}</div><h4 class="font-bold text-gray-800 text-lg md:text-xl leading-tight mb-0 break-words">${escapeHTML(ev.title)}</h4></div></div><div class="bg-gray-50 p-2 sm:p-4 rounded-lg border border-gray-100 ml-1.5">${sessHtml}</div></div>`;
+                container.innerHTML += `<div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden transition-all duration-200"><div class="absolute top-0 left-0 w-1.5 h-full ${categoryAccentClass}"></div><div class="mb-3 pl-3 flex justify-between items-start"><div><div class="flex items-center gap-2 mb-1.5"><span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300">預約</span>` : ''}</div><h4 class="font-bold text-gray-800 text-lg md:text-xl leading-tight mb-0 break-words">${escapeHTML(ev.title)}</h4></div></div><div class="bg-gray-50 p-2 sm:p-4 rounded-lg border border-gray-100 ml-1.5">${sessHtml}</div></div>`;
             });
         }
 
@@ -2656,15 +2683,12 @@
                 const isSeries = ev.isSeries === true;
                 const pCount = getEventRegistrationCount(ev.id);
                 const isFull = ev.capacity && pCount >= ev.capacity;
-                let tagColor = 'bg-white text-gray-600 border-gray-400';
-                if(ev.category === '職涯') tagColor = 'bg-white text-cat-career-text border-cat-career-text';
-                if(ev.category === '人際') tagColor = 'bg-white text-cat-inter-text border-cat-inter-text';
-                if(ev.category === '課業') tagColor = 'bg-white text-cat-academic-text border-cat-academic-text';
+                const categoryBadgeClass = getCategoryBadgeClass(ev.category);
                 const mainLocationBadges = splitLocationLabels(ev.location).length > 1
                     ? `<div class="mt-2 flex items-start gap-1 text-[10px] md:text-xs"><i class="fa-solid fa-location-dot text-gray-400 mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(ev.location)}</span></div>`
                     : '';
                 const publicationStatusHtml = ev.isPublished
-                    ? '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap bg-green-600 text-white"><i class="fa-solid fa-eye mr-1"></i>已公開</span>'
+                    ? '<span class="publication-status-published inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-eye mr-1"></i>已公開</span>'
                     : '<span class="publication-status-unpublished inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-eye-slash mr-1"></i>未公開</span>';
 
                 const datesHTML = ev.sessions.map((s, idx) => {
@@ -2693,18 +2717,21 @@
                 tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white group`;
                 tr.innerHTML = `
                     <td class="px-4 md:px-6 py-4 align-top sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100">
-                        <span class="inline-block px-2 py-0.5 rounded-full border-2 text-[10px] md:text-xs font-semibold ${tagColor} whitespace-nowrap">${escapeHTML(ev.category)}</span>
+                        <span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>
                         ${ev.isOneOnOne ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded-md text-[10px] md:text-xs font-bold bg-red-100 text-red-700 border border-red-300 whitespace-nowrap">一對一</span>' : ''}
                         ${isSeries ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-[10px] md:text-xs font-bold bg-purple-100 text-purple-700 whitespace-nowrap">系列</span>' : ''}
                     </td>
                     <td class="px-4 md:px-6 py-4 align-top font-medium ${isPast ? 'text-gray-500' : 'text-gray-900'} md:sticky md:left-[110px] md:z-10 bg-inherit shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100">
-                        <div class="flex flex-wrap items-start gap-2 whitespace-normal leading-relaxed">${publicationStatusHtml}<span class="admin-event-title min-w-0 break-words">${escapeHTML(ev.title)}</span></div>
+                        <div class="whitespace-normal leading-relaxed"><span class="admin-event-title min-w-0 break-words">${escapeHTML(ev.title)}</span></div>
                         <span class="text-xs text-gray-500 block mt-2 whitespace-nowrap"><i class="fa-solid fa-user-tie mr-1"></i>${escapeHTML(ev.teacher || '未設定')}</span>
                         ${mainLocationBadges}
                     </td>
                     <td class="px-4 md:px-6 py-4 text-xs md:text-sm leading-relaxed align-top">${datesHTML}</td>
                     <td class="px-4 md:px-6 py-4 text-center align-middle">
-                        <span class="inline-flex items-center justify-center ${isFull ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-full h-6 px-3 font-semibold text-xs whitespace-nowrap">${pCount} / ${ev.capacity}</span>
+                        <div class="inline-flex flex-col items-center justify-center gap-2">
+                            ${publicationStatusHtml}
+                            <span class="inline-flex items-center justify-center ${isFull ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-full h-6 px-3 font-semibold text-xs whitespace-nowrap" title="已報名 ${pCount} 人／容量 ${ev.capacity} 人">${pCount}/${ev.capacity}</span>
+                        </div>
                     </td>
                     <td class="px-4 md:px-6 py-4 text-right whitespace-nowrap sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-middle flex flex-col md:flex-row justify-end items-center border-l border-gray-100">
                         <button onclick="openParticipantsModal('${jsSafe(ev.id)}')" title="報名名單" class="text-chihlee-blue hover:bg-blue-50 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0"><i class="fa-solid fa-users"></i></button>
