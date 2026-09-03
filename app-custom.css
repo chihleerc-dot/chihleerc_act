@@ -1,0 +1,477 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+.frame-guard-pending { display: none !important; }
+.toast-exit { opacity: 0; transform: translateY(16px); transition: all .3s ease-in; }
+.col-width-110 { width: 110px; }
+.col-width-130 { width: 130px; }
+.col-width-220 { width: 220px; }
+.col-width-340 { width: 340px; }
+        body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+
+        /* 避免 iOS 輸入框縮放 */
+        input[type="text"], input[type="password"], input[type="number"], input[type="date"], select, textarea {
+            font-size: 16px !important;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast-enter { animation: slideUp 0.3s ease-out forwards; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .publication-status-published { background: #15803D; color: #FFFFFF; }
+        .publication-status-unpublished { background: #64748B; color: #FFFFFF; }
+
+        /* 2026 UI refresh: category-aware, sharp and accessible */
+        :root {
+            --ink: #102A43;
+            --muted: #41576D;
+            --canvas: #F3F9FF;
+            --surface: #FFFFFF;
+            --line: #B8D3EA;
+            --line-strong: #4D8FC7;
+            --primary: #0057B8;
+            --primary-bright: #00A6D6;
+            --primary-soft: #DFF2FF;
+            --primary-hover: #003E87;
+            --accent: #F4B400;
+            --danger: #C2185B;
+            --focus: #0077B6;
+            --success: #007A55;
+            --cyan: #00A6D6;
+            --sky: #DDF3FF;
+        }
+
+        html { color-scheme: light; scroll-behavior: smooth; }
+        body {
+            background: var(--canvas);
+            color: var(--ink);
+            line-height: 1.65;
+            letter-spacing: .01em;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: 240px;
+            background: linear-gradient(180deg, #D8F0FF 0%, rgba(243,249,255,0) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        nav {
+            color: #FFFFFF !important;
+            background: var(--primary) !important;
+            border-bottom: 4px solid var(--accent);
+            box-shadow: 0 3px 10px rgba(0, 87, 184, .22) !important;
+            backdrop-filter: none;
+        }
+        nav > div > div:first-child > div:first-child > div:first-child {
+            color: var(--primary) !important;
+            background: #FFFFFF !important;
+            border-color: var(--accent) !important;
+        }
+        #version-display { color: #B9DEFF !important; }
+        nav .text-gray-300 { color: #D7E9FA !important; }
+        nav button:not(.bg-chihlee-gold) { color: #D7E9FA !important; }
+        nav button:not(.bg-chihlee-gold):hover { color: #FFFFFF !important; background: rgba(255,255,255,.14) !important; }
+        nav button { min-height: 44px; }
+        main { isolation: isolate; }
+        h1, h2, h3, h4 { letter-spacing: -.02em; text-wrap: balance; }
+        p { text-wrap: pretty; }
+
+        /* 後台活動表格保留可讀欄寬，避免活動名稱在仍有空間時逐字斷行。 */
+        .admin-events-table { min-width: 1140px; table-layout: fixed; }
+        .admin-event-title { word-break: keep-all; overflow-wrap: break-word; }
+
+        /* 報名名單：活動資訊置左，操作按鈕固定靠右上，並避免不同寬度互相重疊。 */
+        #modal-participants .participants-modal-header { align-items: flex-start; }
+        #modal-participants .participants-modal-main { min-width: 0; }
+        #modal-participants .participants-modal-actions {
+            align-self: flex-start;
+            justify-content: flex-end;
+            margin-left: auto;
+        }
+        .meal-badge {
+            display: inline-flex;
+            align-items: center;
+            width: max-content;
+            padding: .25rem .7rem;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: .75rem;
+            font-weight: 700;
+            line-height: 1.25rem;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(16, 42, 67, .05);
+        }
+        .meal-badge-meat { color: #B42345; background: #FFF0F3; border-color: #F8B4C2; }
+        .meal-badge-vegetarian { color: #087A45; background: #ECFDF3; border-color: #A6E3C2; }
+        .meal-badge-none { color: #596579; background: #F2F4F7; border-color: #D5DAE1; }
+        @media (max-width: 1023px) {
+            #modal-participants .participants-modal-actions {
+                width: 100%;
+                margin-left: 0;
+                justify-content: stretch;
+            }
+        }
+
+        button, a, input, select, textarea { transition-duration: 140ms !important; }
+        button { min-height: 44px; border-radius: 8px !important; }
+        button:not(:disabled):active { transform: translateY(1px); }
+        button:disabled { opacity: .58; }
+        input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+            border-color: var(--line) !important;
+            border-radius: 8px !important;
+            background-color: #fff !important;
+            color: var(--ink) !important;
+            min-height: 44px;
+        }
+        input::placeholder, textarea::placeholder { color: #718090 !important; opacity: 1; }
+        input[type="checkbox"], input[type="radio"] { min-width: 20px; min-height: 20px; }
+        :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+            outline: 3px solid var(--focus) !important;
+            outline-offset: 3px !important;
+            box-shadow: none !important;
+        }
+        ::selection { color: #fff; background: #0B5682; }
+        .bg-chihlee-gold { color: #102A43 !important; background-color: var(--accent) !important; }
+        .text-chihlee-gold { color: #8A5600 !important; }
+
+        #view-student > div:first-child {
+            text-align: left !important;
+            max-width: 56rem;
+            margin-inline: auto;
+            padding: 24px 28px;
+            background: #FFFFFF;
+            border: 1px solid var(--line);
+            border-top: 1px solid var(--line);
+            border-left: 6px solid var(--primary-bright);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16, 24, 40, .08);
+        }
+        .student-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-size: .78rem;
+            font-weight: 800;
+            letter-spacing: .12em;
+        }
+        .student-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            margin-top: 16px;
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 650;
+        }
+        .student-steps span { display: inline-flex; align-items: center; gap: 7px; }
+        .student-steps b {
+            display: inline-grid;
+            place-items: center;
+            width: 24px;
+            height: 24px;
+            color: #fff;
+            background: var(--primary);
+            border-radius: 50%;
+            font-size: .75rem;
+        }
+        #student-identity-bar { margin-left: 0 !important; }
+        #category-filters { justify-content: flex-start !important; max-width: 56rem; margin-inline: auto; }
+        #category-filters::before {
+            content: "活動分類";
+            display: flex;
+            align-items: center;
+            width: 100%;
+            color: var(--ink);
+            font-size: .82rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+        }
+        #category-filters button {
+            min-height: 40px;
+            border-width: 2px !important;
+            border-radius: 999px !important;
+            font-weight: 750 !important;
+        }
+        #category-filters button[aria-pressed="true"] {
+            color: #FFFFFF !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 4px 10px rgba(0, 87, 184, .22) !important;
+        }
+        #filter-btn-inter[aria-pressed="false"] { color: #006B4F !important; background: #E0FFF2 !important; border-color: #00A86B !important; }
+        #filter-btn-academic[aria-pressed="false"] { color: #97123D !important; background: #FFE7EF !important; border-color: #E91E63 !important; }
+        #filter-btn-career[aria-pressed="false"] { color: #6A4200 !important; background: #FFF4BF !important; border-color: #E09A00 !important; }
+        #category-filters #filter-btn-inter[aria-pressed="true"] { color: #006B4F !important; background: #E0FFF2 !important; border-color: #00A86B !important; box-shadow: 0 0 0 3px rgba(0, 168, 107, .18) !important; }
+        #category-filters #filter-btn-academic[aria-pressed="true"] { color: #97123D !important; background: #FFE7EF !important; border-color: #E91E63 !important; box-shadow: 0 0 0 3px rgba(233, 30, 99, .16) !important; }
+        #category-filters #filter-btn-career[aria-pressed="true"] { color: #6A4200 !important; background: #FFF4BF !important; border-color: #E09A00 !important; box-shadow: 0 0 0 3px rgba(224, 154, 0, .18) !important; }
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: max-content;
+            padding: .2rem .65rem;
+            border: 2px solid;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 750;
+            line-height: 1.15rem;
+            white-space: nowrap;
+        }
+        .category-pill-inter { color: #006B4F; background: #E0FFF2; border-color: #00A86B; }
+        .category-pill-academic { color: #97123D; background: #FFE7EF; border-color: #E91E63; }
+        .category-pill-career { color: #6A4200; background: #FFF4BF; border-color: #E09A00; }
+        .category-pill-neutral { color: #475569; background: #F8FAFC; border-color: #94A3B8; }
+        #student-main-content > .bg-white {
+            max-width: 56rem;
+            margin-inline: auto;
+            overflow: visible !important;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+        }
+        #student-events-container { display: grid; gap: 14px; }
+        #student-events-container > label {
+            border: 1px solid var(--line) !important;
+            border-left-width: 5px !important;
+            border-radius: 10px;
+            background: var(--surface);
+            box-shadow: 0 3px 12px rgba(16, 24, 40, .06);
+        }
+        #student-events-container > label[data-category="人際"] { border-left-color: #00A86B !important; }
+        #student-events-container > label[data-category="課業"] { border-left-color: #E91E63 !important; }
+        #student-events-container > label[data-category="職涯"] { border-left-color: #F4B400 !important; }
+        #student-events-container > label:hover {
+            border-color: var(--line-strong) !important;
+            border-color: var(--line-strong) !important;
+            box-shadow: 0 8px 22px rgba(16, 24, 40, .10);
+        }
+        #student-events-container > label:has(input:checked) {
+            border-color: var(--primary) !important;
+            background: var(--primary-soft) !important;
+            box-shadow: 0 0 0 3px rgba(0, 87, 184, .14);
+        }
+        #student-events-container > label[data-category="人際"]:hover,
+        #student-events-container > label[data-category="人際"]:has(input:checked) { border-left-color: #00A86B !important; }
+        #student-events-container > label[data-category="課業"]:hover,
+        #student-events-container > label[data-category="課業"]:has(input:checked) { border-left-color: #E91E63 !important; }
+        #student-events-container > label[data-category="職涯"]:hover,
+        #student-events-container > label[data-category="職涯"]:has(input:checked) { border-left-color: #F4B400 !important; }
+        #student-events-container h3 { color: var(--ink) !important; }
+        #student-events-container .bg-gray-50 { background: #EEF8FF !important; }
+
+        #bulk-action-bar {
+            border: 2px solid var(--primary) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 14px 34px rgba(6, 31, 54, .24) !important;
+        }
+        #bulk-action-bar button { background: var(--primary) !important; }
+
+        [id^="modal-"] { background-color: rgba(6, 24, 39, .72) !important; backdrop-filter: blur(3px); }
+        [id^="modal-"] > div {
+            border: 1px solid var(--line);
+            border-radius: 12px !important;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, .28) !important;
+        }
+        /* Do not globally recolor modal headings: some use white text on a color block. */
+        #modal-query > div { border: 3px solid var(--primary); }
+        #modal-query > div > div:first-of-type {
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--line) !important;
+        }
+        .query-titlebar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 44px;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 10px 10px 16px;
+            margin-bottom: 12px;
+            color: #FFFFFF !important;
+            background: var(--primary) !important;
+            border-left: 7px solid var(--accent);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 103, 197, .18);
+        }
+        #modal-query .query-titlebar h3 {
+            width: auto;
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            color: #FFFFFF !important;
+            background: transparent !important;
+            border: 0;
+            line-height: 1.35;
+            text-shadow: 0 1px 1px rgba(0,0,0,.18);
+        }
+        .query-close-button {
+            position: static !important;
+            display: inline-grid !important;
+            place-items: center;
+            width: 44px !important;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 !important;
+            color: var(--primary) !important;
+            background: #FFFFFF !important;
+            border: 2px solid #FFFFFF !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,.16) !important;
+        }
+        .query-close-button:hover { color: #FFFFFF !important; background: var(--primary-hover) !important; }
+        .query-titlebar + p { color: #344E65 !important; font-weight: 600; }
+        #modal-query > div > div:last-child { background: #F7F8FA !important; }
+        #modal-query #query-result-container > div { color: #334E68 !important; }
+        #modal-query button[data-action="execute-student-query"] {
+            background: var(--primary) !important;
+            color: #FFFFFF !important;
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 103, 197, .18) !important;
+        }
+        #modal-register > div {
+            overflow-x: hidden;
+            border: 3px solid var(--primary);
+        }
+        .register-titlebar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 44px;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 12px 12px 20px;
+            color: #FFFFFF !important;
+            background: var(--primary) !important;
+            border-bottom: 4px solid var(--accent);
+            border-radius: 9px 9px 0 0;
+        }
+        #modal-register .register-titlebar h3 {
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            color: #FFFFFF !important;
+            background: transparent !important;
+            line-height: 1.35;
+            text-shadow: 0 1px 1px rgba(0,0,0,.22);
+        }
+        .register-close-button {
+            position: static !important;
+            display: inline-grid !important;
+            place-items: center;
+            width: 44px !important;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 !important;
+            color: var(--primary) !important;
+            background: #FFFFFF !important;
+            border: 2px solid #FFFFFF !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,.18) !important;
+        }
+        .register-close-button:hover {
+            color: var(--ink) !important;
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+        }
+        .session-edit-row {
+            display: grid;
+            grid-template-columns: minmax(0, .9fr) minmax(0, 1.15fr) minmax(0, 1.45fr) 48px;
+            gap: .5rem;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+        }
+        .session-edit-row > input {
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        .session-delete-button {
+            display: inline-grid !important;
+            place-items: center;
+            justify-self: end;
+            width: 44px !important;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 !important;
+        }
+        .session-delete-label { display: none; }
+        table { border-collapse: separate; border-spacing: 0; }
+        thead, thead th { background: #E7EDF2 !important; color: #243646 !important; }
+        tbody tr:hover { background: #EEF5FA !important; }
+        .custom-scroll::-webkit-scrollbar-track { background: #E8EDF1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #8394A3; }
+
+        #toast-container { pointer-events: none; }
+        #toast-container > div {
+            width: 100%;
+            max-width: 100%;
+            pointer-events: none;
+            overflow-wrap: anywhere;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 8px !important;
+        }
+        #global-loader { background: rgba(244,247,250,.92) !important; }
+
+        @media (max-width: 767px) {
+            nav > div { padding-inline: 12px !important; }
+            nav .h-auto { align-items: flex-start !important; flex-wrap: wrap; }
+            nav .overflow-x-auto { width: 100%; justify-content: flex-start !important; padding-bottom: 2px; }
+            main { padding-top: 16px !important; }
+            #view-student > div:first-child { padding: 20px 18px; border-left-width: 5px; }
+            .student-steps { display: grid; grid-template-columns: 1fr; gap: 8px; }
+            #category-filters { overflow-x: auto; flex-wrap: nowrap !important; justify-content: flex-start !important; padding-bottom: 8px; }
+            #category-filters::before { position: sticky; left: 0; min-width: 72px; background: var(--canvas); z-index: 1; }
+            #category-filters button { flex: 0 0 auto; }
+            #student-events-container > label { padding: 16px !important; }
+            #student-events-container > label > div:first-child { margin-right: 12px !important; }
+            .session-edit-row { grid-template-columns: 1fr; }
+            .session-delete-button {
+                display: flex !important;
+                justify-content: center;
+                gap: .45rem;
+                justify-self: stretch;
+                width: 100% !important;
+            }
+            .session-delete-label { display: inline; }
+            #bulk-action-bar { bottom: calc(.75rem + env(safe-area-inset-bottom)) !important; }
+            #toast-container {
+                bottom: calc(6.5rem + env(safe-area-inset-bottom)) !important;
+                width: calc(100% - 1rem) !important;
+                max-width: 28rem !important;
+            }
+            [id^="modal-"] { padding: .5rem !important; }
+            [id^="modal-"] > div {
+                width: 100% !important;
+                max-width: calc(100vw - 1rem) !important;
+                max-height: calc(100dvh - 1rem) !important;
+                margin: 0 !important;
+            }
+            #modal-participants .participants-modal-header { padding: 1rem !important; gap: .75rem !important; }
+            #modal-participants .participants-modal-actions {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+                width: 100% !important;
+            }
+            #modal-participants .participants-modal-actions button { min-width: 0 !important; padding-inline: .6rem !important; }
+            #modal-participants .participants-modal-actions button:last-child { grid-column: 1 / -1; width: 100% !important; }
+            #modal-notify > div, #modal-participants > div { min-height: 0; }
+            #modal-notify > div > div:nth-child(2), #modal-participants > div > div:last-child { min-height: 0; }
+            #modal-notify .rounded-b-xl { padding-bottom: calc(1rem + env(safe-area-inset-bottom)) !important; }
+            #modal-confirm > div { overflow-y: auto; }
+            #data-quality-summary > div { min-width: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+        }
+        @media (prefers-contrast: more) {
+            :root { --line: #687786; --muted: #354452; }
+            #student-events-container > label { border-width: 2px !important; border-left-width: 6px !important; }
+        }
