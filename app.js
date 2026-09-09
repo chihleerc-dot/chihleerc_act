@@ -354,9 +354,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.16';
-        const VERSION_UPDATED_AT = '2026/09/09 22:44';
-        const VERSION_UPDATED_AT_ISO = '2026-09-09T22:44:00+08:00';
+        const VERSION_LABEL = 'V11.17';
+        const VERSION_UPDATED_AT = '2026/09/09 23:38';
+        const VERSION_UPDATED_AT_ISO = '2026-09-09T23:38:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
@@ -712,7 +712,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             return values.length ? Math.max(...values) : 0;
         }
 
-        function openEventDetailsModal(eventId) {
+        function renderEventDetailsContent(eventId) {
             const event = state.events.find(item => String(item.id) === String(eventId));
             if (!event) return showToast('找不到這場活動的資料，請重新整理網頁', 'error');
 
@@ -725,14 +725,50 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const activityTypeClass = event.isOneOnOne
                 ? 'event-detail-type-badge event-detail-type-ooo'
                 : (event.isSeries ? 'event-detail-type-badge event-detail-type-series' : 'event-detail-type-badge');
+            const mealLabel = event.hasMeal && event.hasSnack ? '附餐＋點心' : (event.hasMeal ? '附餐' : (event.hasSnack ? '附點心' : '無供餐'));
+            const currentCount = getEventRegistrationCount(event.id);
+            const availableOooCount = event.isOneOnOne ? getAvailableOneOnOneSessions(event).length : 0;
+            const availableMultiCount = usesPerSessionCapacity(event)
+                ? getUpcomingEventSessions(event).filter(item => !getSessionCapacityStatus(event, item.session).isFull).length
+                : 0;
+            let availabilityLabel = '';
+            let availabilityClass = 'event-detail-availability';
+            if (event.isOneOnOne) availabilityLabel = availableOooCount > 0 ? `尚有 ${availableOooCount} 個時段` : '所有時段已額滿';
+            else if (usesPerSessionCapacity(event)) availabilityLabel = availableMultiCount > 0 ? `尚有 ${availableMultiCount} 場可選` : '所有場次已額滿';
+            else availabilityLabel = Math.max(0, Number(event.capacity || 0) - currentCount) > 0
+                ? `剩 ${Math.max(0, Number(event.capacity || 0) - currentCount)} 名`
+                : '已額滿';
+            if (availabilityLabel.includes('額滿')) availabilityClass += ' event-detail-availability-full';
             badgeContainer.innerHTML = `
                 <span class="${getCategoryBadgeClass(event.category)}">${escapeHTML(event.category)}</span>
                 <span class="${activityTypeClass}">${escapeHTML(activityType)}</span>
+                <span class="event-detail-meal-badge">${escapeHTML(mealLabel)}</span>
+                <span class="${availabilityClass}">${escapeHTML(availabilityLabel)}</span>
             `;
 
             const sessions = Array.isArray(event.sessions) ? event.sessions : [];
             const sessionsContainer = document.getElementById('event-details-sessions');
-            sessionsContainer.innerHTML = sessions.length ? sessions.map((session, index) => {
+            if (event.isOneOnOne && sessions.length) {
+                const groupedSessions = getOneOnOneSessionGroups(event, sessions.map((session, index) => ({ session, index })));
+                sessionsContainer.innerHTML = groupedSessions.map(group => `
+                    <div class="event-detail-ooo-group">
+                        <div class="event-detail-ooo-heading">
+                            <span><i class="fa-regular fa-calendar" aria-hidden="true"></i>${escapeHTML(formatSessionDate(group.date))} ${escapeHTML(getDayOfWeek(group.date))}</span>
+                            <span class="event-detail-ooo-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${renderLocationBadges(group.location)}</span>
+                        </div>
+                        <div class="event-detail-ooo-times">
+                            ${group.items.map(item => {
+                                const expired = isSessionExpired(item.session, new Date());
+                                const capacityStatus = getSessionCapacityStatus(event, item.session);
+                                const statusText = expired ? '已截止' : (capacityStatus.isFull ? '已額滿' : '可預約');
+                                const statusClass = expired || capacityStatus.isFull ? 'is-unavailable' : 'is-available';
+                                return `<span class="event-detail-ooo-time ${statusClass}"><strong>${escapeHTML(formatSessionTime(item.session.time))}</strong><small>${statusText}</small></span>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                sessionsContainer.innerHTML = sessions.length ? sessions.map((session, index) => {
                 const expired = isSessionExpired(session, new Date());
                 const location = session.location || event.location;
                 const capacityStatus = getSessionCapacityStatus(event, session);
@@ -745,7 +781,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     <div class="event-detail-session ${expired ? 'event-detail-session-expired' : ''}">
                         <div class="event-detail-session-time">
                             <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-                            <span>${sessions.length > 1 ? `第 ${index + 1} 場｜` : ''}${escapeHTML(session.date)} ${getDayOfWeek(session.date)}　${escapeHTML(session.time)}</span>
+                            <span>${sessions.length > 1 ? `第 ${index + 1} 場｜` : ''}${escapeHTML(formatSessionDate(session.date))} ${escapeHTML(getDayOfWeek(session.date))}　<span class="session-time-nowrap">${escapeHTML(formatSessionTime(session.time))}</span></span>
                             ${capacityHtml}
                         </div>
                         <div class="event-detail-session-location">
@@ -754,14 +790,36 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                         </div>
                     </div>
                 `;
-            }).join('') : '<p class="event-detail-empty">尚未設定活動場次。</p>';
+                }).join('') : '<p class="event-detail-empty">尚未設定活動場次。</p>';
+            }
 
             const tagsContainer = document.getElementById('event-details-tags');
             const tags = Array.isArray(event.tags) ? event.tags.filter(Boolean) : [];
             tagsContainer.innerHTML = tags.map(tag => `<span class="event-detail-tag">${escapeHTML(tag)}</span>`).join('');
             tagsContainer.classList.toggle('hidden', tags.length === 0);
 
+            return event;
+        }
+
+        async function openEventDetailsModal(eventId) {
+            const event = renderEventDetailsContent(eventId);
+            if (!event) return;
+            const modal = document.getElementById('modal-event-details');
+            modal.dataset.eventId = String(eventId);
             openModal('modal-event-details');
+            if (state.isTeacherLoggedIn) return;
+
+            // 先立即顯示目前資料，再於背景重新取得公開名額，避免等待 GAS 回應才看得到內容。
+            try {
+                const response = await apiRequest({ action: 'getPublicData' });
+                if (!response.success || modal.classList.contains('hidden') || modal.dataset.eventId !== String(eventId)) return;
+                state.eventStats = response.data.eventStats;
+                state.events = response.data.events;
+                updateEventCounts();
+                renderEventDetailsContent(eventId);
+            } catch (error) {
+                // 背景更新失敗時保留已顯示的資料，不用錯誤訊息中斷學生閱讀。
+            }
         }
 
         function splitLocationLabels(value) {
@@ -780,6 +838,35 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const dayIndex = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))).getUTCDay();
             const days = ['日', '一', '二', '三', '四', '五', '六'];
             return `(${days[dayIndex]})`;
+        }
+        function formatSessionDate(dateString, compact = false) {
+            const match = String(dateString || '').match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
+            if (!match) return String(dateString || '');
+            return compact ? `${match[2]}/${match[3]}` : `${match[1]}/${match[2]}/${match[3]}`;
+        }
+        function formatSessionTime(timeString) {
+            return String(timeString || '').trim().replace(/\s*-\s*/g, '–');
+        }
+        function getUpcomingEventSessions(event, now = new Date()) {
+            return (event && Array.isArray(event.sessions) ? event.sessions : [])
+                .map((session, index) => ({ session, index, start: getSessionStartDate(session) }))
+                .filter(item => item.start && item.start >= now)
+                .sort((left, right) => left.start - right.start);
+        }
+        function getAvailableOneOnOneSessions(event, now = new Date()) {
+            return getUpcomingEventSessions(event, now)
+                .filter(item => !getSessionCapacityStatus(event, item.session).isFull);
+        }
+        function getOneOnOneSessionGroups(event, sessions) {
+            const groups = new Map();
+            sessions.forEach(item => {
+                const session = item.session || item;
+                const location = String(session.location || event.location || '未設定');
+                const key = `${session.date}\u0000${location}`;
+                if (!groups.has(key)) groups.set(key, { date: session.date, location, items: [] });
+                groups.get(key).items.push(item.session ? item : { session, index: event.sessions.indexOf(session) });
+            });
+            return [...groups.values()];
         }
         function parseTaiwanDateTime(dateValue, timeValue = '00:00') {
             const dateMatch = String(dateValue || '').trim().match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
@@ -1066,6 +1153,63 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             updateBulkActionBar();
         }
 
+        function getDescriptionPreview(description, maxLength = 105) {
+            const normalized = String(description || '目前沒有活動介紹。').replace(/\s+/g, ' ').trim();
+            if (normalized.length <= maxLength) return { text: normalized, truncated: false };
+            return { text: normalized.slice(0, maxLength).replace(/[，、；：。！？\s]+$/u, ''), truncated: true };
+        }
+
+        function renderStudentSessionRow(event, item, showCapacity) {
+            const session = item.session;
+            const capacityStatus = getSessionCapacityStatus(event, session);
+            const capacityHtml = showCapacity
+                ? `<span class="${capacityStatus.isFull ? 'session-capacity-full' : 'session-capacity-available'}">${capacityStatus.isFull ? '已額滿' : `剩 ${capacityStatus.remaining} 名`}</span>`
+                : '';
+            return `
+                <div class="student-session-row tabular-nums">
+                    <div class="student-session-date-time">
+                        <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                        ${event.isSeries ? `<span class="student-session-order">第${item.index + 1}場</span>` : ''}
+                        <span class="student-session-date student-session-date-full">${escapeHTML(formatSessionDate(session.date))} ${escapeHTML(getDayOfWeek(session.date))}</span>
+                        <span class="student-session-date student-session-date-compact">${escapeHTML(formatSessionDate(session.date, true))} ${escapeHTML(getDayOfWeek(session.date))}</span>
+                        <span class="student-session-time">${escapeHTML(formatSessionTime(session.time))}</span>
+                        ${capacityHtml}
+                    </div>
+                    <div class="student-session-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>${renderLocationBadges(session.location || event.location)}</span></div>
+                </div>`;
+        }
+
+        function renderOneOnOneCardSummary(event, upcomingSessions) {
+            const availableSessions = upcomingSessions.filter(item => !getSessionCapacityStatus(event, item.session).isFull);
+            if (!availableSessions.length) return '<p class="student-session-empty">目前沒有可預約時段</p>';
+            const groups = getOneOnOneSessionGroups(event, availableSessions).slice(0, 2);
+            const hiddenGroupCount = Math.max(0, getOneOnOneSessionGroups(event, availableSessions).length - groups.length);
+            return `
+                <div class="ooo-card-summary-title"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i>最近可預約</div>
+                ${groups.map(group => {
+                    const visibleTimes = group.items.slice(0, 3).map(item => formatSessionTime(item.session.time));
+                    const moreCount = Math.max(0, group.items.length - visibleTimes.length);
+                    return `<div class="ooo-card-date-group">
+                        <div class="ooo-card-date-line"><strong>${escapeHTML(formatSessionDate(group.date, true))} ${escapeHTML(getDayOfWeek(group.date))}</strong><span>尚有 ${group.items.length} 個時段</span></div>
+                        <div class="ooo-card-time-line">${visibleTimes.map(time => `<span>${escapeHTML(time)}</span>`).join('')}${moreCount ? `<span>＋${moreCount}</span>` : ''}</div>
+                        <div class="student-session-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>${renderLocationBadges(group.location)}</span></div>
+                    </div>`;
+                }).join('')}
+                ${hiddenGroupCount ? `<button type="button" data-action="open-event-details" data-event-id="${escapeHTML(String(event.id))}" aria-haspopup="dialog" aria-controls="modal-event-details" class="student-session-more">另有 ${hiddenGroupCount} 組日期／地點，查看全部</button>` : ''}`;
+        }
+
+        function renderStudentEventSessions(event, now) {
+            const upcomingSessions = getUpcomingEventSessions(event, now);
+            if (event.isOneOnOne) return renderOneOnOneCardSummary(event, upcomingSessions);
+
+            const visibleLimit = event.isSeries ? 2 : (upcomingSessions.length > 3 ? 2 : upcomingSessions.length);
+            const visibleSessions = upcomingSessions.slice(0, visibleLimit);
+            const hiddenCount = Math.max(0, upcomingSessions.length - visibleSessions.length);
+            const rows = visibleSessions.map(item => renderStudentSessionRow(event, item, usesPerSessionCapacity(event))).join('');
+            if (!rows) return '<p class="student-session-empty">目前沒有可報名場次</p>';
+            return `${rows}${hiddenCount ? `<button type="button" data-action="open-event-details" data-event-id="${escapeHTML(String(event.id))}" aria-haspopup="dialog" aria-controls="modal-event-details" class="student-session-more">另有 ${hiddenCount} 個場次，查看全部</button>` : ''}`;
+        }
+
         function renderStudentEvents() {
             const container = document.getElementById('student-events-container'); container.innerHTML = '';
 
@@ -1127,25 +1271,26 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const mealStr = mealTags.length > 0 ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded bg-orange-100 text-orange-700 border border-orange-200">${mealTags.join('+')}</span>` : `<span class="px-2 py-0.5 text-[10px] md:text-xs font-semibold rounded bg-gray-100 text-gray-600 border border-gray-200">無供餐</span>`;
                 const hashtags = (ev.tags || []).map(t => `<span class="inline-block text-[10px] md:text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full mr-1.5 mb-1">${escapeHTML(t)}</span>`).join('');
 
-                const sessionsHTML = ev.sessions.map((s, i) => {
-                    const prefix = isSeries ? `<span class="inline-block w-12 text-right mr-1.5 flex-shrink-0 text-gray-400">第${i+1}場:</span>` : '';
-                    const expired = isSessionExpired(s, now);
-                    const sessionCapacity = getSessionCapacityStatus(ev, s);
-                    const sessionCapacityHtml = expired
-                        ? '<span class="session-capacity-closed">已截止</span>'
-                        : (perSessionCapacity
-                            ? `<span class="${sessionCapacity.isFull ? 'session-capacity-full' : 'session-capacity-available'}">${sessionCapacity.isFull ? '已額滿' : `剩 ${sessionCapacity.remaining} 名`}</span>`
-                            : '');
-                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums ${expired ? 'opacity-55' : ''}"><div class="flex items-center flex-wrap gap-y-1 ${expired ? 'text-gray-400 line-through' : 'text-chihlee-gold'} font-medium text-xs md:text-sm"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-20 text-center inline-block font-bold ${expired ? 'text-gray-400' : 'text-gray-600'}">${escapeHTML(s.time)}</span>${sessionCapacityHtml}</div><div class="text-[10px] md:text-xs text-gray-500 mt-1 ml-6 pl-1 flex items-start gap-1"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(s.location || ev.location)}</span></div></div>`;
-                }).join('');
+                const upcomingSessions = getUpcomingEventSessions(ev, now);
+                const availableSessionCount = upcomingSessions.filter(item => !getSessionCapacityStatus(ev, item.session).isFull).length;
+                const sessionsHTML = renderStudentEventSessions(ev, now);
 
-                const capacityBadgeHtml = perSessionCapacity
+                const capacityBadgeHtml = isOoo
+                    ? (isFull
+                        ? '<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap">所有時段已額滿</span>'
+                        : `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-sky-100 text-sky-800 border border-sky-300 whitespace-nowrap">尚有 ${availableSessionCount} 個時段</span>`)
+                    : perSessionCapacity
                     ? (isFull
                         ? '<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap">所有場次已額滿</span>'
-                        : `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-sky-100 text-sky-800 border border-sky-300 whitespace-nowrap">共 ${ev.sessions.length} 場可選</span>`)
+                        : `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-sky-100 text-sky-800 border border-sky-300 whitespace-nowrap">尚有 ${availableSessionCount} 場可選</span>`)
                     : ((isFull && !isAlreadyRegistered)
                         ? '<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-400 text-white shadow-sm whitespace-nowrap">已額滿</span>'
                         : (!isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-medium rounded bg-gray-100 text-gray-500 border border-gray-200 whitespace-nowrap">剩 ${Math.max(0, ev.capacity - currentCount)} 名額</span>` : ''));
+
+                const descriptionPreview = getDescriptionPreview(ev.description);
+                const descriptionSuffix = descriptionPreview.truncated ? '……' : '　';
+                const mobileDescriptionPreview = getDescriptionPreview(ev.description, 72);
+                const mobileDescriptionSuffix = mobileDescriptionPreview.truncated ? '……' : '　';
 
                 const label = document.createElement('label');
                 label.id = `event-card-${safeEvId}`;
@@ -1170,8 +1315,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
                 label.innerHTML = `
                     <div class="flex-shrink-0 mr-3 md:mr-4 mt-1">${checkboxHTML}</div>
-                    <div class="flex-grow flex flex-col md:flex-row gap-3 md:gap-4 w-full justify-between overflow-hidden">
-                        <div class="flex-grow min-w-0">
+                    <div class="student-event-layout">
+                        <div class="student-event-content">
                             <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
                                 <span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>
                                 ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
@@ -1181,12 +1326,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                                 ${capacityBadgeHtml}
                             </div>
                             <h3 class="text-lg md:text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight break-words">${escapeHTML(ev.title)}</h3>
-                            <p class="student-event-teacher"><i class="fa-solid fa-user-tie" aria-hidden="true"></i><span>承辦老師：${escapeHTML(ev.teacher || '未設定')}</span></p>
-                            <p class="text-xs md:text-sm text-gray-500 mt-1.5 mb-1 line-clamp-3">${escapeHTML(ev.description)}</p>
-                            <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>查看完整活動介紹</span></button>
+                            <p class="student-event-description">
+                                <span class="student-event-description-desktop"><span>${escapeHTML(descriptionPreview.text)}${descriptionSuffix}</span><button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger">查看完整活動資訊</button></span>
+                                <span class="student-event-description-mobile"><span>${escapeHTML(mobileDescriptionPreview.text)}${mobileDescriptionSuffix}</span><button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger">查看完整活動資訊</button></span>
+                            </p>
                             ${hashtags ? `<div class="flex flex-wrap mt-1">${hashtags}</div>` : ''}
                         </div>
-                        <div class="flex-shrink-0 flex flex-col w-full md:w-auto text-sm text-gray-600 md:items-end md:min-w-[200px] bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <div class="student-session-panel">
                             ${sessionsHTML}
                         </div>
                     </div>
@@ -1308,6 +1454,35 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             }
         }
 
+        function renderOneOnOneRegistrationSessions(event, takenSessions, mealOptionsHtml) {
+            const groups = getOneOnOneSessionGroups(event, event.sessions.map((session, index) => ({ session, index })));
+            return groups.map(group => `
+                <fieldset class="ooo-registration-group">
+                    <legend class="ooo-registration-heading">
+                        <span><i class="fa-regular fa-calendar" aria-hidden="true"></i>${escapeHTML(formatSessionDate(group.date))} ${escapeHTML(getDayOfWeek(group.date))}</span>
+                        <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${renderLocationBadges(group.location)}</span>
+                    </legend>
+                    <div class="ooo-registration-times">
+                        ${group.items.map(item => {
+                            const session = item.session;
+                            const isTaken = takenSessions.includes(`${session.date}_${session.time || ''}`);
+                            const isPastSession = isSessionExpired(session, new Date());
+                            const isUnavailable = isTaken || isPastSession || getSessionCapacityStatus(event, session).isFull;
+                            const statusText = isTaken ? '已被預約' : (isPastSession ? '已過期' : '可預約');
+                            return `<div class="ooo-registration-option ${isUnavailable ? 'is-unavailable' : ''}">
+                                <label class="ooo-time-pill">
+                                    <input type="radio" name="reg-ooo-${escapeHTML(String(event.id))}" id="reg-chk-${escapeHTML(String(event.id))}-${item.index}" value="${escapeHTML(session.date)}" ${isUnavailable ? 'disabled' : ''} data-change-action="registration-session" data-event-id="${escapeHTML(String(event.id))}" data-index="${item.index}" data-one-on-one="true">
+                                    <span class="ooo-time-pill-time">${escapeHTML(formatSessionTime(session.time))}</span>
+                                    <span class="ooo-time-pill-status">${statusText}</span>
+                                </label>
+                                <select id="reg-meal-${escapeHTML(String(event.id))}-${item.index}" aria-label="${escapeHTML(session.date)} ${escapeHTML(formatSessionTime(session.time))} 用餐情形" class="ooo-slot-meal ${!event.hasMeal && !event.hasSnack ? 'hidden' : ''}" disabled>${mealOptionsHtml}</select>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </fieldset>
+            `).join('');
+        }
+
         function openRegisterModal() {
             if (state.isTeacherLoggedIn) {
                 return showToast('您目前為登入狀態！若需協助學生報名，請至後台「報名名單」使用【個管老師新增】功能。', 'error');
@@ -1344,7 +1519,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     seriesHintHtml = `<div class="mb-3 px-3 py-2 bg-purple-50 border border-purple-200 rounded text-xs md:text-sm text-purple-700 font-medium leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i>此為系列活動，系統已預設勾選所有場次，建議全程參與。若有無法出席的場次可手動取消。</div>`;
                 }
 
-                let sessionsHtml = ev.sessions.map((s, idx) => {
+                let sessionsHtml = isOoo ? renderOneOnOneRegistrationSessions(ev, takenSessions, opts) : ev.sessions.map((s, idx) => {
                     const isTaken = isOoo && takenSessions.includes(s.date + '_' + (s.time || ''));
                     const sessionCapacity = getSessionCapacityStatus(ev, s);
                     const isSessionFull = usesPerSessionCapacity(ev) && sessionCapacity.isFull;
@@ -1368,7 +1543,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 sm:py-2.5 border-b border-gray-200 last:border-0 gap-2 ${isUnavailable ? 'opacity-50' : ''}">
                         <label class="flex items-center space-x-2 ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer'} flex-1 w-full">
                             <input type="${inputType}" ${inputName} id="reg-chk-${ev.id}-${idx}" value="${escapeHTML(s.date)}" class="w-4 h-4 text-chihlee-blue focus:ring-chihlee-blue flex-shrink-0" ${defaultChecked} ${disabledStr} data-change-action="registration-session" data-event-id="${escapeHTML(ev.id)}" data-index="${idx}" data-one-on-one="${isOoo}">
-                            <span class="text-sm font-medium text-gray-700 tabular-nums flex-1">${escapeHTML(s.date)} <span class="hidden md:inline">${getDayOfWeek(s.date)}</span> <span class="text-blue-600 font-bold mx-1">${escapeHTML(s.time)}</span> ${tagHtml}</span>
+                            <span class="text-sm font-medium text-gray-700 tabular-nums flex-1">${escapeHTML(formatSessionDate(s.date))} <span class="hidden md:inline">${escapeHTML(getDayOfWeek(s.date))}</span> <span class="registration-session-time">${escapeHTML(formatSessionTime(s.time))}</span> ${tagHtml}</span>
                         </label>
                         <select id="reg-meal-${ev.id}-${idx}" aria-label="${escapeHTML(s.date)} 用餐情形" class="w-full sm:w-36 border border-gray-300 rounded px-2 py-1.5 text-sm bg-gray-50 focus:ring-chihlee-blue outline-none ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${isUnavailable || !defaultChecked ? 'disabled' : ''}>${opts}</select>
                         ${!ev.hasMeal && !ev.hasSnack ? '<span class="no-meal-notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>本場次不提供餐點或點心</span>' : ''}
