@@ -354,9 +354,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.15';
-        const VERSION_UPDATED_AT = '2026/09/09 19:05';
-        const VERSION_UPDATED_AT_ISO = '2026-09-09T19:05:00+08:00';
+        const VERSION_LABEL = 'V11.16';
+        const VERSION_UPDATED_AT = '2026/09/09 22:44';
+        const VERSION_UPDATED_AT_ISO = '2026-09-09T22:44:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
@@ -406,6 +406,16 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             if (isPlainObject(data) && data.events !== undefined) {
                 validateEventArray(data.events, '公開');
                 if (!isPlainObject(data.eventStats) || !Array.isArray(data.counselors)) throw new Error('公開資料格式不正確');
+                Object.values(data.eventStats).forEach(stats => {
+                    if (!isPlainObject(stats) || !Array.isArray(stats.occupiedSessions) || !Array.isArray(stats.sessionStats)) {
+                        throw new Error('公開名額統計格式不正確');
+                    }
+                    stats.sessionStats.forEach(session => {
+                        if (!isPlainObject(session) || typeof session.registrationCount !== 'number' || typeof session.remaining !== 'number' || typeof session.isFull !== 'boolean') {
+                            throw new Error('公開場次名額格式不正確');
+                        }
+                    });
+                });
             }
             if (isPlainObject(data) && data.fullData !== undefined) {
                 const fullData = data.fullData;
@@ -649,6 +659,59 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             return state.eventCounts.get(String(eventId)) || 0;
         }
 
+        function usesPerSessionCapacity(ev) {
+            return Boolean(ev && !ev.isOneOnOne && !ev.isSeries && Array.isArray(ev.sessions) && ev.sessions.length > 1);
+        }
+
+        function getSessionCapacityKey(session) {
+            return `${String(session && session.date || '')}_${String(session && session.time || '')}`;
+        }
+
+        function getEventSessionCounts(ev) {
+            const counts = new Map((Array.isArray(ev && ev.sessions) ? ev.sessions : []).map(session => [getSessionCapacityKey(session), 0]));
+            if (state.isTeacherLoggedIn) {
+                (Array.isArray(state.registrations) ? state.registrations : []).forEach(registration => {
+                    if (String(registration.eventId) !== String(ev.id)) return;
+                    (Array.isArray(registration.sessionsData) ? registration.sessionsData : []).forEach(session => {
+                        if (!session || session.attend !== true) return;
+                        const key = getSessionCapacityKey(session);
+                        if (counts.has(key)) counts.set(key, counts.get(key) + 1);
+                    });
+                });
+                return counts;
+            }
+            const stats = state.eventStats && state.eventStats[String(ev.id)];
+            (stats && Array.isArray(stats.sessionStats) ? stats.sessionStats : []).forEach(session => {
+                const key = getSessionCapacityKey(session);
+                if (counts.has(key)) counts.set(key, Math.max(0, Number(session.registrationCount) || 0));
+            });
+            return counts;
+        }
+
+        function getSessionRegistrationCount(ev, session) {
+            return getEventSessionCounts(ev).get(getSessionCapacityKey(session)) || 0;
+        }
+
+        function getSessionCapacityStatus(ev, session) {
+            const limit = ev && ev.isOneOnOne ? 1 : Math.max(1, Number(ev && ev.capacity) || 1);
+            const count = getSessionRegistrationCount(ev, session);
+            return { count, limit, remaining: Math.max(0, limit - count), isFull: count >= limit };
+        }
+
+        function isEventAtCapacity(ev, now = new Date()) {
+            if (!ev) return true;
+            if (usesPerSessionCapacity(ev) || ev.isOneOnOne) {
+                const selectable = (ev.sessions || []).filter(session => !isSessionExpired(session, now));
+                return selectable.length === 0 || selectable.every(session => getSessionCapacityStatus(ev, session).isFull);
+            }
+            return Boolean(ev.capacity && getEventRegistrationCount(ev.id) >= ev.capacity);
+        }
+
+        function getHighestSessionCount(ev) {
+            const values = [...getEventSessionCounts(ev).values()];
+            return values.length ? Math.max(...values) : 0;
+        }
+
         function openEventDetailsModal(eventId) {
             const event = state.events.find(item => String(item.id) === String(eventId));
             if (!event) return showToast('找不到這場活動的資料，請重新整理網頁', 'error');
@@ -672,12 +735,18 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             sessionsContainer.innerHTML = sessions.length ? sessions.map((session, index) => {
                 const expired = isSessionExpired(session, new Date());
                 const location = session.location || event.location;
+                const capacityStatus = getSessionCapacityStatus(event, session);
+                const capacityHtml = expired
+                    ? '<span class="event-detail-expired-badge">已截止</span>'
+                    : ((usesPerSessionCapacity(event) || event.isOneOnOne)
+                        ? `<span class="${capacityStatus.isFull ? 'session-capacity-full' : 'session-capacity-available'}">${capacityStatus.isFull ? '已額滿' : `剩 ${capacityStatus.remaining} 名`}</span>`
+                        : '');
                 return `
                     <div class="event-detail-session ${expired ? 'event-detail-session-expired' : ''}">
                         <div class="event-detail-session-time">
                             <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-                            <span>${event.isSeries ? `第 ${index + 1} 場｜` : ''}${escapeHTML(session.date)} ${getDayOfWeek(session.date)}　${escapeHTML(session.time)}</span>
-                            ${expired ? '<span class="event-detail-expired-badge">已過期</span>' : ''}
+                            <span>${sessions.length > 1 ? `第 ${index + 1} 場｜` : ''}${escapeHTML(session.date)} ${getDayOfWeek(session.date)}　${escapeHTML(session.time)}</span>
+                            ${capacityHtml}
                         </div>
                         <div class="event-detail-session-location">
                             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
@@ -1042,7 +1111,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
                 const safeEvId = String(ev.id);
                 const currentCount = getEventRegistrationCount(ev.id);
-                const isFull = ev.capacity && currentCount >= ev.capacity;
+                const perSessionCapacity = usesPerSessionCapacity(ev);
+                const isFull = isEventAtCapacity(ev, now);
                 const isAlreadyRegistered = mySavedEvents.some(id => String(id) === safeEvId);
                 let isChecked = state.selectedEventIds.includes(safeEvId);
                 const isOoo = ev.isOneOnOne === true;
@@ -1060,8 +1130,22 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const sessionsHTML = ev.sessions.map((s, i) => {
                     const prefix = isSeries ? `<span class="inline-block w-12 text-right mr-1.5 flex-shrink-0 text-gray-400">第${i+1}場:</span>` : '';
                     const expired = isSessionExpired(s, now);
-                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums ${expired ? 'opacity-55' : ''}"><div class="flex items-center ${expired ? 'text-gray-400 line-through' : 'text-chihlee-gold'} font-medium text-xs md:text-sm whitespace-nowrap"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-20 text-center inline-block font-bold ${expired ? 'text-gray-400' : 'text-gray-600'}">${escapeHTML(s.time)}</span>${expired ? '<span class="ml-2 no-underline text-[10px] font-bold bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">已過期</span>' : ''}</div><div class="text-[10px] md:text-xs text-gray-500 mt-1 ml-6 pl-1 flex items-start gap-1"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(s.location || ev.location)}</span></div></div>`;
+                    const sessionCapacity = getSessionCapacityStatus(ev, s);
+                    const sessionCapacityHtml = expired
+                        ? '<span class="session-capacity-closed">已截止</span>'
+                        : (perSessionCapacity
+                            ? `<span class="${sessionCapacity.isFull ? 'session-capacity-full' : 'session-capacity-available'}">${sessionCapacity.isFull ? '已額滿' : `剩 ${sessionCapacity.remaining} 名`}</span>`
+                            : '');
+                    return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums ${expired ? 'opacity-55' : ''}"><div class="flex items-center flex-wrap gap-y-1 ${expired ? 'text-gray-400 line-through' : 'text-chihlee-gold'} font-medium text-xs md:text-sm"><i class="fa-regular fa-calendar w-5 text-center mr-1 flex-shrink-0"></i>${prefix}<span>${escapeHTML(s.date)} ${getDayOfWeek(s.date)}</span><span class="ml-2 w-20 text-center inline-block font-bold ${expired ? 'text-gray-400' : 'text-gray-600'}">${escapeHTML(s.time)}</span>${sessionCapacityHtml}</div><div class="text-[10px] md:text-xs text-gray-500 mt-1 ml-6 pl-1 flex items-start gap-1"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(s.location || ev.location)}</span></div></div>`;
                 }).join('');
+
+                const capacityBadgeHtml = perSessionCapacity
+                    ? (isFull
+                        ? '<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap">所有場次已額滿</span>'
+                        : `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-sky-100 text-sky-800 border border-sky-300 whitespace-nowrap">共 ${ev.sessions.length} 場可選</span>`)
+                    : ((isFull && !isAlreadyRegistered)
+                        ? '<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-400 text-white shadow-sm whitespace-nowrap">已額滿</span>'
+                        : (!isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-medium rounded bg-gray-100 text-gray-500 border border-gray-200 whitespace-nowrap">剩 ${Math.max(0, ev.capacity - currentCount)} 名額</span>` : ''));
 
                 const label = document.createElement('label');
                 label.id = `event-card-${safeEvId}`;
@@ -1094,7 +1178,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                                 ${isSeries ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200 whitespace-nowrap">共 ${ev.sessions.length} 場</span>` : ''}
                                 ${mealStr}
                                 ${isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200 shadow-sm whitespace-nowrap">✅ 您已報名</span>` : ''}
-                                ${(isFull && !isAlreadyRegistered) ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-400 text-white shadow-sm whitespace-nowrap">已額滿</span>` : (!isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-medium rounded bg-gray-100 text-gray-500 border border-gray-200 whitespace-nowrap">剩 ${ev.capacity - currentCount} 名額</span>` : '')}
+                                ${capacityBadgeHtml}
                             </div>
                             <h3 class="text-lg md:text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight break-words">${escapeHTML(ev.title)}</h3>
                             <p class="student-event-teacher"><i class="fa-solid fa-user-tie" aria-hidden="true"></i><span>承辦老師：${escapeHTML(ev.teacher || '未設定')}</span></p>
@@ -1234,8 +1318,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             state.selectedEventIds.forEach(eventId => {
                 const ev = state.events.find(e => String(e.id) === String(eventId));
                 if (!ev) return;
-                const currentCount = getEventRegistrationCount(ev.id);
-                if (ev.capacity && currentCount >= ev.capacity) { hasFullError = true; showToast(`「${ev.title}」剛剛已額滿，已為您取消勾選。`, 'error'); }
+                if (isEventAtCapacity(ev)) { hasFullError = true; showToast(`「${ev.title}」目前沒有可報名的場次，已為您取消勾選。`, 'error'); }
                 else finalValidIds.push(eventId);
             });
 
@@ -1263,11 +1346,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
                 let sessionsHtml = ev.sessions.map((s, idx) => {
                     const isTaken = isOoo && takenSessions.includes(s.date + '_' + (s.time || ''));
+                    const sessionCapacity = getSessionCapacityStatus(ev, s);
+                    const isSessionFull = usesPerSessionCapacity(ev) && sessionCapacity.isFull;
 
                     const sDateTime = getSessionStartDate(s);
                     const isPastSession = !sDateTime || sDateTime < new Date();
 
-                    const isUnavailable = isTaken || isPastSession;
+                    const isUnavailable = isTaken || isPastSession || isSessionFull;
                     const inputType = isOoo ? 'radio' : 'checkbox';
                     const inputName = isOoo ? `name="reg-ooo-${ev.id}"` : '';
                     const defaultChecked = (!isUnavailable && isSeries) ? 'checked' : '';
@@ -1276,6 +1361,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     let tagHtml = '';
                     if (isTaken) tagHtml = '<span class="text-red-500 text-xs ml-2 font-bold bg-red-100 px-1 rounded">(已被預約)</span>';
                     else if (isPastSession) tagHtml = '<span class="text-gray-500 text-[10px] md:text-xs ml-2 font-bold bg-gray-200 px-1 rounded">(已過期)</span>';
+                    else if (isSessionFull) tagHtml = '<span class="text-red-600 text-[10px] md:text-xs ml-2 font-bold bg-red-100 px-1.5 py-0.5 rounded">(已額滿)</span>';
+                    else if (usesPerSessionCapacity(ev)) tagHtml = `<span class="session-capacity-available">剩 ${sessionCapacity.remaining} 名</span>`;
 
                     return `
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 sm:py-2.5 border-b border-gray-200 last:border-0 gap-2 ${isUnavailable ? 'opacity-50' : ''}">
@@ -1288,8 +1375,11 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     </div>`;
                 }).join('');
 
+                const multiChoiceHintHtml = usesPerSessionCapacity(ev)
+                    ? `<div class="mb-3 px-3 py-2 bg-sky-50 border border-sky-200 rounded text-xs md:text-sm text-sky-800 font-medium leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i>各場次分別計算名額，可自由選擇；送出後如需加選、取消或更換場次，請聯絡個管老師協助修改。</div>`
+                    : '';
                 const block = document.createElement('div'); block.className = 'bg-white border border-gray-200 rounded-lg p-3 md:p-4 shadow-sm';
-                block.innerHTML = `<h5 class="font-bold text-chihlee-blue mb-2 text-base md:text-lg border-l-4 border-chihlee-blue pl-2 leading-tight">${escapeHTML(ev.title)}</h5>${seriesHintHtml}<div class="bg-gray-50/50 rounded px-2 md:px-3 py-1 border border-gray-100">${sessionsHtml}</div>`;
+                block.innerHTML = `<h5 class="font-bold text-chihlee-blue mb-2 text-base md:text-lg border-l-4 border-chihlee-blue pl-2 leading-tight">${escapeHTML(ev.title)}</h5>${seriesHintHtml}${multiChoiceHintHtml}<div class="bg-gray-50/50 rounded px-2 md:px-3 py-1 border border-gray-100">${sessionsHtml}</div>`;
                 mealSection.appendChild(block);
             });
             openModal('modal-register');
@@ -1417,11 +1507,20 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
                 let isCapacityExceeded = false;
                 let exceededEventName = '';
+                let exceededSession = '';
                 for (let p of payloads) {
                     const ev = state.events.find(e => String(e.id) === String(p.eventId));
                     if (ev && ev.capacity) {
-                        const currentCount = getEventRegistrationCount(p.eventId);
-                        if (currentCount >= ev.capacity) {
+                        if (usesPerSessionCapacity(ev)) {
+                            const selected = (p.sessionsData || []).filter(session => session && session.attend === true);
+                            const fullSession = selected.find(session => getSessionCapacityStatus(ev, session).isFull);
+                            if (fullSession) {
+                                isCapacityExceeded = true;
+                                exceededEventName = ev.title;
+                                exceededSession = `${fullSession.date} ${fullSession.time}`;
+                                break;
+                            }
+                        } else if (getEventRegistrationCount(p.eventId) >= ev.capacity) {
                             isCapacityExceeded = true;
                             exceededEventName = ev.title;
                             break;
@@ -1432,7 +1531,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 if (isCapacityExceeded) {
                     if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
                     showGlobalLoading(false);
-                    return showToast(`抱歉！「${exceededEventName}」剛剛已被搶先額滿，請重整畫面。`, 'error');
+                    return showToast(`抱歉！「${exceededEventName}」${exceededSession ? `的 ${exceededSession} 場次` : ''}剛剛已被搶先額滿，請重新選擇。`, 'error');
                 }
 
                 try {
@@ -1853,8 +1952,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 if(!ev.sessions || ev.sessions.length === 0) return;
                 const isPast = isEventFullyExpired(ev, today);
                 const isSeries = ev.isSeries === true;
+                const perSessionCapacity = usesPerSessionCapacity(ev);
                 const pCount = getEventRegistrationCount(ev.id);
-                const isFull = ev.capacity && pCount >= ev.capacity;
+                const isFull = isEventAtCapacity(ev);
                 const categoryBadgeClass = getCategoryBadgeClass(ev.category);
                 const mainLocationBadges = splitLocationLabels(ev.location).length > 1
                     ? `<div class="mt-2 flex items-start gap-1 text-[10px] md:text-xs"><i class="fa-solid fa-location-dot text-gray-400 mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(ev.location)}</span></div>`
@@ -1871,14 +1971,22 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     const dateTextColor = isSessionPast ? 'text-gray-400 line-through decoration-gray-300' : 'text-gray-800';
                     const timeTextColor = isSessionPast ? 'text-gray-400' : 'text-chihlee-blue';
                     const borderColor = isSessionPast ? 'border-gray-200' : 'border-blue-300';
+                    const sessionCapacity = getSessionCapacityStatus(ev, s);
+                    const sessionCountHtml = perSessionCapacity
+                        ? `<span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${sessionCapacity.isFull ? 'bg-red-100 text-red-700' : 'bg-sky-100 text-sky-800'}" title="本場已報名 ${sessionCapacity.count} 人／每場上限 ${sessionCapacity.limit} 人">${sessionCapacity.count}/${sessionCapacity.limit}</span>`
+                        : '';
 
                     return `<div class="flex flex-col mb-2 last:mb-0 tabular-nums border-l-2 ${borderColor} pl-2 ml-1 ${isSessionPast ? 'opacity-60' : ''}">
                                 <div class="flex flex-wrap items-center whitespace-normal break-words mb-0.5">
-                                    ${numHtml}<span class="font-medium ${dateTextColor}">${escapeHTML(s.date)}</span><span class="hidden md:inline font-medium ${dateTextColor} ml-1">${getDayOfWeek(s.date)}</span> <span class="${timeTextColor} mx-1 inline-block font-bold">${escapeHTML(s.time)}</span>
+                                    ${numHtml}<span class="font-medium ${dateTextColor}">${escapeHTML(s.date)}</span><span class="hidden md:inline font-medium ${dateTextColor} ml-1">${getDayOfWeek(s.date)}</span> <span class="${timeTextColor} mx-1 inline-block font-bold">${escapeHTML(s.time)}</span>${sessionCountHtml}
                                 </div>
                                 <div class="text-gray-500 text-[10px] md:text-xs ml-4 mt-1 flex items-start gap-1 min-w-0"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(s.location || ev.location)}</span></div>
                             </div>`;
                 }).join('');
+
+                const capacityStatusHtml = perSessionCapacity
+                    ? `<div class="inline-flex flex-col items-center gap-1"><span class="inline-flex items-center justify-center bg-sky-100 text-sky-800 rounded-full h-6 px-3 font-semibold text-xs whitespace-nowrap">每場上限 ${ev.capacity} 人</span><span class="text-[10px] font-bold ${isFull ? 'text-red-700' : 'text-gray-600'}">最高 ${getHighestSessionCount(ev)}/${ev.capacity}</span></div>`
+                    : `<span class="inline-flex items-center justify-center ${isFull ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-full h-6 px-3 font-semibold text-xs whitespace-nowrap" title="已報名 ${pCount} 人／容量 ${ev.capacity} 人">${pCount}/${ev.capacity}</span>`;
 
                 const deleteBtnHtml = `<button data-action="delete-event" data-event-id="${escapeHTML(ev.id)}" title="刪除活動" class="text-red-500 hover:bg-red-50 px-2 py-1.5 rounded transition text-lg mt-1 md:mt-0"><i class="fa-solid fa-trash"></i></button>`;
                 const publishBtnHtml = ev.isPublished
@@ -1902,7 +2010,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     <td class="px-4 md:px-6 py-4 text-center align-middle">
                         <div class="inline-flex flex-col items-center justify-center gap-2">
                             ${publicationStatusHtml}
-                            <span class="inline-flex items-center justify-center ${isFull ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-full h-6 px-3 font-semibold text-xs whitespace-nowrap" title="已報名 ${pCount} 人／容量 ${ev.capacity} 人">${pCount}/${ev.capacity}</span>
+                            ${capacityStatusHtml}
                         </div>
                     </td>
                     <td class="px-4 md:px-6 py-4 text-right whitespace-nowrap sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-middle flex flex-col md:flex-row justify-end items-center border-l border-gray-100">
@@ -1952,6 +2060,34 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 capInput.readOnly = false;
                 capInput.classList.remove('bg-gray-100', 'text-gray-500');
             }
+            updateCapacityFieldGuidance();
+        }
+
+        function updateCapacityFieldGuidance() {
+            const typeInput = document.querySelector('input[name="edit-activity-type"]:checked');
+            const type = typeInput ? typeInput.value : 'normal';
+            const sessionCount = Array.isArray(state.tempSessions) ? state.tempSessions.length : 0;
+            const label = document.getElementById('edit-capacity-label');
+            const note = document.getElementById('edit-capacity-note');
+            if (!label || !note) return;
+
+            if (type === 'ooo') {
+                label.innerHTML = '可預約時段數 <span class="text-red-500">*</span>';
+                note.textContent = '一對一活動每個時段限 1 人，人數會依目前建立的場次數自動計算。';
+                note.classList.remove('hidden');
+            } else if (type === 'series') {
+                label.innerHTML = '系列總名額 <span class="text-red-500">*</span>';
+                note.textContent = '系列活動／長期團體採整個系列共用名額，同一名學生無論參加幾場都只占 1 個名額。';
+                note.classList.remove('hidden');
+            } else if (sessionCount > 1) {
+                label.innerHTML = '每場名額 <span class="text-red-500">*</span>';
+                note.textContent = '此活動有多個可自由選擇的場次；這裡填寫的是每一場可報名人數，所有場次使用相同名額上限。';
+                note.classList.remove('hidden');
+            } else {
+                label.innerHTML = '活動人數上限 <span class="text-red-500">*</span>';
+                note.textContent = '';
+                note.classList.add('hidden');
+            }
         }
 
         function configureActivityTypeEditing(isExistingEvent) {
@@ -1988,13 +2124,21 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         function renderTempSessions() {
-            document.getElementById('edit-sessions-container').innerHTML = state.tempSessions.map((s, idx) => `
-                <div class="session-edit-row bg-white p-2.5 rounded-md border border-gray-200">
-                    <input type="date" id="sesDate_${idx}" value="${String(s.date).replace(/\//g, '-')}" data-change-action="mark-dirty" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm">
-                    <input type="text" id="sesTime_${idx}" value="${escapeHTML(s.time)}" data-input-action="mark-dirty" data-blur-action="format-session-time" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm" placeholder="如 18:00-20:00">
+            const editingId = document.getElementById('edit-id').value;
+            const editingEvent = state.events.find(event => String(event.id) === String(editingId));
+            document.getElementById('edit-sessions-container').innerHTML = state.tempSessions.map((s, idx) => {
+                const originalSession = editingEvent && (editingEvent.sessions || []).find(session => getSessionCapacityKey(session) === getSessionCapacityKey(s));
+                const isLocked = Boolean(originalSession && getSessionRegistrationCount(editingEvent, originalSession) > 0);
+                const lockedAttrs = isLocked ? 'disabled aria-disabled="true"' : '';
+                return `
+                <div class="session-edit-row bg-white p-2.5 rounded-md border ${isLocked ? 'border-red-200' : 'border-gray-200'}">
+                    <input type="date" id="sesDate_${idx}" value="${String(s.date).replace(/\//g, '-')}" data-change-action="mark-dirty" ${isLocked ? 'readonly aria-readonly="true"' : ''} class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm ${isLocked ? 'bg-gray-100 text-gray-500' : ''}">
+                    <input type="text" id="sesTime_${idx}" value="${escapeHTML(s.time)}" data-input-action="mark-dirty" data-blur-action="format-session-time" ${isLocked ? 'readonly aria-readonly="true"' : ''} class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm ${isLocked ? 'bg-gray-100 text-gray-500' : ''}" placeholder="如 18:00-20:00">
                     <input type="text" id="sesLoc_${idx}" value="${escapeHTML(s.location || '')}" maxlength="20" data-input-action="mark-dirty" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-chihlee-blue outline-none text-sm bg-yellow-50 placeholder-gray-400" placeholder="本場地點（未填沿用主地點）">
-                    <button type="button" aria-label="刪除第 ${idx + 1} 場" data-action="remove-temp-session" data-index="${idx}" class="session-delete-button text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-800 rounded-md transition text-sm font-bold shadow-sm"><i class="fa-solid fa-trash"></i><span class="session-delete-label">刪除</span></button>
-                </div>`).join('');
+                    <button type="button" aria-label="${isLocked ? `第 ${idx + 1} 場已有報名，不能刪除` : `刪除第 ${idx + 1} 場`}" data-action="remove-temp-session" data-index="${idx}" ${lockedAttrs} class="session-delete-button ${isLocked ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-800'} rounded-md transition text-sm font-bold shadow-sm"><i class="fa-solid fa-${isLocked ? 'lock' : 'trash'}"></i><span class="session-delete-label">${isLocked ? '已鎖定' : '刪除'}</span></button>
+                </div>`;
+            }).join('');
+            updateCapacityFieldGuidance();
         }
         function addSessionField() { syncTempSessions(); state.tempSessions.push({date:'', time:'', location:''}); renderTempSessions(); handleActivityTypeChange(); }
         function removeTempSession(idx) { if(state.tempSessions.length <= 1) return showToast('至少需保留一場！', 'error'); syncTempSessions(); state.tempSessions.splice(idx, 1); renderTempSessions(); handleActivityTypeChange(); }
@@ -2130,8 +2274,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             };
 
             if (id) {
-                const currentCount = getEventRegistrationCount(id);
                 const existingEvent = state.events.find(event => String(event.id) === String(id));
+                const currentCount = existingEvent && !isOoo && !isSeriesEvent && finalSessions.length > 1
+                    ? getHighestSessionCount(existingEvent)
+                    : getEventRegistrationCount(id);
                 const oldType = existingEvent && existingEvent.isOneOnOne ? 'ooo' : (existingEvent && existingEvent.isSeries ? 'series' : 'normal');
                 const typeChanged = oldType !== activityType;
                 if (typeChanged && state.currentUserRole !== 'admin') {
@@ -2143,10 +2289,11 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     return showToast('一對一活動已有報名資料，無法轉換活動形式', 'error');
                 }
 
-                const warnings = [];
                 if (finalCapacity < currentCount) {
-                    warnings.push(`人數上限 (${finalCapacity}) 小於已報名人數 (${currentCount})。`);
+                    restoreSubmitBtn();
+                    return showToast(`人數上限不得低於目前最高報名人數 ${currentCount} 人`, 'error');
                 }
+                const warnings = [];
                 if (typeChanged && currentCount > 0) {
                     warnings.push('此活動已有報名資料。更改活動形式後，既有學生只保留原本報名場次；新增場次不會自動替學生報名。');
                 }
@@ -2378,18 +2525,26 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                         }
                     }
 
-                    const disableAttr = hasTimeConflict ? 'disabled' : (!ev.isOneOnOne ? 'checked' : '');
-                    const bgClass = hasTimeConflict ? 'bg-red-50 border-red-200 opacity-75' : 'bg-gray-50 border-gray-100';
-                    const cursorClass = hasTimeConflict ? 'cursor-not-allowed' : 'cursor-pointer';
-                    const warningHtml = hasTimeConflict ? `<span class="text-xs text-red-500 font-bold ml-1 break-words">(與「${escapeHTML(conflictEvTitle)}」衝堂)</span>` : '';
+                    const capacityStatus = getSessionCapacityStatus(ev, sess);
+                    const isCapacityFull = (usesPerSessionCapacity(ev) || ev.isOneOnOne)
+                        ? capacityStatus.isFull
+                        : Boolean(ev.capacity && getEventRegistrationCount(ev.id) >= ev.capacity);
+                    const isLocked = hasTimeConflict || isCapacityFull;
+                    const shouldDefaultCheck = !isLocked && !ev.isOneOnOne && !usesPerSessionCapacity(ev);
+                    const disableAttr = `${isLocked ? 'disabled' : ''} ${shouldDefaultCheck ? 'checked' : ''}`.trim();
+                    const bgClass = isLocked ? 'bg-red-50 border-red-200 opacity-75' : 'bg-gray-50 border-gray-100';
+                    const cursorClass = isLocked ? 'cursor-not-allowed' : 'cursor-pointer';
+                    const warningHtml = hasTimeConflict
+                        ? `<span class="text-xs text-red-500 font-bold ml-1 break-words">(與「${escapeHTML(conflictEvTitle)}」衝堂)</span>`
+                        : (isCapacityFull ? '<span class="text-xs text-red-600 font-bold ml-1">(已額滿)</span>' : (usesPerSessionCapacity(ev) ? `<span class="session-capacity-available">剩 ${capacityStatus.remaining} 名</span>` : ''));
 
                     return `
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 p-3 rounded border ${bgClass} gap-2">
                         <label class="flex items-center space-x-2 ${cursorClass} flex-1 w-full">
-                            <input type="${inputType}" ${inputName} id="admin-add-attend-${idx}" class="text-chihlee-blue rounded focus:ring-chihlee-blue flex-shrink-0" ${disableAttr} data-change-action="admin-add-session" data-index="${idx}" data-one-on-one="${ev.isOneOnOne}" data-locked="${hasTimeConflict}" data-session-count="${ev.sessions.length}">
+                            <input type="${inputType}" ${inputName} id="admin-add-attend-${idx}" class="text-chihlee-blue rounded focus:ring-chihlee-blue flex-shrink-0" ${disableAttr} data-change-action="admin-add-session" data-index="${idx}" data-one-on-one="${ev.isOneOnOne}" data-locked="${isLocked}" data-session-count="${ev.sessions.length}">
                             <span class="text-sm font-medium ${hasTimeConflict ? 'text-gray-400' : 'text-gray-700'} leading-tight">${escapeHTML(sess.date)} ${warningHtml}</span>
                         </label>
-                        <select id="admin-add-meal-${idx}" class="admin-add-meal-sel border border-gray-300 rounded px-2 py-1.5 text-sm outline-none focus:ring-chihlee-blue w-full sm:w-auto ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${hasTimeConflict || ev.isOneOnOne ? 'disabled' : ''}>
+                        <select id="admin-add-meal-${idx}" class="admin-add-meal-sel border border-gray-300 rounded px-2 py-1.5 text-sm outline-none focus:ring-chihlee-blue w-full sm:w-auto ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${isLocked || ev.isOneOnOne || !shouldDefaultCheck ? 'disabled' : ''}>
                             ${opts}
                         </select>
                         ${!ev.hasMeal && !ev.hasSnack ? '<span class="text-xs text-gray-500 hidden sm:block">無供餐</span>' : ''}
@@ -2421,14 +2576,15 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             });
             if(!hasAnyAttend) return showToast('請至少選擇一個場次', 'error');
 
-            const currentCount = getEventRegistrationCount(ev.id);
-            if (ev.capacity && currentCount >= ev.capacity) {
-                customConfirm(`【警告】此活動已達人數上限 (${ev.capacity}人)！<br><br>確定要強制超額新增嗎？`, () => {
-                    proceedAdminAddParticipant(ev.id, student, sessData);
-                }, '⚠️ 人數上限警告');
-            } else {
-                proceedAdminAddParticipant(ev.id, student, sessData);
+            if (usesPerSessionCapacity(ev)) {
+                const fullSession = sessData.find((session, idx) => session.attend && getSessionCapacityStatus(ev, ev.sessions[idx]).isFull);
+                if (fullSession) {
+                    return showToast(`「${fullSession.date} ${fullSession.time}」已達每場人數上限；請先編輯活動增加每場名額`, 'error');
+                }
+            } else if (ev.capacity && getEventRegistrationCount(ev.id) >= ev.capacity) {
+                return showToast('此活動已達人數上限；請先編輯活動增加人數上限', 'error');
             }
+            proceedAdminAddParticipant(ev.id, student, sessData);
         }
 
         async function proceedAdminAddParticipant(eventId, student, sessData) {
@@ -2497,6 +2653,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const d = sData.find(x => x.date === sess.date && (x.time === sess.time || !x.time)) || { date: sess.date, time: sess.time, attend: false, meal: '不用餐' };
 
                 const isTakenByOthers = ev.isOneOnOne && takenOooSessions.includes(d.date + '_' + (d.time || '')) && !d.attend;
+                const sessionCapacity = getSessionCapacityStatus(ev, sess);
+                const isCapacityFull = usesPerSessionCapacity(ev) && sessionCapacity.isFull && !d.attend;
 
                 let hasTimeConflict = false;
                 let conflictEvTitle = '';
@@ -2508,11 +2666,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     }
                 }
 
-                const isLocked = isTakenByOthers || hasTimeConflict;
+                const isLocked = isTakenByOthers || hasTimeConflict || isCapacityFull;
                 const disableStr = isLocked ? 'disabled' : '';
                 let warningTag = '';
                 if (isTakenByOthers) warningTag = '<span class="text-xs text-red-500 ml-1 font-bold break-words">(已被約走)</span>';
                 else if (hasTimeConflict) warningTag = `<span class="text-xs text-red-500 ml-1 font-bold break-words">(衝堂: ${escapeHTML(conflictEvTitle)})</span>`;
+                else if (isCapacityFull) warningTag = '<span class="text-xs text-red-600 ml-1 font-bold">(已額滿)</span>';
+                else if (usesPerSessionCapacity(ev) && !d.attend) warningTag = `<span class="session-capacity-available">剩 ${sessionCapacity.remaining} 名</span>`;
 
                 return `<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 bg-gray-50 p-3 rounded border border-gray-100 gap-2 ${isLocked ? 'opacity-60 bg-red-50' : ''}">
                     <label class="flex items-center space-x-2 ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'} flex-1 w-full">
@@ -2670,7 +2830,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         function requiresPersonalizedLineSessions(ev, type) {
-            return type === 'pre_event' && Boolean(ev && (ev.isOneOnOne || ev.isSeries));
+            return type === 'pre_event' && Boolean(ev && (ev.isOneOnOne || ev.isSeries || usesPerSessionCapacity(ev)));
         }
 
         function ensureLineSessionPlaceholder(message) {
@@ -2950,6 +3110,20 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             // 統計固定顯示於活動名稱下方；即使尚無報名，也清楚呈現全部為 0。
             let statsHtml = `<div class="bg-blue-50 text-chihlee-blue px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-blue-100 shadow-sm whitespace-nowrap"><i class="fa-solid fa-users mr-1"></i>報名人數：${parts.length}</div>`;
             if (ev.isSeries) statsHtml += `<div class="bg-sky-50 text-blue-700 px-2 md:px-3 py-1 md:py-1.5 rounded-md font-bold text-xs md:text-sm border border-blue-100 shadow-sm whitespace-nowrap">出席人次：${totalAttend}</div>`;
+            if (usesPerSessionCapacity(ev)) {
+                statsHtml += '<div class="w-full text-xs font-bold text-gray-700 mt-2"><i class="fa-solid fa-chart-column mr-1"></i>各場報名與用餐</div>';
+                statsHtml += `<div class="participant-session-stats">${ev.sessions.map((session, index) => {
+                    const meals = { '葷': 0, '素': 0, '不用餐': 0 };
+                    parts.forEach(participant => {
+                        const attended = (participant.sessionsData || []).find(item =>
+                            item && item.attend === true && getSessionCapacityKey(item) === getSessionCapacityKey(session)
+                        );
+                        if (attended) meals[normalizeMealChoice(attended.meal)]++;
+                    });
+                    const capacity = getSessionCapacityStatus(ev, session);
+                    return `<div class="participant-session-stat"><strong>第 ${index + 1} 場｜${escapeHTML(session.date)} ${escapeHTML(session.time)}　${capacity.count}/${capacity.limit}</strong><span>葷 ${meals['葷']}｜素 ${meals['素']}｜不用餐 ${meals['不用餐']}</span></div>`;
+                }).join('')}</div>`;
+            }
             statsHtml += `<div class="w-full text-xs font-bold text-gray-600 mt-1"><i class="fa-solid fa-utensils mr-1"></i>用餐統計（依勾選場次計算）</div>`;
             statsHtml += Object.entries(mealCounts).map(([m, c]) => `<div class="${getMealBadgeClass(m)}">${escapeHTML(m)}：${c}</div>`).join('');
             statsContainer.innerHTML = statsHtml;

@@ -310,6 +310,37 @@
             font-weight: 700;
             line-height: 1.4;
         }
+        .session-capacity-available,
+        .session-capacity-full,
+        .session-capacity-closed {
+            display: inline-flex;
+            align-items: center;
+            margin-left: .45rem;
+            padding: .15rem .5rem;
+            border-radius: 999px;
+            font-size: .68rem;
+            font-weight: 800;
+            line-height: 1.35;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .session-capacity-available { color: #075985; background: #E0F2FE; border: 1px solid #7DD3FC; }
+        .session-capacity-full { color: #B42318; background: #FEECEB; border: 1px solid #F59A92; }
+        .session-capacity-closed { color: #475569; background: #E2E8F0; border: 1px solid #CBD5E1; }
+        .participant-session-stats { display: grid; width: 100%; gap: .45rem; }
+        .participant-session-stat {
+            display: flex;
+            flex-direction: column;
+            gap: .2rem;
+            padding: .55rem .7rem;
+            color: #334E68;
+            background: #F8FBFE;
+            border: 1px solid #D8E7F3;
+            border-radius: 8px;
+            font-size: .72rem;
+            line-height: 1.45;
+        }
+        .participant-session-stat strong { color: #075985; }
 
         #modal-event-details { z-index: 65; }
         .event-details-dialog {
