@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜B 帳號後端移轉版 V11.14｜2026-09-09 16:09 -->
+<!-- 致理．心夥伴 - 活動報名系統｜活動詳情版 V11.15｜2026-09-09 19:05 -->
 <html lang="zh-TW" class="frame-guard-pending">
 <head>
     <meta charset="UTF-8">
@@ -11,17 +11,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="致理．心夥伴">
-    <link rel="icon" href="favicon.ico?v=11.14-20260909" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=11.14-20260909">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=11.14-20260909">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=11.14-20260909">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=11.14-20260909">
-    <link rel="manifest" href="site.webmanifest?v=11.14-20260909">
-    <script src="frame-guard.js?v=11.14-20260909"></script>
+    <link rel="icon" href="favicon.ico?v=11.15-20260909" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=11.15-20260909">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=11.15-20260909">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=11.15-20260909">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=11.15-20260909">
+    <link rel="manifest" href="site.webmanifest?v=11.15-20260909">
+    <script src="frame-guard.js?v=11.15-20260909"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <link rel="stylesheet" href="app-custom.css?v=11.14-20260909">
+    <link rel="stylesheet" href="app-custom.css?v=11.15-20260909">
 
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden w-full">
@@ -271,6 +271,34 @@
         </div>
     </main>
 
+    <!-- Modal: 活動完整介紹 -->
+    <div id="modal-event-details" role="dialog" aria-modal="true" aria-labelledby="event-details-title" aria-hidden="true" class="fixed inset-0 bg-black bg-opacity-60 z-[65] hidden flex items-center justify-center p-2 md:p-4">
+        <div class="event-details-dialog animate-fade-in">
+            <div class="event-details-header">
+                <div class="min-w-0 flex-1">
+                    <div id="event-details-badges" class="event-details-badges"></div>
+                    <h3 id="event-details-title" class="event-details-title">活動詳情</h3>
+                    <p class="event-details-teacher"><i class="fa-solid fa-user-tie" aria-hidden="true"></i><span>承辦老師：<strong id="event-details-teacher">未設定</strong></span></p>
+                </div>
+                <button type="button" data-action="close-modal" data-modal="modal-event-details" aria-label="關閉活動詳情視窗" title="關閉" class="event-details-close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <div class="event-details-body custom-scroll">
+                <section class="event-details-section">
+                    <h4><i class="fa-solid fa-align-left" aria-hidden="true"></i>活動介紹</h4>
+                    <div id="event-details-description" class="event-details-description"></div>
+                </section>
+                <section class="event-details-section">
+                    <h4><i class="fa-regular fa-calendar-check" aria-hidden="true"></i>活動日期、時間與地點</h4>
+                    <div id="event-details-sessions" class="event-details-sessions"></div>
+                </section>
+                <div id="event-details-tags" class="event-details-tags hidden"></div>
+            </div>
+            <div class="event-details-footer">
+                <button type="button" data-action="close-modal" data-modal="modal-event-details" class="event-details-done">閱讀完成</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: 填寫報名資料 -->
     <div id="modal-register" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto relative animate-fade-in custom-scroll m-2">
@@ -300,7 +328,7 @@
                     </div>
 
                     <h4 class="font-bold text-gray-700 mb-2 border-b pb-1 text-sm md:text-base">活動場次勾選與用餐選擇</h4>
-                    <p class="text-xs md:text-sm text-gray-500 mb-3">請確認您可以出席的場次並選擇用餐。一對一活動僅限單選。</p>
+                    <p class="text-xs md:text-sm text-gray-500 mb-3">請確認您可以出席的場次；有提供餐點或點心的活動，請選擇餐點需求。一對一活動僅限單選。</p>
                     <div id="dynamic-meal-section" class="space-y-4 mb-6"></div>
 
                     <div class="mt-6 md:mt-8 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pb-2">
@@ -661,7 +689,7 @@
         <div id="loader-text" class="text-base md:text-lg font-bold text-gray-700 tracking-wider bg-white px-4 py-1.5 rounded-full shadow-sm text-center mx-4 border border-gray-100">系統處理中...</div>
     </div>
 
-    <script src="app.js?v=11.14-20260909" defer></script>
+    <script src="app.js?v=11.15-20260909" defer></script>
 
 </body>
 </html>

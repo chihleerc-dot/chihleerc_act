@@ -119,9 +119,15 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const action = target.dataset.action;
             const eventId = target.dataset.eventId || '';
             const registrationId = target.dataset.registrationId || '';
+            if (action === 'open-event-details') {
+                // 詳情按鈕位於可勾選的活動卡片內；阻止 label 預設行為，避免開啟詳情時誤勾選。
+                event.preventDefault();
+                event.stopPropagation();
+            }
             const actions = {
                 'switch-view': () => switchView(target.dataset.view),
                 'open-query': () => openQueryModal(),
+                'open-event-details': () => openEventDetailsModal(eventId),
                 'logout': () => logoutTeacher(),
                 'clear-student-data': () => clearStudentData(),
                 'filter-events': () => filterEvents(target.dataset.category),
@@ -348,9 +354,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.14';
-        const VERSION_UPDATED_AT = '2026/09/09 16:09';
-        const VERSION_UPDATED_AT_ISO = '2026-09-09T16:09:00+08:00';
+        const VERSION_LABEL = 'V11.15';
+        const VERSION_UPDATED_AT = '2026/09/09 19:05';
+        const VERSION_UPDATED_AT_ISO = '2026-09-09T19:05:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
@@ -362,6 +368,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             events.forEach(event => {
                 if (!isPlainObject(event) || !Array.isArray(event.sessions)) throw new Error(`${label}活動場次格式不正確`);
                 if (event.tags !== undefined && !Array.isArray(event.tags)) throw new Error(`${label}活動標籤格式不正確`);
+                if (event.teacher !== undefined && typeof event.teacher !== 'string') throw new Error(`${label}活動承辦老師格式不正確`);
             });
         }
 
@@ -590,7 +597,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 if (publicResult.status === 'fulfilled') {
                     const pubData = publicResult.value;
                     if (pubData.success) {
-                        // 公開資料刻意沒有承辦人；登入後不得用它覆蓋完整活動資料。
+                        // 登入後保留完整管理資料，不以公開欄位白名單覆蓋。
                         if (!state.isTeacherLoggedIn) state.events = pubData.data.events;
                         state.eventStats = pubData.data.eventStats;
                         state.counselors = pubData.data.counselors;
@@ -640,6 +647,52 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
         function getEventRegistrationCount(eventId) {
             return state.eventCounts.get(String(eventId)) || 0;
+        }
+
+        function openEventDetailsModal(eventId) {
+            const event = state.events.find(item => String(item.id) === String(eventId));
+            if (!event) return showToast('找不到這場活動的資料，請重新整理網頁', 'error');
+
+            document.getElementById('event-details-title').textContent = String(event.title || '活動詳情');
+            document.getElementById('event-details-teacher').textContent = String(event.teacher || '未設定');
+            document.getElementById('event-details-description').textContent = String(event.description || '目前沒有活動介紹。');
+
+            const badgeContainer = document.getElementById('event-details-badges');
+            const activityType = event.isOneOnOne ? '預約' : (event.isSeries ? '系列活動' : '一般活動');
+            const activityTypeClass = event.isOneOnOne
+                ? 'event-detail-type-badge event-detail-type-ooo'
+                : (event.isSeries ? 'event-detail-type-badge event-detail-type-series' : 'event-detail-type-badge');
+            badgeContainer.innerHTML = `
+                <span class="${getCategoryBadgeClass(event.category)}">${escapeHTML(event.category)}</span>
+                <span class="${activityTypeClass}">${escapeHTML(activityType)}</span>
+            `;
+
+            const sessions = Array.isArray(event.sessions) ? event.sessions : [];
+            const sessionsContainer = document.getElementById('event-details-sessions');
+            sessionsContainer.innerHTML = sessions.length ? sessions.map((session, index) => {
+                const expired = isSessionExpired(session, new Date());
+                const location = session.location || event.location;
+                return `
+                    <div class="event-detail-session ${expired ? 'event-detail-session-expired' : ''}">
+                        <div class="event-detail-session-time">
+                            <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                            <span>${event.isSeries ? `第 ${index + 1} 場｜` : ''}${escapeHTML(session.date)} ${getDayOfWeek(session.date)}　${escapeHTML(session.time)}</span>
+                            ${expired ? '<span class="event-detail-expired-badge">已過期</span>' : ''}
+                        </div>
+                        <div class="event-detail-session-location">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            <div>${renderLocationBadges(location)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<p class="event-detail-empty">尚未設定活動場次。</p>';
+
+            const tagsContainer = document.getElementById('event-details-tags');
+            const tags = Array.isArray(event.tags) ? event.tags.filter(Boolean) : [];
+            tagsContainer.innerHTML = tags.map(tag => `<span class="event-detail-tag">${escapeHTML(tag)}</span>`).join('');
+            tagsContainer.classList.toggle('hidden', tags.length === 0);
+
+            openModal('modal-event-details');
         }
 
         function splitLocationLabels(value) {
@@ -1044,7 +1097,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                                 ${(isFull && !isAlreadyRegistered) ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-400 text-white shadow-sm whitespace-nowrap">已額滿</span>` : (!isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-medium rounded bg-gray-100 text-gray-500 border border-gray-200 whitespace-nowrap">剩 ${ev.capacity - currentCount} 名額</span>` : '')}
                             </div>
                             <h3 class="text-lg md:text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight break-words">${escapeHTML(ev.title)}</h3>
-                            <p class="text-xs md:text-sm text-gray-500 mt-1.5 mb-2 line-clamp-3">${escapeHTML(ev.description)}</p>
+                            <p class="student-event-teacher"><i class="fa-solid fa-user-tie" aria-hidden="true"></i><span>承辦老師：${escapeHTML(ev.teacher || '未設定')}</span></p>
+                            <p class="text-xs md:text-sm text-gray-500 mt-1.5 mb-1 line-clamp-3">${escapeHTML(ev.description)}</p>
+                            <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>查看完整活動介紹</span></button>
                             ${hashtags ? `<div class="flex flex-wrap mt-1">${hashtags}</div>` : ''}
                         </div>
                         <div class="flex-shrink-0 flex flex-col w-full md:w-auto text-sm text-gray-600 md:items-end md:min-w-[200px] bg-gray-50 p-3 rounded-lg border border-gray-100">
@@ -1229,7 +1284,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                             <span class="text-sm font-medium text-gray-700 tabular-nums flex-1">${escapeHTML(s.date)} <span class="hidden md:inline">${getDayOfWeek(s.date)}</span> <span class="text-blue-600 font-bold mx-1">${escapeHTML(s.time)}</span> ${tagHtml}</span>
                         </label>
                         <select id="reg-meal-${ev.id}-${idx}" aria-label="${escapeHTML(s.date)} 用餐情形" class="w-full sm:w-36 border border-gray-300 rounded px-2 py-1.5 text-sm bg-gray-50 focus:ring-chihlee-blue outline-none ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${isUnavailable || !defaultChecked ? 'disabled' : ''}>${opts}</select>
-                        ${!ev.hasMeal && !ev.hasSnack ? '<span class="text-xs text-gray-500 hidden sm:block">無供餐</span>' : ''}
+                        ${!ev.hasMeal && !ev.hasSnack ? '<span class="no-meal-notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>本場次不提供餐點或點心</span>' : ''}
                     </div>`;
                 }).join('');
 
