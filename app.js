@@ -1,4 +1,4 @@
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwcGcSGodBzE5EjYHvNoVjxAsWnyB5D53cB-JGc7IFoT8zmmosdenW9BsOSdCbHMS6vRg/exec';
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjKPpVet1cD9FtbU8yIBzotC3mo3WFc8oJF5il0f0mA3wbJMHzg/exec';
 
         let state = {
             isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
@@ -348,9 +348,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwcGcSGodBzE5EjYHvN
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.13';
-        const VERSION_UPDATED_AT = '2026/09/03 11:25';
-        const VERSION_UPDATED_AT_ISO = '2026-09-03T11:25:00+08:00';
+        const VERSION_LABEL = 'V11.14';
+        const VERSION_UPDATED_AT = '2026/09/09 16:09';
+        const VERSION_UPDATED_AT_ISO = '2026-09-09T16:09:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
