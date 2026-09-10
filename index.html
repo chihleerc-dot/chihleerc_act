@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜介面一致性修正版 V11.18｜2026-09-10 11:07 -->
+<!-- 致理．心夥伴 - 活動報名系統｜活動月曆與捲動修正版 V11.19｜2026-09-10 13:49 -->
 <html lang="zh-TW" class="frame-guard-pending">
 <head>
     <meta charset="UTF-8">
@@ -11,17 +11,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="致理．心夥伴">
-    <link rel="icon" href="favicon.ico?v=11.18-20260910" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=11.18-20260910">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=11.18-20260910">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=11.18-20260910">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=11.18-20260910">
-    <link rel="manifest" href="site.webmanifest?v=11.18-20260910">
-    <script src="frame-guard.js?v=11.18-20260910"></script>
+    <link rel="icon" href="favicon.ico?v=11.19-20260910" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=11.19-20260910">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=11.19-20260910">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=11.19-20260910">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=11.19-20260910">
+    <link rel="manifest" href="site.webmanifest?v=11.19-20260910">
+    <script src="frame-guard.js?v=11.19-20260910"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <link rel="stylesheet" href="app-custom.css?v=11.18-20260910">
+    <link rel="stylesheet" href="app-custom.css?v=11.19-20260910">
 
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden w-full">
@@ -40,6 +40,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-1.5 md:space-x-4 overflow-x-auto no-scrollbar pb-1 md:pb-0 justify-end min-w-0 flex-shrink-0">
+                    <button data-action="switch-view" data-view="calendar" id="nav-calendar-btn" class="nav-calendar-button text-gray-300 hover:text-white hover:bg-chihlee-blue transition shrink-0" aria-label="活動月曆" title="活動月曆"><i class="fa-regular fa-calendar-days"></i><span class="hidden lg:inline">活動月曆</span></button>
                     <button data-action="switch-view" data-view="student" id="nav-student-btn" aria-current="page" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0">報名專區</button>
                     <button data-action="open-query" id="nav-query-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0"><i class="fa-solid fa-magnifying-glass md:mr-1"></i> <span class="hidden sm:inline">查詢紀錄</span><span class="sm:hidden">查詢</span></button>
                     <button data-action="switch-view" data-view="teacherLogin" id="nav-teacher-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap shrink-0"><i class="fa-solid fa-user-tie md:mr-1"></i> <span class="hidden sm:inline">系統後台</span><span class="sm:hidden">後台</span></button>
@@ -52,6 +53,42 @@
     </nav>
 
     <main id="main-content" tabindex="-1" class="flex-grow w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 md:py-8 relative pb-24 overflow-x-hidden">
+
+        <!-- 學生端：活動月曆 -->
+        <section id="view-calendar" class="hidden animate-fade-in w-full" aria-labelledby="calendar-view-title">
+            <div class="calendar-view-heading">
+                <div>
+                    <p class="calendar-eyebrow"><i class="fa-regular fa-calendar-check"></i>快速查看活動日期</p>
+                    <h1 id="calendar-view-title">活動月曆</h1>
+                    <p>點選日期即可預覽當天活動、場次與剩餘名額，再前往報名。</p>
+                </div>
+                <button type="button" data-action="calendar-today" class="calendar-today-button"><i class="fa-solid fa-location-crosshairs"></i>回到今天</button>
+            </div>
+
+            <div class="calendar-layout">
+                <section class="calendar-month-card" aria-label="月份月曆">
+                    <div class="calendar-month-toolbar">
+                        <button type="button" data-action="calendar-prev" aria-label="上一個月" title="上一個月"><i class="fa-solid fa-chevron-left"></i></button>
+                        <h2 id="calendar-month-label" aria-live="polite"></h2>
+                        <button type="button" data-action="calendar-next" aria-label="下一個月" title="下一個月"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+                    <div id="calendar-grid" class="calendar-grid" role="grid" aria-label="活動日期"></div>
+                    <div class="calendar-legend" aria-label="活動分類圖例"><span><i class="calendar-dot dot-inter"></i>人際</span><span><i class="calendar-dot dot-academic"></i>課業</span><span><i class="calendar-dot dot-career"></i>職涯</span></div>
+                </section>
+
+                <aside class="calendar-preview-card" aria-labelledby="calendar-selected-date">
+                    <div class="calendar-preview-heading">
+                        <div>
+                            <p>當日活動</p>
+                            <h2 id="calendar-selected-date"></h2>
+                        </div>
+                        <span id="calendar-selected-count" class="calendar-selected-count"></span>
+                    </div>
+                    <div id="calendar-day-events" class="calendar-day-events" aria-live="polite"></div>
+                </aside>
+            </div>
+        </section>
 
         <!-- 學生端：報名專區 -->
         <div id="view-student" class="block animate-fade-in w-full">
@@ -88,7 +125,7 @@
                     <button id="filter-btn-career" data-action="filter-events" data-category="職涯" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-career-text hover:text-cat-career-text text-xs md:text-sm font-medium transition">職涯</button>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 w-full">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 w-full">
                     <div id="student-events-container" class="divide-y divide-gray-200"></div>
                 </div>
 
@@ -690,7 +727,7 @@
         <div id="loader-text" class="text-base md:text-lg font-bold text-gray-700 tracking-wider bg-white px-4 py-1.5 rounded-full shadow-sm text-center mx-4 border border-gray-100">系統處理中...</div>
     </div>
 
-    <script src="app.js?v=11.18-20260910" defer></script>
+    <script src="app.js?v=11.19-20260910" defer></script>
 
 </body>
 </html>

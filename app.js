@@ -7,7 +7,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             events: [], eventStats: {}, counselors: [], registrations: [], admins: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
             lineUsage: { month: '', used: 0, limit: 200, remaining: 200 }, dataQualityReport: null, archivePreview: null,
             studentIdentity: null, registeredEventIds: [],
-            eventCounts: new Map()
+            eventCounts: new Map(), calendarYear: null, calendarMonth: null, calendarSelectedDate: ''
         };
 
         let isFormDirty = false;
@@ -126,6 +126,11 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             }
             const actions = {
                 'switch-view': () => switchView(target.dataset.view),
+                'calendar-prev': () => changeCalendarMonth(-1),
+                'calendar-next': () => changeCalendarMonth(1),
+                'calendar-today': () => resetCalendarToToday(),
+                'calendar-select-day': () => selectCalendarDay(target.dataset.date),
+                'calendar-go-event': () => goToEventFromCalendar(eventId),
                 'open-query': () => openQueryModal(),
                 'open-event-details': () => openEventDetailsModal(eventId),
                 'logout': () => logoutTeacher(),
@@ -354,9 +359,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.18';
-        const VERSION_UPDATED_AT = '2026/09/10 11:07';
-        const VERSION_UPDATED_AT_ISO = '2026-09-10T11:07:00+08:00';
+        const VERSION_LABEL = 'V11.19';
+        const VERSION_UPDATED_AT = '2026/09/10 13:49';
+        const VERSION_UPDATED_AT_ISO = '2026-09-10T13:49:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
@@ -508,7 +513,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
         function syncPageScrollLock() {
             const hasOpenModal = Boolean(document.querySelector('[id^="modal-"]:not(.hidden)'));
-            document.body.classList.toggle('overflow-hidden', hasOpenModal);
+            // Tailwind 的 overflow-hidden 可能在切換後台／前台時殘留；統一由明確的 modal class 管理。
+            document.body.classList.remove('overflow-hidden');
+            document.documentElement.classList.toggle('modal-scroll-locked', hasOpenModal);
+            document.body.classList.toggle('modal-scroll-locked', hasOpenModal);
         }
 
         function openModal(id) {
@@ -562,6 +570,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                         renderStudentEvents();
                     }
                     updateVersionTime();
+                    if (!document.getElementById('view-calendar').classList.contains('hidden')) renderActivityCalendar();
                 } else {
                     showToast('資料庫讀取失敗：' + (res.error || '系統處理失敗'), 'error');
                 }
@@ -598,6 +607,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             switchView('student');
             if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleDescriptionClamp);
         };
+        window.addEventListener('pageshow', syncPageScrollLock);
 
         async function reloadDataSilently(loadingText = '同步最新資料中...') {
             showGlobalLoading(true, loadingText);
@@ -646,6 +656,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     syncErrors.push(getRequestErrorMessage(adminResult.reason, '後台資料同步失敗'));
                 }
                 updateVersionTime();
+                if (!document.getElementById('view-calendar').classList.contains('hidden')) renderActivityCalendar();
                 if (syncErrors.length > 0) showToast(`背景同步未完成：${syncErrors[0]}`, 'error');
                 return syncErrors.length === 0;
             } finally {
@@ -905,6 +916,175 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 .sort((left, right) => left - right);
             return dates[0] || null;
         }
+
+        function normalizeCalendarDateKey(value) {
+            const match = String(value || '').match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
+            return match ? `${match[1]}/${match[2]}/${match[3]}` : '';
+        }
+
+        function calendarDateKey(year, month, day) {
+            return `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+        }
+
+        function isPublishedCalendarEvent(event) {
+            const value = event && event.isPublished;
+            return !(value === false || value === 0 || ['false', '0', '否', '未公開'].includes(String(value || '').trim().toLowerCase()));
+        }
+
+        function ensureCalendarState() {
+            const today = getTaiwanDateParts();
+            if (!Number.isInteger(state.calendarYear)) state.calendarYear = Number(today.year);
+            if (!Number.isInteger(state.calendarMonth)) state.calendarMonth = Number(today.month);
+            if (!state.calendarSelectedDate) state.calendarSelectedDate = `${today.year}/${today.month}/${today.day}`;
+        }
+
+        function getCalendarEventMap(now = new Date()) {
+            const dateMap = new Map();
+            (Array.isArray(state.events) ? state.events : []).filter(isPublishedCalendarEvent).forEach(event => {
+                const eventDates = new Map();
+                (Array.isArray(event.sessions) ? event.sessions : []).forEach((session, index) => {
+                    const start = getSessionStartDate(session);
+                    const dateKey = normalizeCalendarDateKey(session && session.date);
+                    if (!dateKey || !start || start < now) return;
+                    if (!eventDates.has(dateKey)) eventDates.set(dateKey, []);
+                    eventDates.get(dateKey).push({ session, index, start });
+                });
+                eventDates.forEach((sessions, dateKey) => {
+                    if (!dateMap.has(dateKey)) dateMap.set(dateKey, []);
+                    dateMap.get(dateKey).push({ event, sessions: sessions.sort((a, b) => a.start - b.start) });
+                });
+            });
+            dateMap.forEach(entries => entries.sort((a, b) => a.sessions[0].start - b.sessions[0].start || String(a.event.title || '').localeCompare(String(b.event.title || ''), 'zh-Hant')));
+            return dateMap;
+        }
+
+        function formatCalendarSelectedDate(dateKey) {
+            const match = String(dateKey || '').match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
+            if (!match) return '';
+            return `${match[1]}年${Number(match[2])}月${Number(match[3])}日 ${getDayOfWeek(dateKey)}`;
+        }
+
+        function getCalendarCategoryDotClass(category) {
+            if (category === '人際') return 'dot-inter';
+            if (category === '課業') return 'dot-academic';
+            if (category === '職涯') return 'dot-career';
+            return 'dot-neutral';
+        }
+
+        function renderCalendarEventAvailability(entry) {
+            const event = entry.event;
+            if (event.isOneOnOne) {
+                const available = entry.sessions.filter(item => !getSessionCapacityStatus(event, item.session).isFull);
+                return available.length
+                    ? `<span class="calendar-availability is-available">尚有 ${available.length} 個時段</span>`
+                    : '<span class="calendar-availability is-full">已額滿</span>';
+            }
+            if (usesPerSessionCapacity(event)) {
+                return entry.sessions.map(item => {
+                    const status = getSessionCapacityStatus(event, item.session);
+                    return `<div class="calendar-session-line"><time>${escapeHTML(formatSessionTime(item.session.time))}</time><span class="calendar-availability ${status.isFull ? 'is-full' : 'is-available'}">${status.isFull ? '已額滿' : `剩 ${status.remaining} 名`}</span></div>`;
+                }).join('');
+            }
+            const remaining = Math.max(0, Number(event.capacity || 0) - getEventRegistrationCount(event.id));
+            const isFull = Boolean(event.capacity && remaining === 0);
+            const times = entry.sessions.map(item => escapeHTML(formatSessionTime(item.session.time))).join('、');
+            return `<div class="calendar-session-line"><time>${times}</time><span class="calendar-availability ${isFull ? 'is-full' : 'is-available'}">${isFull ? '已額滿' : `剩 ${remaining} 名`}</span></div>`;
+        }
+
+        function renderCalendarDayPreview(dateMap) {
+            const dateKey = state.calendarSelectedDate;
+            const entries = dateMap.get(dateKey) || [];
+            const dateHeading = document.getElementById('calendar-selected-date');
+            const countBadge = document.getElementById('calendar-selected-count');
+            const container = document.getElementById('calendar-day-events');
+            if (!dateHeading || !countBadge || !container) return;
+            dateHeading.textContent = formatCalendarSelectedDate(dateKey);
+            countBadge.textContent = `${entries.length} 個活動`;
+            if (!entries.length) {
+                container.innerHTML = '<div class="calendar-empty"><i class="fa-regular fa-calendar-xmark" aria-hidden="true"></i><strong>當天沒有可報名活動</strong><span>請點選其他有彩色標記的日期。</span></div>';
+                return;
+            }
+            container.innerHTML = entries.map(entry => {
+                const event = entry.event;
+                const safeId = escapeHTML(String(event.id));
+                const typeLabel = event.isOneOnOne ? '一對一預約' : (event.isSeries ? '系列活動' : (usesPerSessionCapacity(event) ? '自由選場' : '一般活動'));
+                const location = [...new Set(entry.sessions.map(item => String(item.session.location || event.location || '').trim()).filter(Boolean))].join('、');
+                return `<article class="calendar-event-card">
+                    <div class="calendar-event-badges"><span class="${getCategoryBadgeClass(event.category)}">${escapeHTML(event.category || '其他')}</span><span class="calendar-type-badge">${typeLabel}</span></div>
+                    <button type="button" data-action="calendar-go-event" data-event-id="${safeId}" class="calendar-event-title">${escapeHTML(event.title || '未命名活動')}<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                    <div class="calendar-event-meta"><div><i class="fa-regular fa-clock" aria-hidden="true"></i><span class="calendar-session-list">${renderCalendarEventAvailability(entry)}</span></div>${location ? `<div><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>${escapeHTML(location)}</span></div>` : ''}</div>
+                </article>`;
+            }).join('');
+        }
+
+        function renderActivityCalendar() {
+            ensureCalendarState();
+            const label = document.getElementById('calendar-month-label');
+            const grid = document.getElementById('calendar-grid');
+            if (!label || !grid) return;
+            const year = state.calendarYear;
+            const month = state.calendarMonth;
+            const todayParts = getTaiwanDateParts();
+            const todayKey = `${todayParts.year}/${todayParts.month}/${todayParts.day}`;
+            const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+            const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+            const dateMap = getCalendarEventMap();
+            label.textContent = `${year}年${month}月`;
+            const cells = [];
+            for (let index = 0; index < firstWeekday; index++) cells.push('<span class="calendar-day-blank" role="gridcell" aria-hidden="true"></span>');
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = calendarDateKey(year, month, day);
+                const entries = dateMap.get(dateKey) || [];
+                const isSelected = state.calendarSelectedDate === dateKey;
+                const isToday = dateKey === todayKey;
+                const dots = [...new Set(entries.map(entry => getCalendarCategoryDotClass(entry.event.category)))].slice(0, 3);
+                const ariaLabel = `${year}年${month}月${day}日，${entries.length}個活動${isToday ? '，今天' : ''}`;
+                cells.push(`<button type="button" role="gridcell" data-action="calendar-select-day" data-date="${dateKey}" aria-label="${ariaLabel}" aria-selected="${isSelected}" class="calendar-day${isSelected ? ' is-selected' : ''}${isToday ? ' is-today' : ''}${entries.length ? ' has-events' : ''}"><span class="calendar-day-number">${day}</span>${entries.length ? `<span class="calendar-day-count">${entries.length}<span>個</span></span><span class="calendar-day-dots">${dots.map(dot => `<i class="calendar-dot ${dot}"></i>`).join('')}</span>` : ''}</button>`);
+            }
+            const minimumCells = firstWeekday + daysInMonth > 35 ? 42 : 35;
+            while (cells.length < minimumCells) cells.push('<span class="calendar-day-blank" role="gridcell" aria-hidden="true"></span>');
+            grid.innerHTML = cells.join('');
+            renderCalendarDayPreview(dateMap);
+        }
+
+        function changeCalendarMonth(offset) {
+            ensureCalendarState();
+            const next = new Date(Date.UTC(state.calendarYear, state.calendarMonth - 1 + Number(offset || 0), 1));
+            state.calendarYear = next.getUTCFullYear();
+            state.calendarMonth = next.getUTCMonth() + 1;
+            state.calendarSelectedDate = calendarDateKey(state.calendarYear, state.calendarMonth, 1);
+            renderActivityCalendar();
+        }
+
+        function resetCalendarToToday() {
+            const today = getTaiwanDateParts();
+            state.calendarYear = Number(today.year);
+            state.calendarMonth = Number(today.month);
+            state.calendarSelectedDate = `${today.year}/${today.month}/${today.day}`;
+            renderActivityCalendar();
+        }
+
+        function selectCalendarDay(dateKey) {
+            if (!normalizeCalendarDateKey(dateKey)) return;
+            state.calendarSelectedDate = dateKey;
+            renderActivityCalendar();
+            if (window.matchMedia('(max-width: 899px)').matches) {
+                document.querySelector('.calendar-preview-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function goToEventFromCalendar(eventId) {
+            const safeId = String(eventId || '');
+            filterEvents('全部');
+            switchView('student');
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                const card = document.getElementById(`event-card-${safeId}`);
+                if (!card) return showToast('此活動目前無法報名，請重新整理後再試', 'error');
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('calendar-target-highlight');
+                window.setTimeout(() => card.classList.remove('calendar-target-highlight'), 2400);
+            }));
+        }
         function formatTimeRange(input) { let val = String(input.value).trim(); let match = val.match(/^(\d{1,2})(\d{2})-(\d{1,2})(\d{2})$/); if (match) input.value = `${match[1].padStart(2, '0')}:${match[2]}-${match[3].padStart(2, '0')}:${match[4]}`; }
 
         function checkTimeConflict(time1, time2) {
@@ -972,16 +1152,23 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         function switchView(viewName) {
-            document.getElementById('view-student').classList.add('hidden'); document.getElementById('view-teacher-login').classList.add('hidden');
+            document.getElementById('view-calendar').classList.add('hidden'); document.getElementById('view-student').classList.add('hidden'); document.getElementById('view-teacher-login').classList.add('hidden');
             document.getElementById('view-teacher-dashboard').classList.add('hidden'); document.getElementById('bulk-action-bar').classList.add('hidden');
 
             const btnClassNormal = "px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0";
+            document.getElementById('nav-calendar-btn').className = 'nav-calendar-button text-gray-300 hover:text-white hover:bg-chihlee-blue transition shrink-0';
             document.getElementById('nav-student-btn').className = btnClassNormal;
             document.getElementById('nav-teacher-btn').className = btnClassNormal;
+            document.getElementById('nav-calendar-btn').removeAttribute('aria-current');
             document.getElementById('nav-student-btn').removeAttribute('aria-current');
             document.getElementById('nav-teacher-btn').removeAttribute('aria-current');
 
-            if (viewName === 'student') {
+            if (viewName === 'calendar') {
+                document.getElementById('view-calendar').classList.remove('hidden');
+                document.getElementById('nav-calendar-btn').className = 'nav-calendar-button is-active transition shrink-0';
+                document.getElementById('nav-calendar-btn').setAttribute('aria-current', 'page');
+                renderActivityCalendar();
+            } else if (viewName === 'student') {
                 document.getElementById('view-student').classList.remove('hidden');
                 document.getElementById('nav-student-btn').className = "px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0";
                 document.getElementById('nav-student-btn').setAttribute('aria-current', 'page');
@@ -1006,7 +1193,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
             // 修復先前彈窗結束後偶發殘留的 body 捲動鎖定。
             syncPageScrollLock();
-            if (viewName === 'student') window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            if (viewName === 'student' || viewName === 'calendar') window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 
         }
 
