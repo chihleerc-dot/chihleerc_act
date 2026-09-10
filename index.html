@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜響應式活動資訊版 V11.17｜2026-09-09 23:38 -->
+<!-- 致理．心夥伴 - 活動報名系統｜介面一致性修正版 V11.18｜2026-09-10 11:07 -->
 <html lang="zh-TW" class="frame-guard-pending">
 <head>
     <meta charset="UTF-8">
@@ -11,17 +11,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="致理．心夥伴">
-    <link rel="icon" href="favicon.ico?v=11.17-20260909" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=11.17-20260909">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=11.17-20260909">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=11.17-20260909">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=11.17-20260909">
-    <link rel="manifest" href="site.webmanifest?v=11.17-20260909">
-    <script src="frame-guard.js?v=11.17-20260909"></script>
+    <link rel="icon" href="favicon.ico?v=11.18-20260910" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=11.18-20260910">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=11.18-20260910">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=11.18-20260910">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=11.18-20260910">
+    <link rel="manifest" href="site.webmanifest?v=11.18-20260910">
+    <script src="frame-guard.js?v=11.18-20260910"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <link rel="stylesheet" href="app-custom.css?v=11.17-20260909">
+    <link rel="stylesheet" href="app-custom.css?v=11.18-20260910">
 
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden w-full">
@@ -56,7 +56,6 @@
         <!-- 學生端：報名專區 -->
         <div id="view-student" class="block animate-fade-in w-full">
             <div class="mb-6 md:mb-8 text-center relative px-2">
-                <span class="student-kicker"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> RESOURCE CLASSROOM</span>
                 <h1 class="text-2xl md:text-3xl font-bold text-chihlee-blue mb-2">選擇近期活動</h1>
                 <p class="text-sm md:text-base text-gray-600">查看日期與剩餘名額，勾選活動後即可一次完成報名。</p>
                 <div class="student-steps" aria-label="報名流程">
@@ -183,8 +182,8 @@
                     <table class="admin-events-table w-full whitespace-nowrap text-left">
                         <colgroup>
                             <col class="col-width-110">
-                            <col class="col-width-340">
-                            <col class="col-width-340">
+                            <col class="col-width-320">
+                            <col class="col-width-420">
                             <col class="col-width-130">
                             <col class="col-width-220">
                         </colgroup>
@@ -691,7 +690,7 @@
         <div id="loader-text" class="text-base md:text-lg font-bold text-gray-700 tracking-wider bg-white px-4 py-1.5 rounded-full shadow-sm text-center mx-4 border border-gray-100">系統處理中...</div>
     </div>
 
-    <script src="app.js?v=11.17-20260909" defer></script>
+    <script src="app.js?v=11.18-20260910" defer></script>
 
 </body>
 </html>

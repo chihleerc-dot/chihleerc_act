@@ -5,6 +5,8 @@
 .col-width-130 { width: 130px; }
 .col-width-220 { width: 220px; }
 .col-width-340 { width: 340px; }
+.col-width-320 { width: 320px; }
+.col-width-420 { width: 420px; }
         body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
 
         /* 避免 iOS 輸入框縮放 */
@@ -83,8 +85,28 @@
         p { text-wrap: pretty; }
 
         /* 後台活動表格保留可讀欄寬，避免活動名稱在仍有空間時逐字斷行。 */
-        .admin-events-table { min-width: 1140px; table-layout: fixed; }
+        .admin-events-table { min-width: 1200px; table-layout: fixed; }
         .admin-event-title { word-break: keep-all; overflow-wrap: break-word; }
+        .admin-session-row { display: flex; flex-direction: column; gap: .35rem; margin: 0 0 .7rem .25rem; padding-left: .55rem; }
+        .admin-session-row:last-child { margin-bottom: 0; }
+        .admin-session-line {
+            display: grid;
+            grid-template-columns: 2rem 8.6rem 7.25rem minmax(3.25rem, auto);
+            align-items: center;
+            column-gap: .35rem;
+            min-width: 0;
+            white-space: nowrap;
+        }
+        .admin-session-number { width: 2rem; color: #64748B; font-weight: 600; text-align: right; white-space: nowrap; }
+        .admin-session-date { font-weight: 600; white-space: nowrap; }
+        .admin-session-time { font-weight: 800; white-space: nowrap; }
+        .admin-session-location { display: flex; align-items: flex-start; gap: .35rem; min-width: 0; margin-left: 2.7rem; color: #64748B; font-size: .75rem; }
+        .admin-session-location > i { flex: 0 0 .9rem; margin-top: .3rem; text-align: center; }
+        .admin-session-location > span { display: flex; flex-wrap: wrap; gap: .25rem; min-width: 0; }
+        .admin-session-booking { justify-self: start; padding: .15rem .48rem; border-radius: 999px; font-size: .66rem; font-weight: 800; }
+        .admin-session-booking.is-available { color: #047857; background: #ECFDF3; border: 1px solid #86EFAC; }
+        .admin-session-booking.is-booked { color: #B42318; background: #FEECEB; border: 1px solid #F59A92; }
+        .admin-ooo-capacity { display: inline-flex; align-items: center; justify-content: center; padding: .35rem .7rem; color: #075985; background: #E0F2FE; border: 1px solid #7DD3FC; border-radius: 999px; font-size: .72rem; font-weight: 800; white-space: nowrap; }
 
         /* 報名名單：活動資訊置左，操作按鈕固定靠右上，並避免不同寬度互相重疊。 */
         #modal-participants .participants-modal-header { align-items: flex-start; }
@@ -282,26 +304,28 @@
             color: #52667A;
             font-size: .84rem;
             line-height: 1.65;
+            max-height: 4.95em;
+            overflow: hidden;
             overflow-wrap: anywhere;
         }
-        .student-event-description-mobile { display: none; }
+        .student-event-description-text { white-space: normal; }
         .event-details-trigger {
-            display: inline;
-            min-height: 44px;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: .18rem;
             margin: 0;
-            padding: .25rem .15rem;
+            padding: 0 .3rem 0 .7rem;
             color: #0057B8;
-            background: transparent;
+            background: linear-gradient(90deg, rgba(224, 242, 254, 0), rgba(224, 242, 254, .92) 38%);
             border: 0;
-            border-radius: 4px;
+            border-radius: 999px;
             font: inherit;
             font-weight: 800;
             line-height: inherit;
-            text-decoration: underline;
-            text-decoration-thickness: 1px;
-            text-underline-offset: 3px;
             cursor: pointer;
         }
+        .event-details-trigger::after { content: ""; position: absolute; inset: -.55rem -.35rem; }
         .event-details-trigger:hover,
         .event-details-trigger:focus-visible {
             color: #003F86;
@@ -373,7 +397,10 @@
         .ooo-card-summary-title { display: flex; align-items: center; gap: .4rem; margin-bottom: .55rem; color: #075985; font-weight: 800; }
         .ooo-card-date-group + .ooo-card-date-group { margin-top: .8rem; padding-top: .7rem; border-top: 1px solid #C8DCEC; }
         .ooo-card-date-line { display: flex; align-items: center; justify-content: space-between; gap: .65rem; color: #6A4200; }
-        .ooo-card-date-line span { flex: 0 0 auto; color: #075985; font-size: .72rem; font-weight: 800; }
+        .ooo-card-date-line strong { display: inline-flex; align-items: center; gap: .4rem; min-width: 0; white-space: nowrap; }
+        .ooo-card-date-line strong i { color: #A96B00; }
+        .ooo-card-date-line > span { flex: 0 0 auto; color: #075985; font-size: .72rem; font-weight: 800; }
+        .ooo-card-date-compact { display: none; }
         .ooo-card-time-line { display: flex; flex-wrap: wrap; gap: .35rem; margin: .42rem 0 0 1.4rem; }
         .ooo-card-time-line span { padding: .16rem .45rem; color: #075985; background: #FFFFFF; border: 1px solid #7DD3FC; border-radius: 999px; font-size: .7rem; font-weight: 750; white-space: nowrap; }
         .no-meal-notice {
@@ -737,12 +764,12 @@
             #student-events-container > label { padding: 16px !important; }
             #student-events-container > label > div:first-child { margin-right: 12px !important; }
             .student-event-description { font-size: .8rem; line-height: 1.65; }
-            .student-event-description-desktop { display: none; }
-            .student-event-description-mobile { display: inline; }
             .student-session-panel { padding: .75rem; }
             .student-session-date-time { flex-wrap: wrap; gap: .35rem; }
             .student-session-date-full { display: none; }
             .student-session-date-compact { display: inline; }
+            .ooo-card-date-full { display: none; }
+            .ooo-card-date-compact { display: inline; }
             .student-session-location { margin-left: 1.25rem; }
             .ooo-card-date-line { align-items: flex-start; }
             .ooo-card-time-line { margin-left: 1.25rem; }
