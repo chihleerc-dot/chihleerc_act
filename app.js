@@ -3,7 +3,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         let state = {
             isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
             selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
-            tempTags: [], tempSessions: [], adminCurrentPage: 1, editingRegId: null,
+            tempTags: [], tempSessions: [], tempImages: [], tempImagesChanged: false, adminCurrentPage: 1, editingRegId: null,
             events: [], eventStats: {}, counselors: [], registrations: [], admins: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
             lineUsage: { month: '', used: 0, limit: 200, remaining: 200 }, dataQualityReport: null, archivePreview: null,
             studentIdentity: null, registeredEventIds: [],
@@ -114,6 +114,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         document.addEventListener('click', event => {
+            const swipedCarousel = event.target.closest('[data-event-image-carousel][data-swiped="true"]');
+            if (swipedCarousel) {
+                event.preventDefault();
+                event.stopPropagation();
+                delete swipedCarousel.dataset.swiped;
+                return;
+            }
             const target = event.target.closest('[data-action]');
             if (!target || target.disabled) return;
             const action = target.dataset.action;
@@ -124,6 +131,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 event.preventDefault();
                 if (action === 'open-event-details') event.stopPropagation();
             }
+            if (['change-event-image', 'choose-event-images', 'remove-temp-image', 'move-temp-image'].includes(action)) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             const actions = {
                 'switch-view': () => switchView(target.dataset.view),
                 'calendar-prev': () => changeCalendarMonth(-1),
@@ -133,6 +144,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 'calendar-go-event': () => goToEventFromCalendar(eventId),
                 'open-query': () => openQueryModal(),
                 'open-event-details': () => openEventDetailsModal(eventId),
+                'change-event-image': () => changeEventImage(target, Number(target.dataset.direction) || 0),
                 'logout': () => logoutTeacher(),
                 'clear-student-data': () => clearStudentData(),
                 'filter-events': () => filterEvents(target.dataset.category),
@@ -140,6 +152,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 'switch-admin-tab': () => switchAdminTab(target.dataset.tab),
                 'reload-data': () => reloadDataSilently('手動更新資料...'),
                 'open-edit-event': () => openEditEventModal(eventId || undefined),
+                'choose-event-images': () => document.getElementById('edit-images-input').click(),
                 'close-modal': () => closeModal(target.dataset.modal),
                 'close-query': () => closeQueryModalSafe(),
                 'execute-student-query': () => executeStudentQuery(),
@@ -166,6 +179,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 'dashboard-page': () => renderTeacherDashboard(Number(target.dataset.page) || 1),
                 'remove-temp-tag': () => { removeTempTag(Number(target.dataset.index)); markDirty(); },
                 'remove-temp-session': () => { removeTempSession(Number(target.dataset.index)); markDirty(); },
+                'remove-temp-image': () => removeTempImage(Number(target.dataset.index)),
+                'move-temp-image': () => moveTempImage(Number(target.dataset.index), Number(target.dataset.direction)),
                 'open-admin-remark': () => openAdminRemarkModal(registrationId, target.dataset.studentName || ''),
                 'delete-participant': () => deleteParticipantAdmin(registrationId)
             };
@@ -200,6 +215,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             else if (action === 'registration-session') handleRegSessionChange(target.dataset.eventId, Number(target.dataset.index), target.dataset.oneOnOne === 'true', target);
             else if (action === 'admin-add-session') handleAdminAddSessionChange_(target);
             else if (action === 'remark-session') handleRemarkSessionChange_(target);
+            else if (action === 'event-images') handleEventImageSelection(target);
             else if (action === 'update-select-all') updateSelectAllState();
             else if (action === 'archive-year') {
                 state.archivePreview = null;
@@ -221,6 +237,28 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 addTempTag();
                 markDirty();
             }
+        });
+
+        document.addEventListener('pointerdown', event => {
+            const carousel = event.target.closest('[data-event-image-carousel]');
+            if (!carousel || event.pointerType === 'mouse') return;
+            carousel.dataset.swipeStartX = String(event.clientX);
+            carousel.dataset.swipeStartY = String(event.clientY);
+        });
+
+        document.addEventListener('pointerup', event => {
+            const carousel = event.target.closest('[data-event-image-carousel]');
+            if (!carousel || event.pointerType === 'mouse') return;
+            const startX = Number(carousel.dataset.swipeStartX);
+            const startY = Number(carousel.dataset.swipeStartY);
+            delete carousel.dataset.swipeStartX;
+            delete carousel.dataset.swipeStartY;
+            if (!Number.isFinite(startX) || !Number.isFinite(startY)) return;
+            const deltaX = event.clientX - startX;
+            const deltaY = event.clientY - startY;
+            if (Math.abs(deltaX) < 45 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+            carousel.dataset.swiped = 'true';
+            changeEventImage(carousel, deltaX < 0 ? 1 : -1);
         });
 
         function formatSafeDate(dateInput) {
@@ -331,7 +369,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             loadSavedStudentInfo();
         }
 
-        function safeCloseEditEvent() { if (isFormDirty) { customConfirm('您有尚未儲存的變更，確定要放棄並離開嗎？', () => { resetDirty(); closeModal('modal-edit-event'); }); } else closeModal('modal-edit-event'); }
+        function closeEditEventModal() {
+            releaseTempImagePreviews();
+            state.tempImages = [];
+            state.tempImagesChanged = false;
+            closeModal('modal-edit-event');
+        }
+        function safeCloseEditEvent() { if (isFormDirty) { customConfirm('您有尚未儲存的變更，確定要放棄並離開嗎？', () => { resetDirty(); closeEditEventModal(); }); } else closeEditEventModal(); }
         function safeCloseRemark() { if (isFormDirty) { customConfirm('您有尚未儲存的變更，確定要放棄並離開嗎？', () => { resetDirty(); closeModal('modal-remark'); }); } else closeModal('modal-remark'); }
 
         function copyText(text, label) {
@@ -359,10 +403,14 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.19.2';
-        const VERSION_UPDATED_AT = '2026/09/10 15:27';
-        const VERSION_UPDATED_AT_ISO = '2026-09-10T15:27:00+08:00';
+        const VERSION_LABEL = 'V11.20';
+        const VERSION_UPDATED_AT = '2026/09/10 21:50';
+        const VERSION_UPDATED_AT_ISO = '2026-09-10T21:50:00+08:00';
         const API_TIMEOUT_MS = 20000;
+        const IMAGE_UPLOAD_TIMEOUT_MS = 60000;
+        const MAX_EVENT_IMAGES = 3;
+        const MAX_IMAGE_SOURCE_BYTES = 5 * 1024 * 1024;
+        const TARGET_IMAGE_BYTES = 550 * 1024;
 
         function isPlainObject(value) {
             return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -374,6 +422,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 if (!isPlainObject(event) || !Array.isArray(event.sessions)) throw new Error(`${label}活動場次格式不正確`);
                 if (event.tags !== undefined && !Array.isArray(event.tags)) throw new Error(`${label}活動標籤格式不正確`);
                 if (event.teacher !== undefined && typeof event.teacher !== 'string') throw new Error(`${label}活動承辦老師格式不正確`);
+                if (event.images !== undefined && (!Array.isArray(event.images) || event.images.length > MAX_EVENT_IMAGES)) throw new Error(`${label}活動圖片格式不正確`);
             });
         }
 
@@ -407,6 +456,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             )) throw new Error('歸檔預覽格式不正確');
             if (action === 'archiveYearData' && (!isPlainObject(data) || data.success !== true)) {
                 throw new Error('年度歸檔結果格式不正確');
+            }
+            if (action === 'createImageUploadSignature' && (
+                !isPlainObject(data) || typeof data.cloudName !== 'string' || typeof data.apiKey !== 'string' ||
+                typeof data.publicId !== 'string' || typeof data.signature !== 'string' || typeof data.timestamp !== 'number'
+            )) throw new Error('圖片上傳授權格式不正確');
+            if (action === 'saveEventImages' && (!isPlainObject(data) || !Array.isArray(data.images))) {
+                throw new Error('圖片儲存結果格式不正確');
             }
             if (isPlainObject(data) && data.events !== undefined) {
                 validateEventArray(data.events, '公開');
@@ -739,6 +795,75 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             return values.length ? Math.max(...values) : 0;
         }
 
+        function normalizeEventImages(images) {
+            if (!Array.isArray(images)) return [];
+            return images.slice(0, MAX_EVENT_IMAGES).map(image => {
+                if (typeof image === 'string') return { url: image.trim(), publicId: '' };
+                if (!image || typeof image !== 'object') return null;
+                return {
+                    url: String(image.url || image.secureUrl || '').trim(),
+                    publicId: String(image.publicId || '').trim()
+                };
+            }).filter(image => /^https:\/\/res\.cloudinary\.com\//i.test(image && image.url || ''));
+        }
+
+        function renderEventImageCarousel(event, variant = 'card') {
+            const images = normalizeEventImages(event && event.images);
+            if (!images.length) return '';
+            const safeTitle = escapeHTML(String(event.title || '活動'));
+            const carouselClass = variant === 'details' ? 'event-image-carousel event-image-carousel-details' : 'event-image-carousel';
+            return `
+                <div class="${carouselClass}" data-event-image-carousel data-current-index="0">
+                    <div class="event-image-slides">
+                        ${images.map((image, index) => `<img src="${escapeHTML(image.url)}" alt="${safeTitle}活動示意圖，第 ${index + 1} 張，共 ${images.length} 張" loading="lazy" decoding="async" data-event-image-slide class="event-image-slide ${index === 0 ? 'is-active' : ''}" aria-hidden="${index === 0 ? 'false' : 'true'}">`).join('')}
+                    </div>
+                    ${images.length > 1 ? `
+                        <button type="button" data-action="change-event-image" data-direction="-1" class="event-image-arrow event-image-arrow-prev" aria-label="查看上一張活動圖片"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                        <button type="button" data-action="change-event-image" data-direction="1" class="event-image-arrow event-image-arrow-next" aria-label="查看下一張活動圖片"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                        <span class="event-image-counter" aria-live="polite"><strong data-event-image-current>1</strong>/${images.length}</span>
+                    ` : ''}
+                </div>`;
+        }
+
+        function changeEventImage(control, direction) {
+            const carousel = control && control.closest('[data-event-image-carousel]');
+            if (!carousel || !direction) return;
+            const slides = [...carousel.querySelectorAll('[data-event-image-slide]:not(.is-broken)')];
+            if (slides.length < 2) return;
+            const allSlides = [...carousel.querySelectorAll('[data-event-image-slide]')];
+            const activeSlide = carousel.querySelector('[data-event-image-slide].is-active:not(.is-broken)') || slides[0];
+            const currentUsableIndex = Math.max(0, slides.indexOf(activeSlide));
+            const nextSlide = slides[(currentUsableIndex + direction + slides.length) % slides.length];
+            allSlides.forEach(slide => {
+                const isActive = slide === nextSlide;
+                slide.classList.toggle('is-active', isActive);
+                slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+            });
+            const displayIndex = allSlides.indexOf(nextSlide) + 1;
+            carousel.dataset.currentIndex = String(Math.max(0, displayIndex - 1));
+            const counter = carousel.querySelector('[data-event-image-current]');
+            if (counter) counter.textContent = String(displayIndex);
+        }
+
+        document.addEventListener('error', event => {
+            const image = event.target && event.target.closest ? event.target.closest('[data-event-image-slide]') : null;
+            if (!image) return;
+            image.classList.add('is-broken');
+            image.classList.remove('is-active');
+            image.setAttribute('aria-hidden', 'true');
+            const carousel = image.closest('[data-event-image-carousel]');
+            if (!carousel) return;
+            const remaining = [...carousel.querySelectorAll('[data-event-image-slide]:not(.is-broken)')];
+            if (!remaining.length) {
+                carousel.hidden = true;
+                return;
+            }
+            if (!carousel.querySelector('[data-event-image-slide].is-active')) {
+                remaining[0].classList.add('is-active');
+                remaining[0].setAttribute('aria-hidden', 'false');
+            }
+        }, true);
+
         function renderEventDetailsContent(eventId) {
             const event = state.events.find(item => String(item.id) === String(eventId));
             if (!event) return showToast('找不到這場活動的資料，請重新整理網頁', 'error');
@@ -746,6 +871,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             document.getElementById('event-details-title').textContent = String(event.title || '活動詳情');
             document.getElementById('event-details-teacher').textContent = String(event.teacher || '未設定');
             document.getElementById('event-details-description').textContent = String(event.description || '目前沒有活動介紹。');
+            const detailImages = document.getElementById('event-details-images');
+            const detailImagesHtml = renderEventImageCarousel(event, 'details');
+            detailImages.innerHTML = detailImagesHtml;
+            detailImages.classList.toggle('hidden', !detailImagesHtml);
 
             const badgeContainer = document.getElementById('event-details-badges');
             const activityType = event.isOneOnOne ? '預約' : (event.isSeries ? '系列活動' : '一般活動');
@@ -1514,6 +1643,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const upcomingSessions = getUpcomingEventSessions(ev, now);
                 const availableSessionCount = upcomingSessions.filter(item => !getSessionCapacityStatus(ev, item.session).isFull).length;
                 const sessionsHTML = renderStudentEventSessions(ev, now);
+                const eventImagesHtml = renderEventImageCarousel(ev, 'card');
 
                 const capacityBadgeHtml = isOoo
                     ? (isFull
@@ -1552,6 +1682,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     <div class="flex-shrink-0 mr-3 md:mr-4 mt-1">${checkboxHTML}</div>
                     <div class="student-event-layout">
                         <div class="student-event-content">
+                            <div class="student-event-primary ${eventImagesHtml ? 'has-event-image' : ''}">
+                                ${eventImagesHtml}
+                                <div class="student-event-copy">
                             <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
                                 <span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>
                                 ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
@@ -1563,6 +1696,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                             <h3 class="text-lg md:text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight break-words">${escapeHTML(ev.title)}</h3>
                             <p class="student-event-description" data-event-id="${escapeHTML(safeEvId)}"><span class="student-event-description-text">${escapeHTML(String(ev.description || '目前沒有活動介紹。').replace(/\s+/g, ' ').trim())}</span> <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger">查看完整資訊 <span aria-hidden="true">→</span></button></p>
                             ${hashtags ? `<div class="flex flex-wrap mt-1">${hashtags}</div>` : ''}
+                                </div>
+                            </div>
                         </div>
                         <div class="student-session-panel">
                             ${sessionsHTML}
@@ -2465,6 +2600,131 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             tbody.innerHTML = state.logs.map(log => `<tr class="border-b border-gray-100 even:bg-slate-50 odd:bg-white hover:bg-blue-50 transition-colors"><td class="py-3 px-4 text-gray-500 whitespace-nowrap font-mono text-[10px] md:text-xs align-top">${escapeHTML(formatSafeDate(log.time))}</td><td class="py-3 px-4 text-gray-800 leading-relaxed text-xs md:text-sm whitespace-normal break-words align-top">${escapeHTML(log.message)}</td></tr>`).join('');
         }
 
+        function releaseTempImagePreviews() {
+            (state.tempImages || []).forEach(image => {
+                if (image && image.isNew && image.previewUrl && String(image.previewUrl).startsWith('blob:')) {
+                    try { URL.revokeObjectURL(image.previewUrl); } catch (error) {}
+                }
+            });
+        }
+
+        function renderTempImages() {
+            const preview = document.getElementById('edit-images-preview');
+            const empty = document.getElementById('edit-images-empty');
+            if (!preview || !empty) return;
+            const images = Array.isArray(state.tempImages) ? state.tempImages : [];
+            preview.innerHTML = images.map((image, index) => `
+                <div class="event-image-preview-item">
+                    <div class="event-image-preview-frame">
+                        <img src="${escapeHTML(image.previewUrl || image.url || '')}" alt="活動示意圖預覽 ${index + 1}" decoding="async">
+                        ${index === 0 ? '<span class="event-image-cover-badge">封面</span>' : ''}
+                    </div>
+                    <div class="event-image-preview-actions">
+                        <button type="button" data-action="move-temp-image" data-index="${index}" data-direction="-1" ${index === 0 ? 'disabled' : ''} aria-label="將第 ${index + 1} 張圖片往前移"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button>
+                        <button type="button" data-action="move-temp-image" data-index="${index}" data-direction="1" ${index === images.length - 1 ? 'disabled' : ''} aria-label="將第 ${index + 1} 張圖片往後移"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                        <button type="button" data-action="remove-temp-image" data-index="${index}" class="is-danger" aria-label="移除第 ${index + 1} 張圖片"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            empty.classList.toggle('hidden', images.length > 0);
+            const chooseButton = document.querySelector('[data-action="choose-event-images"]');
+            if (chooseButton) {
+                chooseButton.disabled = images.length >= MAX_EVENT_IMAGES;
+                chooseButton.setAttribute('aria-disabled', images.length >= MAX_EVENT_IMAGES ? 'true' : 'false');
+            }
+        }
+
+        function loadLocalImage(file) {
+            return new Promise((resolve, reject) => {
+                const objectUrl = URL.createObjectURL(file);
+                const image = new Image();
+                image.onload = () => { URL.revokeObjectURL(objectUrl); resolve(image); };
+                image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('圖片內容無法讀取')); };
+                image.src = objectUrl;
+            });
+        }
+
+        function canvasToBlob(canvas, type, quality) {
+            return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+        }
+
+        async function compressEventImage(file) {
+            const image = await loadLocalImage(file);
+            const longestSide = Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height);
+            if (!longestSide) throw new Error('圖片尺寸無法辨識');
+            const scale = Math.min(1, 1600 / longestSide);
+            const width = Math.max(1, Math.round((image.naturalWidth || image.width) * scale));
+            const height = Math.max(1, Math.round((image.naturalHeight || image.height) * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const context = canvas.getContext('2d', { alpha: false });
+            if (!context) throw new Error('瀏覽器不支援圖片壓縮');
+            context.fillStyle = '#FFFFFF';
+            context.fillRect(0, 0, width, height);
+            context.drawImage(image, 0, 0, width, height);
+            let blob = null;
+            for (const quality of [0.84, 0.74, 0.64, 0.54]) {
+                blob = await canvasToBlob(canvas, 'image/webp', quality);
+                if (blob && blob.size <= TARGET_IMAGE_BYTES) break;
+            }
+            if (!blob) blob = await canvasToBlob(canvas, 'image/jpeg', 0.78);
+            if (!blob || blob.size > MAX_IMAGE_SOURCE_BYTES) throw new Error('圖片壓縮失敗，請改用較小的圖片');
+            return blob;
+        }
+
+        async function handleEventImageSelection(input) {
+            const selectedFiles = [...(input.files || [])];
+            input.value = '';
+            if (!selectedFiles.length) return;
+            const availableSlots = MAX_EVENT_IMAGES - state.tempImages.length;
+            if (availableSlots <= 0) return showToast('每個活動最多 3 張圖片', 'error');
+            if (selectedFiles.length > availableSlots) showToast(`目前只能再加入 ${availableSlots} 張圖片`, 'warning');
+            const files = selectedFiles.slice(0, availableSlots);
+            const invalid = files.find(file => !['image/jpeg', 'image/png', 'image/webp'].includes(String(file.type).toLowerCase()) || file.size < 1 || file.size > MAX_IMAGE_SOURCE_BYTES);
+            if (invalid) return showToast('圖片只支援 JPG、PNG、WebP，且單張必須小於 5MB', 'error');
+            showGlobalLoading(true, '正在壓縮活動圖片...');
+            try {
+                for (let index = 0; index < files.length; index++) {
+                    document.getElementById('loader-text').textContent = `正在處理第 ${index + 1}/${files.length} 張圖片...`;
+                    const blob = await compressEventImage(files[index]);
+                    state.tempImages.push({
+                        isNew: true,
+                        file: blob,
+                        fileName: `event-image-${Date.now()}-${index + 1}.${blob.type === 'image/webp' ? 'webp' : 'jpg'}`,
+                        previewUrl: URL.createObjectURL(blob)
+                    });
+                }
+                state.tempImagesChanged = true;
+                markDirty();
+                renderTempImages();
+            } catch (error) {
+                showToast(getRequestErrorMessage(error, '圖片處理失敗'), 'error');
+            } finally {
+                showGlobalLoading(false);
+            }
+        }
+
+        function removeTempImage(index) {
+            const image = state.tempImages[index];
+            if (!image) return;
+            if (image.isNew && image.previewUrl && String(image.previewUrl).startsWith('blob:')) URL.revokeObjectURL(image.previewUrl);
+            state.tempImages.splice(index, 1);
+            state.tempImagesChanged = true;
+            markDirty();
+            renderTempImages();
+        }
+
+        function moveTempImage(index, direction) {
+            const nextIndex = index + direction;
+            if (index < 0 || nextIndex < 0 || index >= state.tempImages.length || nextIndex >= state.tempImages.length) return;
+            const moved = state.tempImages.splice(index, 1)[0];
+            state.tempImages.splice(nextIndex, 0, moved);
+            state.tempImagesChanged = true;
+            markDirty();
+            renderTempImages();
+        }
+
         function renderTempTags() { document.getElementById('edit-tags-container').innerHTML = state.tempTags.map((t, idx) => `<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs md:text-sm font-bold flex items-center">${escapeHTML(t)} <button type="button" data-action="remove-temp-tag" data-index="${idx}" class="ml-1 text-blue-500 hover:text-red-500 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-200 transition">✕</button></span>`).join(''); }
         function addTempTag() { const input = document.getElementById('edit-tag-input'); let val = input.value.trim(); if(!val) return; if(!val.startsWith('#')) val = '#' + val; if(val.length > 10) return showToast('每個標籤含 # 最多 10 個字！', 'error'); if(state.tempTags.length >= 3) return showToast('最多 3 個標籤！', 'error'); if(!state.tempTags.includes(val)) { state.tempTags.push(val); input.value = ''; renderTempTags(); } }
         function removeTempTag(idx) { state.tempTags.splice(idx, 1); renderTempTags(); }
@@ -2566,6 +2826,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
         function openEditEventModal(eventId = null) {
             resetDirty();
+            releaseTempImagePreviews();
+            state.tempImages = [];
+            state.tempImagesChanged = false;
             document.getElementById('edit-event-form').reset(); document.querySelectorAll('input[name="edit-loc-quick"]').forEach(cb => cb.checked = false);
             const teacherSelect = document.getElementById('edit-teacher'); teacherSelect.innerHTML = '<option value="">請選擇承辦人...</option>';
 
@@ -2603,13 +2866,19 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 }
 
                 state.tempTags = [...(ev.tags || [])]; state.tempSessions = JSON.parse(JSON.stringify(ev.sessions));
+                state.tempImages = normalizeEventImages(ev.images).map(image => ({
+                    isNew: false,
+                    url: image.url,
+                    publicId: image.publicId,
+                    previewUrl: image.url
+                }));
                 let customLocs = []; String(ev.location).split('、').forEach(l => { let matched = false; document.querySelectorAll('input[name="edit-loc-quick"]').forEach(cb => { if(cb.value === l) { cb.checked = true; matched = true; }}); if(!matched) customLocs.push(l); });
                 document.getElementById('edit-loc-custom').value = customLocs.join('、');
             } else {
-                document.getElementById('edit-modal-title').innerText = '新增活動'; document.getElementById('edit-id').value = ''; state.tempTags = []; state.tempSessions = [{date: '', time: '', location: ''}];
+                document.getElementById('edit-modal-title').innerText = '新增活動'; document.getElementById('edit-id').value = ''; state.tempTags = []; state.tempSessions = [{date: '', time: '', location: ''}]; state.tempImages = [];
                 document.querySelector('input[name="edit-activity-type"][value="normal"]').checked = true;
             }
-            renderTempTags(); renderTempSessions(); configureActivityTypeEditing(Boolean(eventId)); handleActivityTypeChange(); openModal('modal-edit-event');
+            renderTempTags(); renderTempSessions(); renderTempImages(); configureActivityTypeEditing(Boolean(eventId)); handleActivityTypeChange(); openModal('modal-edit-event');
         }
 
         async function submitEventEdit(e) {
@@ -2731,6 +3000,84 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             proceedSubmitEventEdit(id, mainLocationString, finalSessions, isOoo, isSeriesEvent, finalCapacity, restoreSubmitBtn);
         }
 
+        async function uploadEventImageToCloudinary(eventId, image, imageNumber) {
+            const signatureResponse = await apiRequest({
+                action: 'createImageUploadSignature',
+                eventId: eventId,
+                fileMeta: { size: image.file.size, type: image.file.type },
+                adminAcc: state.adminCreds.acc,
+                adminToken: state.adminCreds.token
+            });
+            if (checkTokenExpiration(signatureResponse)) throw new Error('登入憑證已失效，請重新登入');
+            if (!signatureResponse.success || !signatureResponse.data) throw new Error(signatureResponse.error || `第 ${imageNumber} 張圖片無法取得上傳授權`);
+            const signed = signatureResponse.data;
+            const formData = new FormData();
+            formData.append('file', image.file, image.fileName || `event-image-${imageNumber}.webp`);
+            formData.append('api_key', String(signed.apiKey || ''));
+            formData.append('timestamp', String(signed.timestamp || ''));
+            formData.append('public_id', String(signed.publicId || ''));
+            formData.append('overwrite', 'false');
+            formData.append('signature', String(signed.signature || ''));
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), IMAGE_UPLOAD_TIMEOUT_MS);
+            try {
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(String(signed.cloudName || ''))}/image/upload`, {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+                let uploaded = null;
+                try { uploaded = await response.json(); } catch (error) {}
+                if (!response.ok || !uploaded || !uploaded.secure_url || !uploaded.public_id) {
+                    throw new Error(`第 ${imageNumber} 張圖片上傳失敗`);
+                }
+                return { url: String(uploaded.secure_url), publicId: String(uploaded.public_id) };
+            } catch (error) {
+                if (error && error.name === 'AbortError') throw new Error(`第 ${imageNumber} 張圖片上傳逾時`);
+                throw error;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        async function persistTempEventImages(eventId) {
+            if (!state.tempImagesChanged && !state.tempImages.some(image => image.isNew)) return;
+            const failures = [];
+            for (let index = 0; index < state.tempImages.length; index++) {
+                const image = state.tempImages[index];
+                if (!image.isNew) continue;
+                document.getElementById('loader-text').textContent = `正在上傳第 ${index + 1}/${state.tempImages.length} 張活動圖片...`;
+                try {
+                    const uploaded = await uploadEventImageToCloudinary(eventId, image, index + 1);
+                    if (image.previewUrl && String(image.previewUrl).startsWith('blob:')) URL.revokeObjectURL(image.previewUrl);
+                    state.tempImages[index] = {
+                        isNew: false,
+                        url: uploaded.url,
+                        publicId: uploaded.publicId,
+                        previewUrl: uploaded.url
+                    };
+                } catch (error) {
+                    failures.push(getRequestErrorMessage(error, `第 ${index + 1} 張圖片上傳失敗`));
+                }
+            }
+
+            const savedImages = state.tempImages
+                .filter(image => !image.isNew && image.url && image.publicId)
+                .map(image => ({ url: image.url, publicId: image.publicId }));
+            const saveResponse = await apiRequest({
+                action: 'saveEventImages',
+                eventId: eventId,
+                images: savedImages,
+                adminAcc: state.adminCreds.acc,
+                adminToken: state.adminCreds.token
+            });
+            if (checkTokenExpiration(saveResponse)) throw new Error('登入憑證已失效，請重新登入');
+            if (!saveResponse.success) throw new Error(saveResponse.error || '活動圖片資料儲存失敗');
+            state.tempImagesChanged = failures.length > 0;
+            renderTempImages();
+            if (failures.length) throw new Error(`${failures.join('；')}。活動文字已儲存，可保留視窗後重新選擇圖片。`);
+        }
+
         async function proceedSubmitEventEdit(id, mainLocationString, finalSessions, isOoo, isSeriesEvent, finalCapacity, restoreBtnCallback) {
             const eventData = {
                 title: document.getElementById('edit-title').value.trim(),
@@ -2759,9 +3106,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 });
                 if (checkTokenExpiration(res)) return;
                 if (res.success) {
+                    const savedEventId = String(id || (res.data && res.data.eventId) || res.eventId || '');
+                    if (!savedEventId) throw new Error('後端未回傳活動識別碼');
+                    if (!id) document.getElementById('edit-id').value = savedEventId;
+                    await persistTempEventImages(savedEventId);
                     resetDirty();
-                    showToast(id ? '活動儲存成功！' : '活動已建立為未公開草稿！', 'success');
-                    closeModal('modal-edit-event');
+                    showToast(id ? '活動與圖片儲存成功！' : '活動已建立為未公開草稿！', 'success');
+                    closeEditEventModal();
                     await reloadDataSilently('同步活動資料...');
                 }
                 else showToast('儲存失敗：' + res.error, 'error');
