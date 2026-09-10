@@ -359,9 +359,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.19.1';
-        const VERSION_UPDATED_AT = '2026/09/10 14:38';
-        const VERSION_UPDATED_AT_ISO = '2026-09-10T14:38:00+08:00';
+        const VERSION_LABEL = 'V11.19.2';
+        const VERSION_UPDATED_AT = '2026/09/10 15:27';
+        const VERSION_UPDATED_AT_ISO = '2026-09-10T15:27:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
@@ -512,18 +512,17 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         function syncPageScrollLock() {
-            const hasOpenModal = Boolean(document.querySelector('[id^="modal-"]:not(.hidden)'));
-            // Tailwind 的 overflow-hidden 可能在切換後台／前台時殘留；統一由明確的 modal class 管理。
-            document.body.classList.remove('overflow-hidden');
-            document.documentElement.classList.toggle('modal-scroll-locked', hasOpenModal);
-            document.body.classList.toggle('modal-scroll-locked', hasOpenModal);
-            if (!hasOpenModal) {
-                document.documentElement.style.removeProperty('overflow');
-                document.body.style.removeProperty('overflow');
-                document.body.style.removeProperty('position');
-                document.body.style.removeProperty('top');
-                document.body.style.removeProperty('width');
-            }
+            // 主畫面永遠交由瀏覽器根捲動；彈窗只管理自己的內容，不再鎖住 html/body。
+            document.documentElement.classList.remove('modal-scroll-locked', 'overflow-hidden');
+            document.body.classList.remove('modal-scroll-locked', 'overflow-hidden');
+            document.documentElement.style.removeProperty('overflow');
+            document.documentElement.style.removeProperty('position');
+            document.documentElement.style.removeProperty('height');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('position');
+            document.body.style.removeProperty('top');
+            document.body.style.removeProperty('height');
+            document.body.style.removeProperty('width');
         }
 
         function openModal(id) {
@@ -606,6 +605,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         window.onload = async () => {
+            syncPageScrollLock();
             enhanceAccessibility();
             updateVersionTime();
             await fetchInitialData();
@@ -615,6 +615,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleDescriptionClamp);
         };
         window.addEventListener('pageshow', syncPageScrollLock);
+        document.addEventListener('DOMContentLoaded', syncPageScrollLock);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') syncPageScrollLock();
+        });
 
         async function reloadDataSilently(loadingText = '同步最新資料中...') {
             showGlobalLoading(true, loadingText);

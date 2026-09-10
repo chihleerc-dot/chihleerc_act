@@ -133,12 +133,27 @@
         .meal-badge-vegetarian { color: #087A45; background: #ECFDF3; border-color: #A6E3C2; }
         .meal-badge-none { color: #596579; background: #F2F4F7; border-color: #D5DAE1; }
 
-        /* V11.19：活動月曆入口、月曆／當日預覽與穩定的整頁捲動。 */
-        html, body { max-width: 100%; overflow-x: clip; }
-        html:not(.modal-scroll-locked) { overflow-y: scroll; }
-        html.modal-scroll-locked, body.modal-scroll-locked { overflow: hidden !important; }
-        body:not(.modal-scroll-locked) { overflow-y: visible !important; }
-        #main-content, #view-student, #student-main-content, #student-events-container { overflow: visible; }
+        /* V11.19.2：根頁面永遠可捲動；彈窗不得再鎖住 html/body。 */
+        html {
+            width: 100%;
+            min-height: 100%;
+            height: auto !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            scrollbar-gutter: stable;
+        }
+        body {
+            width: 100%;
+            min-height: 100vh;
+            height: auto !important;
+            position: relative !important;
+            overflow: visible !important;
+        }
+        #main-content, #view-calendar, #view-student, #student-main-content, #student-events-container {
+            min-height: 0;
+            height: auto;
+            overflow: visible !important;
+        }
         .nav-calendar-button {
             display: inline-flex;
             align-items: center;
