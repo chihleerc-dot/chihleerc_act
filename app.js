@@ -119,10 +119,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const action = target.dataset.action;
             const eventId = target.dataset.eventId || '';
             const registrationId = target.dataset.registrationId || '';
-            if (action === 'open-event-details') {
+            if (action === 'open-event-details' || action === 'calendar-go-event') {
                 // 詳情按鈕位於可勾選的活動卡片內；阻止 label 預設行為，避免開啟詳情時誤勾選。
                 event.preventDefault();
-                event.stopPropagation();
+                if (action === 'open-event-details') event.stopPropagation();
             }
             const actions = {
                 'switch-view': () => switchView(target.dataset.view),
@@ -359,9 +359,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.19';
-        const VERSION_UPDATED_AT = '2026/09/10 13:49';
-        const VERSION_UPDATED_AT_ISO = '2026-09-10T13:49:00+08:00';
+        const VERSION_LABEL = 'V11.19.1';
+        const VERSION_UPDATED_AT = '2026/09/10 14:38';
+        const VERSION_UPDATED_AT_ISO = '2026-09-10T14:38:00+08:00';
         const API_TIMEOUT_MS = 20000;
 
         function isPlainObject(value) {
@@ -517,6 +517,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             document.body.classList.remove('overflow-hidden');
             document.documentElement.classList.toggle('modal-scroll-locked', hasOpenModal);
             document.body.classList.toggle('modal-scroll-locked', hasOpenModal);
+            if (!hasOpenModal) {
+                document.documentElement.style.removeProperty('overflow');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('position');
+                document.body.style.removeProperty('top');
+                document.body.style.removeProperty('width');
+            }
         }
 
         function openModal(id) {
@@ -1009,11 +1016,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const safeId = escapeHTML(String(event.id));
                 const typeLabel = event.isOneOnOne ? '一對一預約' : (event.isSeries ? '系列活動' : (usesPerSessionCapacity(event) ? '自由選場' : '一般活動'));
                 const location = [...new Set(entry.sessions.map(item => String(item.session.location || event.location || '').trim()).filter(Boolean))].join('、');
-                return `<article class="calendar-event-card">
+                const description = String(event.description || '目前沒有活動介紹。').trim();
+                return `<a href="#event-card-${safeId}" data-action="calendar-go-event" data-event-id="${safeId}" class="calendar-event-card" aria-label="前往報名：${escapeHTML(event.title || '未命名活動')}" aria-describedby="calendar-description-${safeId}">
                     <div class="calendar-event-badges"><span class="${getCategoryBadgeClass(event.category)}">${escapeHTML(event.category || '其他')}</span><span class="calendar-type-badge">${typeLabel}</span></div>
-                    <button type="button" data-action="calendar-go-event" data-event-id="${safeId}" class="calendar-event-title">${escapeHTML(event.title || '未命名活動')}<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                    <h3 class="calendar-event-title"><span>${escapeHTML(event.title || '未命名活動')}</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></h3>
                     <div class="calendar-event-meta"><div><i class="fa-regular fa-clock" aria-hidden="true"></i><span class="calendar-session-list">${renderCalendarEventAvailability(entry)}</span></div>${location ? `<div><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>${escapeHTML(location)}</span></div>` : ''}</div>
-                </article>`;
+                    <div id="calendar-description-${safeId}" class="calendar-description-tooltip" role="tooltip"><strong><i class="fa-solid fa-circle-info" aria-hidden="true"></i>活動介紹</strong><p>${escapeHTML(description)}</p><span class="calendar-description-tooltip-hint">點選活動卡即可前往報名</span></div>
+                </a>`;
             }).join('');
         }
 
@@ -1080,7 +1089,11 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 const card = document.getElementById(`event-card-${safeId}`);
                 if (!card) return showToast('此活動目前無法報名，請重新整理後再試', 'error');
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const nav = document.querySelector('nav');
+                const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+                const scrollRoot = document.scrollingElement || document.documentElement;
+                const targetTop = Math.max(0, card.getBoundingClientRect().top + scrollRoot.scrollTop - navHeight - 16);
+                scrollRoot.scrollTo({ top: targetTop, left: 0, behavior: 'smooth' });
                 card.classList.add('calendar-target-highlight');
                 window.setTimeout(() => card.classList.remove('calendar-target-highlight'), 2400);
             }));
