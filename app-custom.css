@@ -495,14 +495,16 @@
             min-width: 0;
         }
         .student-event-content { min-width: 0; }
+        .student-event-header { min-width: 0; }
         .student-event-primary {
             min-width: 0;
         }
         .student-event-primary.has-event-image {
             display: grid;
-            grid-template-columns: 13rem minmax(0, 1fr);
+            grid-template-columns: 12rem minmax(0, 1fr);
             align-items: start;
-            gap: 1rem;
+            gap: .9rem;
+            margin-top: .7rem;
         }
         .student-event-copy { min-width: 0; }
         .event-image-carousel {
@@ -1121,8 +1123,8 @@
             #student-events-container > label { padding: 16px !important; }
             #student-events-container > label > div:first-child { margin-right: 12px !important; }
             .student-event-description { font-size: .8rem; line-height: 1.65; }
-            .student-event-primary.has-event-image { grid-template-columns: minmax(0, 1fr); gap: .8rem; }
-            .event-image-carousel { max-width: 100%; }
+            .student-event-primary.has-event-image { grid-template-columns: minmax(0, 1fr); gap: .75rem; margin-top: .75rem; }
+            .event-image-carousel { max-width: 100%; aspect-ratio: 16 / 9; }
             .event-image-arrow { width: 40px; height: 40px; }
             .event-image-editor-heading { flex-direction: column; }
             .event-image-choose-button { width: 100%; }

@@ -403,9 +403,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.20';
-        const VERSION_UPDATED_AT = '2026/09/10 21:50';
-        const VERSION_UPDATED_AT_ISO = '2026-09-10T21:50:00+08:00';
+        const VERSION_LABEL = 'V11.20.2';
+        const VERSION_UPDATED_AT = '2026/09/11 19:56';
+        const VERSION_UPDATED_AT_ISO = '2026-09-11T19:56:00+08:00';
         const API_TIMEOUT_MS = 20000;
         const IMAGE_UPLOAD_TIMEOUT_MS = 60000;
         const MAX_EVENT_IMAGES = 3;
@@ -1682,18 +1682,20 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     <div class="flex-shrink-0 mr-3 md:mr-4 mt-1">${checkboxHTML}</div>
                     <div class="student-event-layout">
                         <div class="student-event-content">
+                            <div class="student-event-header">
+                                <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+                                    <span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>
+                                    ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
+                                    ${isSeries ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200 whitespace-nowrap">共 ${ev.sessions.length} 場</span>` : ''}
+                                    ${mealStr}
+                                    ${isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200 shadow-sm whitespace-nowrap">✅ 您已報名</span>` : ''}
+                                    ${capacityBadgeHtml}
+                                </div>
+                                <h3 class="text-lg md:text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight break-words">${escapeHTML(ev.title)}</h3>
+                            </div>
                             <div class="student-event-primary ${eventImagesHtml ? 'has-event-image' : ''}">
                                 ${eventImagesHtml}
                                 <div class="student-event-copy">
-                            <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
-                                <span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>
-                                ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
-                                ${isSeries ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200 whitespace-nowrap">共 ${ev.sessions.length} 場</span>` : ''}
-                                ${mealStr}
-                                ${isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200 shadow-sm whitespace-nowrap">✅ 您已報名</span>` : ''}
-                                ${capacityBadgeHtml}
-                            </div>
-                            <h3 class="text-lg md:text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight break-words">${escapeHTML(ev.title)}</h3>
                             <p class="student-event-description" data-event-id="${escapeHTML(safeEvId)}"><span class="student-event-description-text">${escapeHTML(String(ev.description || '目前沒有活動介紹。').replace(/\s+/g, ' ').trim())}</span> <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger">查看完整資訊 <span aria-hidden="true">→</span></button></p>
                             ${hashtags ? `<div class="flex flex-wrap mt-1">${hashtags}</div>` : ''}
                                 </div>
