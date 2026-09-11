@@ -509,6 +509,17 @@
             margin-top: .7rem;
         }
         .student-event-copy { min-width: 0; }
+        .student-event-tags {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .35rem;
+            min-height: 2rem;
+            margin-top: .7rem;
+            padding-top: .65rem;
+            border-top: 1px solid #D8E7F3;
+        }
+        .student-event-tags > span { margin: 0 !important; }
         .event-image-carousel {
             position: relative;
             width: 100%;
@@ -592,7 +603,7 @@
             z-index: 2;
         }
         .student-event-description {
-            margin: .55rem 0 .35rem;
+            margin: .55rem 0 0;
             color: #52667A;
             font-size: .84rem;
             line-height: 1.65;
@@ -601,29 +612,74 @@
             overflow-wrap: anywhere;
         }
         .student-event-description-text { white-space: normal; }
+        .event-details-row {
+            display: flex;
+            align-items: center;
+            min-height: 2.35rem;
+            margin-top: .45rem;
+        }
         .event-details-trigger {
             position: relative;
             display: inline-flex;
             align-items: center;
-            gap: .18rem;
+            justify-content: center;
+            gap: .35rem;
             margin: 0;
-            padding: 0 .3rem 0 .7rem;
+            padding: .42rem .8rem;
             color: #0057B8;
-            background: linear-gradient(90deg, rgba(224, 242, 254, 0), rgba(224, 242, 254, .92) 38%);
-            border: 0;
-            border-radius: 999px;
-            font: inherit;
+            background: #EAF6FF;
+            border: 1px solid #C9E5F8;
+            border-radius: 8px;
+            font-size: .8rem;
             font-weight: 800;
-            line-height: inherit;
+            line-height: 1.25;
             cursor: pointer;
         }
-        .event-details-trigger::after { content: ""; position: absolute; inset: -.55rem -.35rem; }
         .event-details-trigger:hover,
         .event-details-trigger:focus-visible {
             color: #003F86;
             background: #E0F2FE;
             outline: 3px solid rgba(0, 87, 184, .2);
             outline-offset: 2px;
+        }
+        .initial-load-message,
+        .initial-load-error {
+            display: flex;
+            align-items: flex-start;
+            gap: .85rem;
+            width: 100%;
+            padding: 1rem 1.1rem;
+            background: #FFFFFF;
+            border: 1px solid #CFE0EE;
+            border-left: 5px solid #08A6C9;
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(16, 42, 67, .08);
+        }
+        .initial-load-message > i { margin-top: .15rem; color: #0057B8; font-size: 1.15rem; }
+        .initial-load-message strong,
+        .initial-load-message span,
+        .initial-load-error strong,
+        .initial-load-error p { display: block; }
+        .initial-load-message strong,
+        .initial-load-error strong { color: #16324F; font-size: .95rem; }
+        .initial-load-message span,
+        .initial-load-error p { margin-top: .2rem; color: #60758A; font-size: .8rem; }
+        .initial-load-error {
+            max-width: 56rem;
+            margin: 1rem auto;
+            border-left-color: #DA292E;
+        }
+        .initial-load-error.hidden { display: none; }
+        .initial-load-error > i { margin-top: .15rem; color: #DA292E; font-size: 1.2rem; }
+        .initial-load-error button {
+            margin-top: .75rem;
+            padding: .48rem .85rem;
+            color: #FFFFFF;
+            background: #0057B8;
+            border: 0;
+            border-radius: 8px;
+            font-size: .8rem;
+            font-weight: 800;
         }
         .student-session-panel {
             align-self: start;
@@ -1155,6 +1211,8 @@
             #student-events-container > label { padding: 16px !important; }
             #student-events-container > label > div:first-child { margin-right: 12px !important; }
             .student-event-description { font-size: .8rem; line-height: 1.65; }
+            .student-event-tags { margin-top: .65rem; padding-top: .6rem; }
+            .event-details-row { min-height: 2.2rem; }
             .student-event-header > .flex,
             .student-event-header h3 { min-height: 0; }
             .student-event-primary.has-event-image { grid-template-columns: minmax(0, 1fr); gap: .75rem; margin-top: .75rem; }

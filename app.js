@@ -151,6 +151,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 'change-event-image': () => changeEventImage(target, Number(target.dataset.direction) || 0),
                 'logout': () => logoutTeacher(),
                 'clear-student-data': () => clearStudentData(),
+                'retry-initial-load': () => retryInitialDataLoad(),
                 'filter-events': () => filterEvents(target.dataset.category),
                 'open-register': () => openRegisterModal(),
                 'switch-admin-tab': () => switchAdminTab(target.dataset.tab),
@@ -407,10 +408,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.20.3';
-        const VERSION_UPDATED_AT = '2026/09/11 21:41';
-        const VERSION_UPDATED_AT_ISO = '2026-09-11T21:41:00+08:00';
+        const VERSION_LABEL = 'V11.20.4';
+        const VERSION_UPDATED_AT = '2026/09/11 22:42';
+        const VERSION_UPDATED_AT_ISO = '2026-09-11T22:42:00+08:00';
         const API_TIMEOUT_MS = 20000;
+        const PUBLIC_DATA_TIMEOUT_MS = 45000;
+        const MUTATION_TIMEOUT_MS = 45000;
+        const STATUS_CHECK_TIMEOUT_MS = 20000;
         const IMAGE_UPLOAD_TIMEOUT_MS = 60000;
         const MAX_EVENT_IMAGES = 3;
         const MAX_IMAGE_SOURCE_BYTES = 5 * 1024 * 1024;
@@ -468,6 +472,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             if (action === 'saveEventImages' && (!isPlainObject(data) || !Array.isArray(data.images))) {
                 throw new Error('圖片儲存結果格式不正確');
             }
+            if (action === 'getEventPublishedStatus' && (
+                !isPlainObject(data) || typeof data.eventId !== 'string' || typeof data.isPublished !== 'boolean'
+            )) throw new Error('活動公開狀態格式不正確');
             if (isPlainObject(data) && data.events !== undefined) {
                 validateEventArray(data.events, '公開');
                 if (!isPlainObject(data.eventStats) || !Array.isArray(data.counselors)) throw new Error('公開資料格式不正確');
@@ -617,10 +624,34 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             return false;
         }
 
+        function setInitialLoadError(message = '') {
+            const panel = document.getElementById('initial-load-error');
+            const messageElement = document.getElementById('initial-load-error-message');
+            if (messageElement) messageElement.textContent = message || '目前無法連接資料庫，這不代表沒有活動。';
+            if (panel) panel.classList.remove('hidden');
+            const content = document.getElementById('student-main-content');
+            if (content) content.classList.add('hidden');
+        }
+
+        function clearInitialLoadError() {
+            const panel = document.getElementById('initial-load-error');
+            if (panel) panel.classList.add('hidden');
+        }
+
         async function fetchInitialData() {
+            clearInitialLoadError();
             showSkeletonLoading(true);
+            let loaded = false;
+            const loadTitle = document.getElementById('initial-load-title');
+            const loadDetail = document.getElementById('initial-load-detail');
+            if (loadTitle) loadTitle.textContent = '正在讀取活動資料';
+            if (loadDetail) loadDetail.textContent = '正在連線 Google 資料庫，請稍候……';
+            const slowNoticeTimer = window.setTimeout(() => {
+                if (loadTitle) loadTitle.textContent = '資料庫回應較慢';
+                if (loadDetail) loadDetail.textContent = '系統仍在讀取資料，請不要重複重新整理。';
+            }, 8000);
             try {
-                const res = await apiRequest({ action: 'getPublicData' });
+                const res = await apiRequest({ action: 'getPublicData' }, PUBLIC_DATA_TIMEOUT_MS);
                 if (res.success) {
                     state.events = res.data.events;
                     state.eventStats = res.data.eventStats;
@@ -637,8 +668,11 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     }
                     updateVersionTime();
                     if (!document.getElementById('view-calendar').classList.contains('hidden')) renderActivityCalendar();
+                    loaded = true;
                 } else {
-                    showToast('資料庫讀取失敗：' + (res.error || '系統處理失敗'), 'error');
+                    const message = '資料庫讀取失敗：' + (res.error || '系統處理失敗');
+                    showToast(message, 'error');
+                    setInitialLoadError(message);
                 }
             } catch (error) {
                 if (error && error.code === 'INVALID_RESPONSE') {
@@ -657,19 +691,32 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     `;
                     customConfirm(errorHtml, () => {}, 'API 權限設定錯誤');
                 } else {
-                    showToast(getRequestErrorMessage(error, '網路連線異常，無法取得資料'), 'error');
+                    const message = getRequestErrorMessage(error, '網路連線異常，無法取得資料');
+                    showToast(message, 'error');
+                    setInitialLoadError(`${message}。請稍後重新載入；這不代表目前沒有活動。`);
                 }
             } finally {
+                window.clearTimeout(slowNoticeTimer);
                 showSkeletonLoading(false);
+                if (!loaded) setInitialLoadError(document.getElementById('initial-load-error-message')?.textContent || '目前無法連接資料庫，這不代表沒有活動。');
             }
+            return loaded;
+        }
+
+        async function retryInitialDataLoad() {
+            const loaded = await fetchInitialData();
+            if (!loaded) return;
+            clearInitialLoadError();
+            renderStudentEvents();
+            showToast('活動資料已重新載入', 'success');
         }
 
         window.onload = async () => {
             syncPageScrollLock();
             enhanceAccessibility();
             updateVersionTime();
-            await fetchInitialData();
-            renderStudentEvents();
+            const loaded = await fetchInitialData();
+            if (loaded) renderStudentEvents();
             loadSavedStudentInfo();
             switchView('student');
             if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleDescriptionClamp);
@@ -732,6 +779,28 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 return syncErrors.length === 0;
             } finally {
                 showGlobalLoading(false);
+            }
+        }
+
+        async function refreshPublicSnapshotInBackground() {
+            try {
+                const response = await apiRequest({ action: 'getPublicData' }, PUBLIC_DATA_TIMEOUT_MS);
+                if (!response.success) return false;
+                const publicData = response.data;
+                state.eventStats = publicData.eventStats;
+                state.counselors = publicData.counselors;
+                pruneSelectedEventIds(publicData.events);
+                renderCounselorOptions();
+                if (!state.isTeacherLoggedIn) state.events = publicData.events;
+                clearInitialLoadError();
+                const studentContent = document.getElementById('student-main-content');
+                if (studentContent) studentContent.classList.remove('hidden');
+                updateEventCounts();
+                if (!document.getElementById('view-student').classList.contains('hidden')) renderStudentEvents();
+                if (!document.getElementById('view-calendar').classList.contains('hidden')) renderActivityCalendar();
+                return true;
+            } catch (error) {
+                return false;
             }
         }
 
@@ -1376,16 +1445,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const res = await apiRequest({ action: 'login', account: acc, password: pwd });
                 if (res.success) {
                     const user = res.data;
-                    let refreshedPublicData = null;
-                    try {
-                        const pubData = await apiRequest({ action: 'getPublicData' }, 8000);
-                        if (pubData.success) refreshedPublicData = pubData.data;
-                        else showToast(`登入成功，但公開資料同步失敗：${pubData.error || '系統處理失敗'}`, 'info');
-                    } catch (publicError) {
-                        showToast(`登入成功，但公開資料同步失敗：${getRequestErrorMessage(publicError)}`, 'info');
-                    }
 
-                    // 所有登入必要資料確認完成後才一次寫入狀態，避免畫面顯示失敗但記憶體已登入。
+                    // 登入回應已包含完整後台資料；先顯示後台，再於背景更新公開統計，
+                    // 避免登入成功後又等待第二次完整資料讀取。
                     state.adminCreds = { acc, token: user.token };
                     state.isTeacherLoggedIn = true;
                     state.currentUserRole = user.role;
@@ -1395,12 +1457,6 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     state.logs = user.fullData.logs;
                     state.admins = user.fullData.admins;
                     state.lineUsage = user.fullData.lineUsage;
-                    if (refreshedPublicData) {
-                        state.eventStats = refreshedPublicData.eventStats;
-                        state.counselors = refreshedPublicData.counselors;
-                        pruneSelectedEventIds(refreshedPublicData.events);
-                        renderCounselorOptions();
-                    }
                     document.getElementById('admin-account').value = '';
                     document.getElementById('admin-password').value = '';
 
@@ -1413,6 +1469,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
                     if (e && e.target && e.target.tagName === 'FORM') showToast(`${user.name} 登入成功！`, 'success');
                     updateVersionTime(); switchView('teacherDashboard');
+                    void refreshPublicSnapshotInBackground();
                 } else {
                     if (errorMsgEl) { errorMsgEl.innerText = res.error || '帳號或密碼錯誤，請重新確認'; errorMsgEl.classList.remove('hidden'); }
                     showToast(res.error || '帳號或密碼錯誤', 'error');
@@ -1472,6 +1529,14 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
         function toggleEventSelection(eventId, isChecked) {
             const safeId = String(eventId);
+            const selectedEvent = state.events.find(event => String(event.id) === safeId);
+            if (isChecked && (!selectedEvent || selectedEvent.isPublished === false)) {
+                const checkbox = document.getElementById(`chk-evt-${safeId}`);
+                if (checkbox) checkbox.checked = false;
+                state.selectedEventIds = state.selectedEventIds.filter(id => String(id) !== safeId);
+                updateBulkActionBar();
+                return showToast('此活動尚未公開，無法選擇報名', 'error');
+            }
             if (isChecked) {
                 if (!state.selectedEventIds.includes(safeId)) state.selectedEventIds.push(safeId);
             } else {
@@ -1610,7 +1675,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const now = new Date();
             const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-            const validEvents = state.events.filter(ev => Boolean(getNextUpcomingSessionDate(ev, now)));
+            // 公開 API 不回傳 isPublished；登入後的完整資料則會明確帶入 true/false。
+            // 學生報名頁一律排除明確標記為未公開的活動，避免登入後切回前台洩漏草稿。
+            const validEvents = state.events.filter(ev => ev.isPublished !== false && Boolean(getNextUpcomingSessionDate(ev, now)));
 
             const allCount = validEvents.length;
             const interCount = validEvents.filter(e => e.category === '人際').length;
@@ -1709,10 +1776,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                             <div class="student-event-primary has-event-image">
                                 ${eventMediaHtml}
                                 <div class="student-event-copy">
-                            <p class="student-event-description" data-event-id="${escapeHTML(safeEvId)}"><span class="student-event-description-text">${escapeHTML(String(ev.description || '目前沒有活動介紹。').replace(/\s+/g, ' ').trim())}</span> <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger">查看完整資訊 <span aria-hidden="true">→</span></button></p>
-                            ${hashtags ? `<div class="flex flex-wrap mt-1">${hashtags}</div>` : ''}
+                                    <p class="student-event-description" data-event-id="${escapeHTML(safeEvId)}"><span class="student-event-description-text">${escapeHTML(String(ev.description || '目前沒有活動介紹。').replace(/\s+/g, ' ').trim())}</span></p>
+                                    <div class="event-details-row">
+                                        <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger">查看更多 <span aria-hidden="true">→</span></button>
+                                    </div>
                                 </div>
                             </div>
+                            ${hashtags ? `<div class="student-event-tags">${hashtags}</div>` : ''}
                         </div>
                         <div class="student-session-panel">
                             ${sessionsHTML}
@@ -3154,17 +3224,52 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                         isPublished: isPublished,
                         adminAcc: state.adminCreds.acc,
                         adminToken: state.adminCreds.token
-                    });
+                    }, MUTATION_TIMEOUT_MS);
                     if (checkTokenExpiration(res)) return;
                     if (!res.success) return showToast(`${actionText}失敗：${res.error || '系統處理失敗'}`, 'error');
-                    await reloadDataSilently('同步活動公開狀態...');
+                    applyEventPublishedState(eventId, isPublished);
                     showToast(`活動已${actionText}`, 'success');
+                    void refreshPublicSnapshotInBackground();
                 } catch (error) {
-                    showToast(`${actionText}失敗：${getRequestErrorMessage(error)}`, 'error');
+                    if (error && error.code === 'REQUEST_TIMEOUT') {
+                        showToast(`${actionText}請求回應較慢，正在確認實際狀態…`, 'info');
+                        try {
+                            const statusResponse = await apiRequest({
+                                action: 'getEventPublishedStatus',
+                                eventId: eventId,
+                                adminAcc: state.adminCreds.acc,
+                                adminToken: state.adminCreds.token
+                            }, STATUS_CHECK_TIMEOUT_MS);
+                            if (checkTokenExpiration(statusResponse)) return;
+                            if (statusResponse.success && statusResponse.data.isPublished === isPublished) {
+                                applyEventPublishedState(eventId, isPublished);
+                                showToast(`活動已${actionText}`, 'success');
+                                void refreshPublicSnapshotInBackground();
+                            } else {
+                                showToast(`尚未完成${actionText}，請稍後再操作`, 'error');
+                            }
+                        } catch (statusError) {
+                            showToast(`無法確認${actionText}結果，請重新整理後查看狀態`, 'error');
+                        }
+                    } else {
+                        showToast(`${actionText}失敗：${getRequestErrorMessage(error)}`, 'error');
+                    }
                 } finally {
                     showGlobalLoading(false);
                 }
             }, `${actionText}活動`);
+        }
+
+        function applyEventPublishedState(eventId, isPublished) {
+            const event = state.events.find(item => String(item.id) === String(eventId));
+            if (event) event.isPublished = isPublished;
+            if (!isPublished) {
+                state.selectedEventIds = state.selectedEventIds.filter(id => String(id) !== String(eventId));
+                updateBulkActionBar();
+            }
+            renderTeacherDashboard();
+            if (!document.getElementById('view-student').classList.contains('hidden')) renderStudentEvents();
+            if (!document.getElementById('view-calendar').classList.contains('hidden')) renderActivityCalendar();
         }
 
         async function deleteAdminEvent(eventId) {
