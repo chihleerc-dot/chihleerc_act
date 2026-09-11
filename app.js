@@ -121,6 +121,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 delete swipedCarousel.dataset.swiped;
                 return;
             }
+            // 活動卡片使用 label 包住整張卡片；取消圖片區的 label 預設行為，
+            // 避免點照片、切換箭頭或滑動輪播時誤勾選活動。
+            const eventImageCarousel = event.target.closest('[data-event-image-carousel]');
+            if (eventImageCarousel) event.preventDefault();
             const target = event.target.closest('[data-action]');
             if (!target || target.disabled) return;
             const action = target.dataset.action;
@@ -403,9 +407,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.20.2';
-        const VERSION_UPDATED_AT = '2026/09/11 19:56';
-        const VERSION_UPDATED_AT_ISO = '2026-09-11T19:56:00+08:00';
+        const VERSION_LABEL = 'V11.20.3';
+        const VERSION_UPDATED_AT = '2026/09/11 21:41';
+        const VERSION_UPDATED_AT_ISO = '2026-09-11T21:41:00+08:00';
         const API_TIMEOUT_MS = 20000;
         const IMAGE_UPLOAD_TIMEOUT_MS = 60000;
         const MAX_EVENT_IMAGES = 3;
@@ -822,6 +826,14 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                         <button type="button" data-action="change-event-image" data-direction="1" class="event-image-arrow event-image-arrow-next" aria-label="查看下一張活動圖片"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
                         <span class="event-image-counter" aria-live="polite"><strong data-event-image-current>1</strong>/${images.length}</span>
                     ` : ''}
+                </div>`;
+        }
+
+        function renderEventImagePlaceholder() {
+            return `
+                <div class="event-image-placeholder" aria-label="此活動尚無圖片">
+                    <span class="event-image-placeholder-logo" aria-hidden="true">致</span>
+                    <span>尚無活動圖片</span>
                 </div>`;
         }
 
@@ -1644,6 +1656,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const availableSessionCount = upcomingSessions.filter(item => !getSessionCapacityStatus(ev, item.session).isFull).length;
                 const sessionsHTML = renderStudentEventSessions(ev, now);
                 const eventImagesHtml = renderEventImageCarousel(ev, 'card');
+                const eventMediaHtml = eventImagesHtml || renderEventImagePlaceholder();
 
                 const capacityBadgeHtml = isOoo
                     ? (isFull
@@ -1693,8 +1706,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                                 </div>
                                 <h3 class="text-lg md:text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight break-words">${escapeHTML(ev.title)}</h3>
                             </div>
-                            <div class="student-event-primary ${eventImagesHtml ? 'has-event-image' : ''}">
-                                ${eventImagesHtml}
+                            <div class="student-event-primary has-event-image">
+                                ${eventMediaHtml}
                                 <div class="student-event-copy">
                             <p class="student-event-description" data-event-id="${escapeHTML(safeEvId)}"><span class="student-event-description-text">${escapeHTML(String(ev.description || '目前沒有活動介紹。').replace(/\s+/g, ' ').trim())}</span> <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger">查看完整資訊 <span aria-hidden="true">→</span></button></p>
                             ${hashtags ? `<div class="flex flex-wrap mt-1">${hashtags}</div>` : ''}

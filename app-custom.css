@@ -496,6 +496,8 @@
         }
         .student-event-content { min-width: 0; }
         .student-event-header { min-width: 0; }
+        .student-event-header > .flex { min-height: 1.75rem; }
+        .student-event-header h3 { min-height: 2.5em; }
         .student-event-primary {
             min-width: 0;
         }
@@ -517,6 +519,36 @@
             border-radius: 10px;
             box-shadow: 0 3px 10px rgba(16, 42, 67, .08);
             touch-action: pan-y;
+        }
+        .event-image-placeholder {
+            display: grid;
+            place-content: center;
+            justify-items: center;
+            gap: .45rem;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            padding: 1rem;
+            color: #60758A;
+            background: linear-gradient(145deg, #F5FAFE 0%, #E7F1F8 100%);
+            border: 1px dashed #B8CCDC;
+            border-radius: 10px;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-align: center;
+        }
+        .event-image-placeholder-logo {
+            display: inline-grid;
+            place-items: center;
+            width: 2.4rem;
+            height: 2.4rem;
+            color: #0057B8;
+            background: rgba(255, 255, 255, .92);
+            border: 2px solid #F4B400;
+            border-radius: 999px;
+            box-shadow: 0 2px 7px rgba(16, 42, 67, .1);
+            font-size: 1rem;
+            font-weight: 900;
         }
         .event-image-slides,
         .event-image-slide { width: 100%; height: 100%; }
@@ -1123,8 +1155,11 @@
             #student-events-container > label { padding: 16px !important; }
             #student-events-container > label > div:first-child { margin-right: 12px !important; }
             .student-event-description { font-size: .8rem; line-height: 1.65; }
+            .student-event-header > .flex,
+            .student-event-header h3 { min-height: 0; }
             .student-event-primary.has-event-image { grid-template-columns: minmax(0, 1fr); gap: .75rem; margin-top: .75rem; }
-            .event-image-carousel { max-width: 100%; aspect-ratio: 16 / 9; }
+            .event-image-carousel,
+            .event-image-placeholder { max-width: 100%; aspect-ratio: 16 / 9; }
             .event-image-arrow { width: 40px; height: 40px; }
             .event-image-editor-heading { flex-direction: column; }
             .event-image-choose-button { width: 100%; }
