@@ -103,6 +103,23 @@
         .admin-session-location { display: flex; align-items: flex-start; gap: .35rem; min-width: 0; margin-left: 2.7rem; color: #64748B; font-size: .75rem; }
         .admin-session-location > i { flex: 0 0 .9rem; margin-top: .3rem; text-align: center; }
         .admin-session-location > span { display: flex; flex-wrap: wrap; gap: .25rem; min-width: 0; }
+        .admin-event-status-cell,
+        .admin-event-actions-cell { vertical-align: top !important; }
+        .admin-event-status-stack {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: .5rem;
+            min-height: 2.25rem;
+        }
+        .admin-event-actions {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            gap: .15rem;
+            min-height: 2.25rem;
+        }
         .admin-session-booking { justify-self: start; padding: .15rem .48rem; border-radius: 999px; font-size: .66rem; font-weight: 800; }
         .admin-session-booking.is-available { color: #047857; background: #ECFDF3; border: 1px solid #86EFAC; }
         .admin-session-booking.is-booked { color: #B42318; background: #FEECEB; border: 1px solid #F59A92; }
@@ -667,10 +684,11 @@
         .initial-load-error {
             max-width: 56rem;
             margin: 1rem auto;
-            border-left-color: #DA292E;
+            border-left-color: #E8A600;
+            background: #FFFDF5;
         }
         .initial-load-error.hidden { display: none; }
-        .initial-load-error > i { margin-top: .15rem; color: #DA292E; font-size: 1.2rem; }
+        .initial-load-error > i { margin-top: .15rem; color: #A66B00; font-size: 1.2rem; }
         .initial-load-error button {
             margin-top: .75rem;
             padding: .48rem .85rem;
@@ -681,6 +699,21 @@
             font-size: .8rem;
             font-weight: 800;
         }
+        .registration-eligibility-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: .55rem;
+            margin: 0 0 1rem;
+            padding: .75rem .9rem;
+            color: #164E70;
+            background: #EFF8FF;
+            border: 1px solid #BBDCF4;
+            border-radius: 9px;
+            font-size: .82rem;
+            font-weight: 700;
+            line-height: 1.55;
+        }
+        .registration-eligibility-notice i { flex: 0 0 auto; margin-top: .22rem; color: #0057B8; }
         .student-session-panel {
             align-self: start;
             width: 22rem;

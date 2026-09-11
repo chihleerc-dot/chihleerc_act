@@ -60,12 +60,12 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
         function handleAdminAddSessionChange_(input) {
             const index = Number(input.dataset.index);
-            const isOneOnOne = input.dataset.oneOnOne === 'true';
+            const isSingleChoice = input.dataset.singleChoice === 'true';
             if (input.dataset.locked === 'true') {
                 input.checked = false;
                 return;
             }
-            if (isOneOnOne) {
+            if (isSingleChoice) {
                 document.querySelectorAll('.admin-add-meal-sel').forEach(select => {
                     select.disabled = true;
                     select.value = '不用餐';
@@ -92,8 +92,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 return;
             }
             markDirty();
-            const isOneOnOne = input.dataset.oneOnOne === 'true';
-            if (isOneOnOne) {
+            const isSingleChoice = input.dataset.singleChoice === 'true';
+            if (isSingleChoice) {
                 document.querySelectorAll('.remark-meal-sel').forEach(select => {
                     select.disabled = true;
                     select.value = '不用餐';
@@ -217,7 +217,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             else if (action === 'activity-type') { handleActivityTypeChange(); markDirty(); }
             else if (action === 'line-template') changeLineTemplate();
             else if (action === 'toggle-event-selection') toggleEventSelection(target.dataset.eventId, target.checked);
-            else if (action === 'registration-session') handleRegSessionChange(target.dataset.eventId, Number(target.dataset.index), target.dataset.oneOnOne === 'true', target);
+            else if (action === 'registration-session') handleRegSessionChange(target.dataset.eventId, Number(target.dataset.index), target.dataset.singleChoice === 'true', target);
             else if (action === 'admin-add-session') handleAdminAddSessionChange_(target);
             else if (action === 'remark-session') handleRemarkSessionChange_(target);
             else if (action === 'event-images') handleEventImageSelection(target);
@@ -408,17 +408,19 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.20.4';
-        const VERSION_UPDATED_AT = '2026/09/11 22:42';
-        const VERSION_UPDATED_AT_ISO = '2026-09-11T22:42:00+08:00';
+        const VERSION_LABEL = 'V11.20.5';
+        const VERSION_UPDATED_AT = '2026/09/11 23:49';
+        const VERSION_UPDATED_AT_ISO = '2026-09-11T23:49:00+08:00';
         const API_TIMEOUT_MS = 20000;
-        const PUBLIC_DATA_TIMEOUT_MS = 45000;
+        const PUBLIC_DATA_TIMEOUT_MS = 25000;
+        const PUBLIC_DATA_MAX_ATTEMPTS = 3;
         const MUTATION_TIMEOUT_MS = 45000;
         const STATUS_CHECK_TIMEOUT_MS = 20000;
         const IMAGE_UPLOAD_TIMEOUT_MS = 60000;
         const MAX_EVENT_IMAGES = 3;
         const MAX_IMAGE_SOURCE_BYTES = 5 * 1024 * 1024;
         const TARGET_IMAGE_BYTES = 550 * 1024;
+        let initialDataRequestPromise = null;
 
         function isPlainObject(value) {
             return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -548,7 +550,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         function getRequestErrorMessage(error, fallback = '網路連線異常') {
-            return error && error.message ? error.message : fallback;
+            const message = error && error.message ? String(error.message).trim() : '';
+            if (!message || /^(Failed to fetch|Load failed|NetworkError)/i.test(message)) return fallback;
+            return message;
         }
 
         function pruneSelectedEventIds(publicEvents) {
@@ -627,7 +631,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         function setInitialLoadError(message = '') {
             const panel = document.getElementById('initial-load-error');
             const messageElement = document.getElementById('initial-load-error-message');
-            if (messageElement) messageElement.textContent = message || '目前無法連接資料庫，這不代表沒有活動。';
+            if (messageElement) messageElement.textContent = message || '目前暫時無法取得活動資料，請稍候再試。';
             if (panel) panel.classList.remove('hidden');
             const content = document.getElementById('student-main-content');
             if (content) content.classList.add('hidden');
@@ -638,69 +642,83 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             if (panel) panel.classList.add('hidden');
         }
 
+        function waitForRetry(milliseconds) {
+            return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+        }
+
+        function isRetryablePublicDataError(error) {
+            const code = String(error && error.code || '');
+            return !code || ['REQUEST_TIMEOUT', 'INTERNAL_ERROR', 'SYSTEM_BUSY', 'PUBLIC_DATA_READ_FAILED'].includes(code);
+        }
+
         async function fetchInitialData() {
-            clearInitialLoadError();
-            showSkeletonLoading(true);
-            let loaded = false;
-            const loadTitle = document.getElementById('initial-load-title');
-            const loadDetail = document.getElementById('initial-load-detail');
-            if (loadTitle) loadTitle.textContent = '正在讀取活動資料';
-            if (loadDetail) loadDetail.textContent = '正在連線 Google 資料庫，請稍候……';
-            const slowNoticeTimer = window.setTimeout(() => {
-                if (loadTitle) loadTitle.textContent = '資料庫回應較慢';
-                if (loadDetail) loadDetail.textContent = '系統仍在讀取資料，請不要重複重新整理。';
-            }, 8000);
-            try {
-                const res = await apiRequest({ action: 'getPublicData' }, PUBLIC_DATA_TIMEOUT_MS);
-                if (res.success) {
-                    state.events = res.data.events;
-                    state.eventStats = res.data.eventStats;
-                    state.counselors = res.data.counselors;
-                    pruneSelectedEventIds(res.data.events);
-                    renderCounselorOptions();
-                    if (!state.isTeacherLoggedIn) {
-                        state.registrations = [];
-                        state.admins = [];
-                        state.logs = [];
-                        updateEventCounts();
-                        syncRegisteredEventIds();
-                        renderStudentEvents();
+            if (initialDataRequestPromise) return initialDataRequestPromise;
+            initialDataRequestPromise = (async () => {
+                clearInitialLoadError();
+                showSkeletonLoading(true);
+                let loaded = false;
+                let lastError = null;
+                const loadTitle = document.getElementById('initial-load-title');
+                const loadDetail = document.getElementById('initial-load-detail');
+                if (loadTitle) loadTitle.textContent = '活動資料讀取中';
+                if (loadDetail) loadDetail.textContent = '活動資料讀取中，請稍候……';
+                const slowNoticeTimer = window.setTimeout(() => {
+                    if (loadTitle) loadTitle.textContent = '活動資料仍在讀取中';
+                    if (loadDetail) loadDetail.textContent = '請稍候，系統正在自動完成資料讀取。';
+                }, 8000);
+
+                try {
+                    for (let attempt = 1; attempt <= PUBLIC_DATA_MAX_ATTEMPTS; attempt++) {
+                        try {
+                            const res = await apiRequest({ action: 'getPublicData' }, PUBLIC_DATA_TIMEOUT_MS);
+                            if (!res.success) {
+                                const responseError = new Error('公開活動資料讀取失敗');
+                                responseError.code = String(res.code || 'INTERNAL_ERROR');
+                                throw responseError;
+                            }
+
+                            state.events = res.data.events;
+                            state.eventStats = res.data.eventStats;
+                            state.counselors = res.data.counselors;
+                            pruneSelectedEventIds(res.data.events);
+                            renderCounselorOptions();
+                            if (!state.isTeacherLoggedIn) {
+                                state.registrations = [];
+                                state.admins = [];
+                                state.logs = [];
+                                updateEventCounts();
+                                syncRegisteredEventIds();
+                                renderStudentEvents();
+                            }
+                            updateVersionTime();
+                            if (!document.getElementById('view-calendar').classList.contains('hidden')) renderActivityCalendar();
+                            loaded = true;
+                            break;
+                        } catch (error) {
+                            lastError = error;
+                            console.warn(`[public-data attempt ${attempt}]`, error);
+                            if (attempt >= PUBLIC_DATA_MAX_ATTEMPTS || !isRetryablePublicDataError(error)) break;
+                            if (loadTitle) loadTitle.textContent = '活動資料讀取中';
+                            if (loadDetail) loadDetail.textContent = `連線暫時不穩，系統正在自動重試（${attempt + 1}/${PUBLIC_DATA_MAX_ATTEMPTS}）……`;
+                            await waitForRetry(attempt * 1200);
+                        }
                     }
-                    updateVersionTime();
-                    if (!document.getElementById('view-calendar').classList.contains('hidden')) renderActivityCalendar();
-                    loaded = true;
-                } else {
-                    const message = '資料庫讀取失敗：' + (res.error || '系統處理失敗');
-                    showToast(message, 'error');
-                    setInitialLoadError(message);
+                } finally {
+                    window.clearTimeout(slowNoticeTimer);
+                    showSkeletonLoading(false);
+                    if (!loaded) {
+                        console.error('[public-data unavailable]', lastError);
+                        setInitialLoadError('目前暫時無法取得活動資料，請稍候再試。');
+                    }
                 }
-            } catch (error) {
-                if (error && error.code === 'INVALID_RESPONSE') {
-                    const errorHtml = `
-                        <div class="flex items-center text-[#da292e] font-bold text-base mb-4">
-                            <i class="fa-solid fa-circle-minus text-xl mr-2"></i>系統連線遭 Google 阻擋！
-                        </div>
-                        <p class="text-gray-600 mb-6 text-sm">請通知系統管理員回到 GAS 編輯器執行以下步驟：</p>
-                        <ol class="text-gray-700 text-sm space-y-2.5 pl-1 font-medium text-left">
-                            <li>1. 點擊「部署」➔「管理部署」</li>
-                            <li>2. 編輯目前的部署</li>
-                            <li>3. 執行身分設為「我(Me)」</li>
-                            <li>4. 誰可以存取設為「所有人(Anyone)」</li>
-                            <li>5. 儲存部署。</li>
-                        </ol>
-                    `;
-                    customConfirm(errorHtml, () => {}, 'API 權限設定錯誤');
-                } else {
-                    const message = getRequestErrorMessage(error, '網路連線異常，無法取得資料');
-                    showToast(message, 'error');
-                    setInitialLoadError(`${message}。請稍後重新載入；這不代表目前沒有活動。`);
-                }
+                return loaded;
+            })();
+
+            try {
+                return await initialDataRequestPromise;
             } finally {
-                window.clearTimeout(slowNoticeTimer);
-                showSkeletonLoading(false);
-                if (!loaded) setInitialLoadError(document.getElementById('initial-load-error-message')?.textContent || '目前無法連接資料庫，這不代表沒有活動。');
+                initialDataRequestPromise = null;
             }
-            return loaded;
         }
 
         async function retryInitialDataLoad() {
@@ -817,6 +835,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
         function usesPerSessionCapacity(ev) {
             return Boolean(ev && !ev.isOneOnOne && !ev.isSeries && Array.isArray(ev.sessions) && ev.sessions.length > 1);
+        }
+
+        function requiresSingleSessionChoice(ev) {
+            return Boolean(ev && (ev.isOneOnOne || usesPerSessionCapacity(ev)));
         }
 
         function getSessionCapacityKey(session) {
@@ -950,7 +972,11 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             if (!event) return showToast('找不到這場活動的資料，請重新整理網頁', 'error');
 
             document.getElementById('event-details-title').textContent = String(event.title || '活動詳情');
-            document.getElementById('event-details-teacher').textContent = String(event.teacher || '未設定');
+            const teacherValue = String(event.teacher || '').trim();
+            const teacherElement = document.getElementById('event-details-teacher');
+            const teacherRow = teacherElement ? teacherElement.closest('.event-details-teacher') : null;
+            if (teacherElement) teacherElement.textContent = teacherValue;
+            if (teacherRow) teacherRow.classList.toggle('hidden', !teacherValue);
             document.getElementById('event-details-description').textContent = String(event.description || '目前沒有活動介紹。');
             const detailImages = document.getElementById('event-details-images');
             const detailImagesHtml = renderEventImageCarousel(event, 'details');
@@ -1228,7 +1254,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             container.innerHTML = entries.map(entry => {
                 const event = entry.event;
                 const safeId = escapeHTML(String(event.id));
-                const typeLabel = event.isOneOnOne ? '一對一預約' : (event.isSeries ? '系列活動' : (usesPerSessionCapacity(event) ? '自由選場' : '一般活動'));
+                const typeLabel = event.isOneOnOne ? '一對一預約' : (event.isSeries ? '系列活動' : (usesPerSessionCapacity(event) ? '擇一場次' : '一般活動'));
                 const location = [...new Set(entry.sessions.map(item => String(item.session.location || event.location || '').trim()).filter(Boolean))].join('、');
                 const description = String(event.description || '目前沒有活動介紹。').trim();
                 return `<a href="#event-card-${safeId}" data-action="calendar-go-event" data-event-id="${safeId}" class="calendar-event-card" aria-label="前往報名：${escapeHTML(event.title || '未命名活動')}" aria-describedby="calendar-description-${safeId}">
@@ -1499,7 +1525,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 }
             }
             state.adminCreds = null; state.isTeacherLoggedIn = false; state.currentUserRole = null; state.currentUserName = null;
-            state.logs = []; state.admins = [];
+            state.events = []; state.eventStats = {}; state.counselors = []; state.registrations = []; state.logs = []; state.admins = [];
             showToast('已安全登出', 'info'); switchView('student');
             await fetchInitialData(); renderStudentEvents();
         }
@@ -1692,6 +1718,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const visibleEvents = validEvents.filter(ev => state.currentFilter === '全部' || ev.category === state.currentFilter);
 
             if (visibleEvents.length === 0) {
+                const noEventsText = document.getElementById('no-events-text');
+                if (noEventsText) noEventsText.textContent = validEvents.length === 0 ? '目前無任何活動' : '目前此分類沒有活動';
                 document.getElementById('no-events-msg').classList.remove('hidden'); container.parentElement.classList.add('hidden');
                 updateBulkActionBar(); return;
             }
@@ -1822,7 +1850,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             return choices.map(choice => `<option value="${choice}" ${choice === selected ? 'selected' : ''}>${choice}</option>`).join('');
         }
 
-        function handleRegSessionChange(eventId, idx, isOoo, checkboxElem) {
+        function handleRegSessionChange(eventId, idx, isSingleChoice, checkboxElem) {
             const ev = state.events.find(e => String(e.id) === String(eventId));
 
             if (checkboxElem && checkboxElem.checked && ev) {
@@ -1887,7 +1915,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 }
             }
 
-            if (isOoo && ev) {
+            if (isSingleChoice && ev) {
                 ev.sessions.forEach((s, i) => {
                     const sel = document.getElementById(`reg-meal-${eventId}-${i}`);
                     if (sel) { sel.disabled = true; sel.value = '不用餐'; }
@@ -1924,7 +1952,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                             const statusText = isTaken ? '已被預約' : (isPastSession ? '已過期' : '可預約');
                             return `<div class="ooo-registration-option ${isUnavailable ? 'is-unavailable' : ''}">
                                 <label class="ooo-time-pill">
-                                    <input type="radio" name="reg-ooo-${escapeHTML(String(event.id))}" id="reg-chk-${escapeHTML(String(event.id))}-${item.index}" value="${escapeHTML(session.date)}" ${isUnavailable ? 'disabled' : ''} data-change-action="registration-session" data-event-id="${escapeHTML(String(event.id))}" data-index="${item.index}" data-one-on-one="true">
+                                    <input type="radio" name="reg-single-${escapeHTML(String(event.id))}" id="reg-chk-${escapeHTML(String(event.id))}-${item.index}" value="${escapeHTML(session.date)}" ${isUnavailable ? 'disabled' : ''} data-change-action="registration-session" data-event-id="${escapeHTML(String(event.id))}" data-index="${item.index}" data-single-choice="true">
                                     <span class="ooo-time-pill-time">${escapeHTML(formatSessionTime(session.time))}</span>
                                     <span class="ooo-time-pill-status">${statusText}</span>
                                 </label>
@@ -1959,6 +1987,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const opts = getMealOptionsHtml(ev);
                 const isOoo = ev.isOneOnOne === true;
                 const isSeries = ev.isSeries === true;
+                const isSingleChoice = requiresSingleSessionChoice(ev);
 
                 let takenSessions = [];
                 if (isOoo) {
@@ -1981,8 +2010,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     const isPastSession = !sDateTime || sDateTime < new Date();
 
                     const isUnavailable = isTaken || isPastSession || isSessionFull;
-                    const inputType = isOoo ? 'radio' : 'checkbox';
-                    const inputName = isOoo ? `name="reg-ooo-${ev.id}"` : '';
+                    const inputType = isSingleChoice ? 'radio' : 'checkbox';
+                    const inputName = isSingleChoice ? `name="reg-single-${escapeHTML(String(ev.id))}"` : '';
                     const defaultChecked = (!isUnavailable && isSeries) ? 'checked' : '';
                     const disabledStr = isUnavailable ? 'disabled' : '';
 
@@ -1995,7 +2024,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     return `
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 sm:py-2.5 border-b border-gray-200 last:border-0 gap-2 ${isUnavailable ? 'opacity-50' : ''}">
                         <label class="flex items-center space-x-2 ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer'} flex-1 w-full">
-                            <input type="${inputType}" ${inputName} id="reg-chk-${ev.id}-${idx}" value="${escapeHTML(s.date)}" class="w-4 h-4 text-chihlee-blue focus:ring-chihlee-blue flex-shrink-0" ${defaultChecked} ${disabledStr} data-change-action="registration-session" data-event-id="${escapeHTML(ev.id)}" data-index="${idx}" data-one-on-one="${isOoo}">
+                            <input type="${inputType}" ${inputName} id="reg-chk-${ev.id}-${idx}" value="${escapeHTML(s.date)}" class="w-4 h-4 text-chihlee-blue focus:ring-chihlee-blue flex-shrink-0" ${defaultChecked} ${disabledStr} data-change-action="registration-session" data-event-id="${escapeHTML(ev.id)}" data-index="${idx}" data-single-choice="${isSingleChoice}">
                             <span class="text-sm font-medium text-gray-700 tabular-nums flex-1">${escapeHTML(formatSessionDate(s.date))} <span class="hidden md:inline">${escapeHTML(getDayOfWeek(s.date))}</span> <span class="registration-session-time">${escapeHTML(formatSessionTime(s.time))}</span> ${tagHtml}</span>
                         </label>
                         <select id="reg-meal-${ev.id}-${idx}" aria-label="${escapeHTML(s.date)} 用餐情形" class="w-full sm:w-36 border border-gray-300 rounded px-2 py-1.5 text-sm bg-gray-50 focus:ring-chihlee-blue outline-none ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${isUnavailable || !defaultChecked ? 'disabled' : ''}>${opts}</select>
@@ -2004,7 +2033,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 }).join('');
 
                 const multiChoiceHintHtml = usesPerSessionCapacity(ev)
-                    ? `<div class="mb-3 px-3 py-2 bg-sky-50 border border-sky-200 rounded text-xs md:text-sm text-sky-800 font-medium leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i>各場次分別計算名額，可自由選擇；送出後如需加選、取消或更換場次，請聯絡個管老師協助修改。</div>`
+                    ? `<div class="mb-3 px-3 py-2 bg-sky-50 border border-sky-200 rounded text-xs md:text-sm text-sky-800 font-medium leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i>請選擇其中一個場次；各場次分別計算名額。送出後如需更換場次，請聯絡個管老師協助修改。</div>`
                     : '';
                 const block = document.createElement('div'); block.className = 'bg-white border border-gray-200 rounded-lg p-3 md:p-4 shadow-sm';
                 block.innerHTML = `<h5 class="font-bold text-chihlee-blue mb-2 text-base md:text-lg border-l-4 border-chihlee-blue pl-2 leading-tight">${escapeHTML(ev.title)}</h5>${seriesHintHtml}${multiChoiceHintHtml}<div class="bg-gray-50/50 rounded px-2 md:px-3 py-1 border border-gray-100">${sessionsHtml}</div>`;
@@ -2051,21 +2080,27 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 return showToast(`已報名過：${duplicateEventTitles.join('、')}，請勿重複報名`, 'error');
             }
 
-            let hasAnyAttend = false; let allCheckedSessions = []; let payloads = []; let droppedEvents = [];
+            let hasAnyAttend = false; let allCheckedSessions = []; let payloads = []; let droppedEvents = []; let invalidSingleChoiceTitle = '';
             state.selectedEventIds.forEach(eventId => {
-                const ev = state.events.find(e => String(e.id) === String(eventId)); let sessData = []; let hasAttendThisEvent = false;
+                const ev = state.events.find(e => String(e.id) === String(eventId)); let sessData = []; let hasAttendThisEvent = false; let selectedSessionCount = 0;
                 if(!ev) return;
                 ev.sessions.forEach((s, idx) => {
                     const chk = document.getElementById(`reg-chk-${eventId}-${idx}`); const mealSel = document.getElementById(`reg-meal-${eventId}-${idx}`);
                     if(chk && chk.checked) {
                         sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true });
-                        allCheckedSessions.push({ event: ev, sessionDate: s.date, sessionTime: s.time, sessionLoc: s.location || ev.location }); hasAttendThisEvent = true; hasAnyAttend = true;
+                        allCheckedSessions.push({ event: ev, sessionDate: s.date, sessionTime: s.time, sessionLoc: s.location || ev.location }); hasAttendThisEvent = true; hasAnyAttend = true; selectedSessionCount++;
                     } else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false });
                 });
 
+                if (requiresSingleSessionChoice(ev) && selectedSessionCount !== 1) invalidSingleChoiceTitle = ev.title;
                 if (hasAttendThisEvent) payloads.push({ eventId, studentId: sid, name: sname, counselor, sessionsData: sessData });
                 else droppedEvents.push(ev.title);
             });
+
+            if (invalidSingleChoiceTitle) {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
+                return showToast(`「${invalidSingleChoiceTitle}」必須選擇一個場次`, 'error');
+            }
 
             if(!hasAnyAttend) {
                 if(submitBtn) { submitBtn.disabled = false; submitBtn.innerText = '確認送出'; }
@@ -2648,18 +2683,20 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                         ${mainLocationBadges}
                     </td>
                     <td class="px-4 md:px-6 py-4 text-xs md:text-sm leading-relaxed align-top">${datesHTML}</td>
-                    <td class="px-4 md:px-6 py-4 text-center align-middle">
-                        <div class="inline-flex flex-col items-center justify-center gap-2">
+                    <td class="admin-event-status-cell px-4 md:px-6 py-4 text-center align-top">
+                        <div class="admin-event-status-stack">
                             ${publicationStatusHtml}
                             ${capacityStatusHtml}
                         </div>
                     </td>
-                    <td class="px-4 md:px-6 py-4 text-right whitespace-nowrap sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-middle flex flex-col md:flex-row justify-end items-center border-l border-gray-100">
+                    <td class="admin-event-actions-cell px-4 md:px-6 py-4 text-right whitespace-nowrap sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-top border-l border-gray-100">
+                      <div class="admin-event-actions">
                         <button data-action="open-participants" data-event-id="${escapeHTML(ev.id)}" title="報名名單" class="text-chihlee-blue hover:bg-blue-50 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0"><i class="fa-solid fa-users"></i></button>
                         <button data-action="open-notify" data-event-id="${escapeHTML(ev.id)}" title="發送通知" class="text-green-600 hover:bg-green-50 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0 md:mx-1"><i class="fa-solid fa-comment-dots"></i></button>
                         ${publishBtnHtml}
                         <button data-action="open-edit-event" data-event-id="${escapeHTML(ev.id)}" title="編輯活動" class="text-gray-600 hover:bg-gray-100 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0"><i class="fa-solid fa-pen-to-square"></i></button>
                         ${deleteBtnHtml}
+                      </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -3387,8 +3424,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
                 const ev = state.events.find(e => String(e.id) === state.currentAdminEventId); const opts = getMealOptionsHtml(ev);
 
-                const inputType = 'checkbox';
-                const inputName = '';
+                const isSingleChoice = requiresSingleSessionChoice(ev);
+                const inputType = isSingleChoice ? 'radio' : 'checkbox';
+                const inputName = isSingleChoice ? 'name="admin-add-session-choice"' : '';
 
                 const eventMapForConflicts = new Map();
                 state.events.forEach(e => eventMapForConflicts.set(String(e.id), e));
@@ -3433,8 +3471,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     return `
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 p-3 rounded border ${bgClass} gap-2">
                         <label class="flex items-center space-x-2 ${cursorClass} flex-1 w-full">
-                            <input type="${inputType}" ${inputName} id="admin-add-attend-${idx}" class="text-chihlee-blue rounded focus:ring-chihlee-blue flex-shrink-0" ${disableAttr} data-change-action="admin-add-session" data-index="${idx}" data-one-on-one="${ev.isOneOnOne}" data-locked="${isLocked}" data-session-count="${ev.sessions.length}">
-                            <span class="text-sm font-medium ${hasTimeConflict ? 'text-gray-400' : 'text-gray-700'} leading-tight">${escapeHTML(sess.date)} ${warningHtml}</span>
+                            <input type="${inputType}" ${inputName} id="admin-add-attend-${idx}" class="text-chihlee-blue rounded focus:ring-chihlee-blue flex-shrink-0" ${disableAttr} data-change-action="admin-add-session" data-index="${idx}" data-single-choice="${isSingleChoice}" data-locked="${isLocked}" data-session-count="${ev.sessions.length}">
+                            <span class="text-sm font-medium ${hasTimeConflict ? 'text-gray-400' : 'text-gray-700'} leading-relaxed"><strong>${escapeHTML(formatSessionDate(sess.date))} ${escapeHTML(getDayOfWeek(sess.date))}　${escapeHTML(formatSessionTime(sess.time))}</strong><small class="block mt-1 text-gray-500"><i class="fa-solid fa-location-dot mr-1" aria-hidden="true"></i>${escapeHTML(sess.location || ev.location || '地點待確認')}</small>${warningHtml}</span>
                         </label>
                         <select id="admin-add-meal-${idx}" class="admin-add-meal-sel border border-gray-300 rounded px-2 py-1.5 text-sm outline-none focus:ring-chihlee-blue w-full sm:w-auto ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${isLocked || ev.isOneOnOne || !shouldDefaultCheck ? 'disabled' : ''}>
                             ${opts}
@@ -3467,6 +3505,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false });
             });
             if(!hasAnyAttend) return showToast('請至少選擇一個場次', 'error');
+            if (requiresSingleSessionChoice(ev) && sessData.filter(session => session.attend).length !== 1) {
+                return showToast('此活動必須且只能選擇一個場次', 'error');
+            }
 
             if (usesPerSessionCapacity(ev)) {
                 const fullSession = sessData.find((session, idx) => session.attend && getSessionCapacityStatus(ev, ev.sessions[idx]).isFull);
@@ -3541,6 +3582,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             }
 
             let htmlStr = '<label class="block text-sm font-bold text-gray-700 mb-1">場次參與與餐點修正</label>';
+            const isSingleChoice = requiresSingleSessionChoice(ev);
             htmlStr += ev.sessions.map((sess, idx) => {
                 const d = sData.find(x => x.date === sess.date && (x.time === sess.time || !x.time)) || { date: sess.date, time: sess.time, attend: false, meal: '不用餐' };
 
@@ -3568,8 +3610,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
                 return `<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 bg-gray-50 p-3 rounded border border-gray-100 gap-2 ${isLocked ? 'opacity-60 bg-red-50' : ''}">
                     <label class="flex items-center space-x-2 ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'} flex-1 w-full">
-                        <input type="checkbox" id="remark-attend-${idx}" class="text-chihlee-blue rounded focus:ring-chihlee-blue flex-shrink-0" ${d.attend && !hasTimeConflict ? 'checked' : ''} ${disableStr} data-change-action="remark-session" data-index="${idx}" data-one-on-one="${ev.isOneOnOne}" data-locked="${isLocked}" data-session-count="${ev.sessions.length}">
-                        <span class="text-sm font-medium text-gray-700 leading-tight">${escapeHTML(d.date)}${warningTag}</span>
+                        <input type="${isSingleChoice ? 'radio' : 'checkbox'}" ${isSingleChoice ? 'name="remark-session-choice"' : ''} id="remark-attend-${idx}" class="text-chihlee-blue rounded focus:ring-chihlee-blue flex-shrink-0" ${d.attend && !hasTimeConflict ? 'checked' : ''} ${disableStr} data-change-action="remark-session" data-index="${idx}" data-single-choice="${isSingleChoice}" data-locked="${isLocked}" data-session-count="${ev.sessions.length}">
+                        <span class="text-sm font-medium text-gray-700 leading-relaxed"><strong>${escapeHTML(formatSessionDate(d.date))} ${escapeHTML(getDayOfWeek(d.date))}　${escapeHTML(formatSessionTime(sess.time))}</strong><small class="block mt-1 text-gray-500"><i class="fa-solid fa-location-dot mr-1" aria-hidden="true"></i>${escapeHTML(sess.location || ev.location || '地點待確認')}</small>${warningTag}</span>
                     </label>
                     <select id="remark-meal-${idx}" class="remark-meal-sel border border-gray-300 rounded px-2 py-1.5 text-sm outline-none focus:ring-chihlee-blue w-full sm:w-auto ${!ev.hasMeal && !ev.hasSnack ? 'hidden' : ''}" ${!d.attend || isLocked ? 'disabled' : ''}>${getMealOptionsHtml(ev, d.meal)}</select>
                     ${!ev.hasMeal && !ev.hasSnack ? '<span class="text-xs text-gray-500 hidden sm:block">無供餐</span>' : ''}
@@ -3638,6 +3680,10 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 }
             });
 
+            if (requiresSingleSessionChoice(ev) && newSessionsData.filter(session => session.attend).length > 1) {
+                return showToast('此活動只能保留一個參與場次', 'error');
+            }
+
             if (ev.isSeries) {
                 const selectableKeys = new Set(ev.sessions.filter(session => !isSessionExpired(session)).map(session => `${session.date}_${session.time || ''}`));
                 const attendCount = newSessionsData.filter(sd => sd.attend && selectableKeys.has(`${sd.date}_${sd.time || ''}`)).length;
@@ -3697,7 +3743,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             document.getElementById('line-recipient-count').innerText = `即將發送: ${checkedBoxes.length} 人`;
         }
 
-        const LINE_SESSION_PLACEHOLDER = '{{活動場次}}';
+        const LINE_SESSION_PLACEHOLDER = '【系統將依報名資料自動帶入活動場次】';
 
         function normalizeLinePreviewField(value) {
             return String(value == null ? '' : value).replace(/[\u0000-\u001F\u007F]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -3726,7 +3772,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         function ensureLineSessionPlaceholder(message) {
-            const safeMessage = String(message || '').trim();
+            const safeMessage = String(message || '').replace(/\{\{活動場次\}\}/g, LINE_SESSION_PLACEHOLDER).trim();
             if (safeMessage.includes(LINE_SESSION_PLACEHOLDER)) return safeMessage;
             return `${safeMessage}\n\n📅 活動場次：\n${LINE_SESSION_PLACEHOLDER}`.trim();
         }
@@ -3794,8 +3840,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
             if (personalizationHint) {
                 if (isPersonalizedPreEvent) {
-                    const activityTypeName = ev.isOneOnOne ? '個別預約／一對一' : '系列活動／長期團體';
-                    personalizationHint.innerHTML = `<i class="fa-solid fa-user-check mr-1" aria-hidden="true"></i><strong>${activityTypeName}：</strong>發送時，系統會依每位學生實際參加的場次，將 <code class="font-bold bg-white px-1 rounded">${LINE_SESSION_PLACEHOLDER}</code> 自動替換成日期、時間與地點。可修改其他文字，但請保留此代入位置。`;
+                    const activityTypeName = ev.isOneOnOne ? '個別預約／一對一' : (ev.isSeries ? '系列活動／長期團體' : '一般多場次活動');
+                    personalizationHint.innerHTML = `<i class="fa-solid fa-user-check mr-1" aria-hidden="true"></i><strong>${activityTypeName}：</strong>發送時，系統會依每位學生實際參加的場次，自動替換日期、時間與地點。可修改其他文字，但請保留「系統自動帶入活動場次」這一行。`;
                     personalizationHint.classList.remove('hidden');
                 } else {
                     personalizationHint.textContent = '';

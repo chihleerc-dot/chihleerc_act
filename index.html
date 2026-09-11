@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜公開狀態與載入流程修正版 V11.20.4｜2026-09-11 22:42 -->
+<!-- 致理．心夥伴 - 活動報名系統｜場次驗證與載入穩定修正版 V11.20.5｜2026-09-11 23:49 -->
 <html lang="zh-TW" class="frame-guard-pending">
 <head>
     <meta charset="UTF-8">
@@ -109,8 +109,8 @@
                 <div class="initial-load-message" role="status" aria-live="polite">
                     <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
                     <div>
-                        <strong id="initial-load-title">正在讀取活動資料</strong>
-                        <span id="initial-load-detail">正在連線 Google 資料庫，請稍候……</span>
+                        <strong id="initial-load-title">活動資料讀取中</strong>
+                        <span id="initial-load-detail">活動資料讀取中，請稍候……</span>
                     </div>
                 </div>
                 <div class="animate-pulse flex flex-col md:flex-row bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm gap-4">
@@ -124,11 +124,11 @@
                 </div>
             </div>
 
-            <div id="initial-load-error" class="initial-load-error hidden" role="alert">
-                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <div id="initial-load-error" class="initial-load-error hidden" role="status" aria-live="polite">
+                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
                 <div class="min-w-0">
-                    <strong>活動資料尚未載入</strong>
-                    <p id="initial-load-error-message">目前無法連接資料庫，這不代表沒有活動。</p>
+                    <strong>活動資料暫時無法取得</strong>
+                    <p id="initial-load-error-message">目前暫時無法取得活動資料，請稍候再試。</p>
                     <button type="button" data-action="retry-initial-load">重新載入活動</button>
                 </div>
             </div>
@@ -147,7 +147,7 @@
 
                 <div id="no-events-msg" class="hidden text-center text-gray-500 mt-10 py-10 bg-white rounded-xl shadow-sm border border-gray-200 mx-2">
                     <i class="fa-regular fa-folder-open text-3xl md:text-4xl mb-3 text-gray-300"></i>
-                    <p class="text-sm md:text-base">目前沒有可報名的活動喔！</p>
+                    <p id="no-events-text" class="text-sm md:text-base">目前無任何活動</p>
                 </div>
             </div>
 
@@ -360,6 +360,10 @@
             </div>
             <div class="p-4 md:p-8">
                 <form data-submit-action="registration">
+                    <div class="registration-eligibility-notice" role="note">
+                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                        <span>活動僅限本校學生參加；如無法順利報名，請與個管老師聯繫。</span>
+                    </div>
                     <div class="space-y-3 mb-6 bg-gray-50 p-3 md:p-4 rounded-lg border border-gray-200">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                             <div>
@@ -380,7 +384,7 @@
                     </div>
 
                     <h4 class="font-bold text-gray-700 mb-2 border-b pb-1 text-sm md:text-base">活動場次勾選與用餐選擇</h4>
-                    <p class="text-xs md:text-sm text-gray-500 mb-3">請確認您可以出席的場次；有提供餐點或點心的活動，請選擇餐點需求。一對一活動僅限單選。</p>
+                    <p class="text-xs md:text-sm text-gray-500 mb-3">請確認您可以出席的場次；一般多場次及一對一活動只能選擇一場，系列活動可選擇多場。</p>
                     <div id="dynamic-meal-section" class="space-y-4 mb-6"></div>
 
                     <div class="mt-6 md:mt-8 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pb-2">
