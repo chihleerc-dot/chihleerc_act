@@ -7,6 +7,10 @@
 .col-width-340 { width: 340px; }
 .col-width-320 { width: 320px; }
 .col-width-420 { width: 420px; }
+.col-width-100 { width: 100px; }
+.col-width-190 { width: 190px; }
+.col-width-290 { width: 290px; }
+.col-width-410 { width: 410px; }
         body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
 
         /* 避免 iOS 輸入框縮放 */
@@ -85,13 +89,13 @@
         p { text-wrap: pretty; }
 
         /* 後台活動表格保留可讀欄寬，避免活動名稱在仍有空間時逐字斷行。 */
-        .admin-events-table { min-width: 1200px; table-layout: fixed; }
+        .admin-events-table { min-width: 1100px; table-layout: fixed; }
         .admin-event-title { word-break: keep-all; overflow-wrap: break-word; }
         .admin-session-row { display: flex; flex-direction: column; gap: .35rem; margin: 0 0 .7rem .25rem; padding-left: .55rem; }
         .admin-session-row:last-child { margin-bottom: 0; }
         .admin-session-line {
             display: grid;
-            grid-template-columns: 2rem 8.6rem 7.25rem minmax(3.25rem, auto);
+            grid-template-columns: 2rem 8.6rem 7.25rem 4.5rem;
             align-items: center;
             column-gap: .35rem;
             min-width: 0;
@@ -103,6 +107,14 @@
         .admin-session-location { display: flex; align-items: flex-start; gap: .35rem; min-width: 0; margin-left: 2.7rem; color: #64748B; font-size: .75rem; }
         .admin-session-location > i { flex: 0 0 .9rem; margin-top: .3rem; text-align: center; }
         .admin-session-location > span { display: flex; flex-wrap: wrap; gap: .25rem; min-width: 0; }
+        .admin-event-status-header,
+        .admin-event-status-cell {
+            position: sticky;
+            right: 190px;
+            width: 110px;
+        }
+        .admin-event-status-header { z-index: 30; background: #E5E7EB; }
+        .admin-event-status-cell { z-index: 10; background: inherit; }
         .admin-event-status-cell,
         .admin-event-actions-cell { vertical-align: top !important; }
         .admin-event-status-stack {
@@ -110,7 +122,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            gap: .5rem;
+            width: 100%;
+            gap: 0;
             min-height: 2.25rem;
         }
         .admin-event-actions {
@@ -120,10 +133,26 @@
             gap: .15rem;
             min-height: 2.25rem;
         }
-        .admin-session-booking { justify-self: start; padding: .15rem .48rem; border-radius: 999px; font-size: .66rem; font-weight: 800; }
+        .admin-session-booking,
+        .admin-session-capacity {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            justify-self: start;
+            width: 4.5rem;
+            min-width: 4.5rem;
+            box-sizing: border-box;
+            padding: .15rem .35rem;
+            border-radius: 999px;
+            font-size: .66rem;
+            font-weight: 800;
+            line-height: 1.25;
+            white-space: nowrap;
+        }
         .admin-session-booking.is-available { color: #047857; background: #ECFDF3; border: 1px solid #86EFAC; }
         .admin-session-booking.is-booked { color: #B42318; background: #FEECEB; border: 1px solid #F59A92; }
-        .admin-ooo-capacity { display: inline-flex; align-items: center; justify-content: center; padding: .35rem .7rem; color: #075985; background: #E0F2FE; border: 1px solid #7DD3FC; border-radius: 999px; font-size: .72rem; font-weight: 800; white-space: nowrap; }
+        .admin-session-capacity { color: #075985; background: #E0F2FE; border: 1px solid #7DD3FC; }
+        .admin-session-capacity.is-full { color: #B42318; background: #FEECEB; border-color: #F59A92; }
 
         /* 報名名單：活動資訊置左，操作按鈕固定靠右上，並避免不同寬度互相重疊。 */
         #modal-participants .participants-modal-header { align-items: flex-start; }

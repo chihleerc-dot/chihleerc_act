@@ -408,9 +408,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.21.0';
-        const VERSION_UPDATED_AT = '2026/09/12 18:33';
-        const VERSION_UPDATED_AT_ISO = '2026-09-12T18:33:00+08:00';
+        const VERSION_LABEL = 'V11.21.1';
+        const VERSION_UPDATED_AT = '2026/09/12 21:13';
+        const VERSION_UPDATED_AT_ISO = '2026-09-12T21:13:00+08:00';
         const API_TIMEOUT_MS = 20000;
         const PUBLIC_DATA_TIMEOUT_MS = 25000;
         const PUBLIC_DATA_MAX_ATTEMPTS = 3;
@@ -2663,8 +2663,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     const sessionCountHtml = ev.isOneOnOne
                         ? `<span class="admin-session-booking ${sessionCapacity.isFull ? 'is-booked' : 'is-available'}">${sessionCapacity.isFull ? '已預約' : '可預約'}</span>`
                         : perSessionCapacity
-                        ? `<span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${sessionCapacity.isFull ? 'bg-red-100 text-red-700' : 'bg-sky-100 text-sky-800'}" title="本場已報名 ${sessionCapacity.count} 人／每場上限 ${sessionCapacity.limit} 人">${sessionCapacity.count}/${sessionCapacity.limit}</span>`
-                        : '';
+                        ? `<span class="admin-session-capacity ${sessionCapacity.isFull ? 'is-full' : ''}" title="本場已報名 ${sessionCapacity.count} 人／每場上限 ${sessionCapacity.limit} 人">${sessionCapacity.count}/${sessionCapacity.limit}</span>`
+                        : `<span class="admin-session-capacity ${isFull ? 'is-full' : ''}" title="已報名 ${pCount} 人／容量 ${ev.capacity} 人">${pCount}/${ev.capacity}</span>`;
 
                     return `<div class="admin-session-row tabular-nums border-l-2 ${borderColor} ${isSessionPast ? 'opacity-60' : ''}">
                                 <div class="admin-session-line">
@@ -2673,12 +2673,6 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                                 <div class="admin-session-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>${renderLocationBadges(s.location || ev.location)}</span></div>
                             </div>`;
                 }).join('');
-
-                const capacityStatusHtml = ev.isOneOnOne
-                    ? `<span class="admin-ooo-capacity">已預約 ${pCount}／共 ${ev.sessions.length} 時段</span>`
-                    : perSessionCapacity
-                    ? `<span class="inline-flex items-center justify-center bg-sky-100 text-sky-800 rounded-full min-h-6 px-3 py-1 font-semibold text-xs whitespace-nowrap">每場上限 ${ev.capacity} 人</span>`
-                    : `<span class="inline-flex items-center justify-center ${isFull ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'} rounded-full h-6 px-3 font-semibold text-xs whitespace-nowrap" title="已報名 ${pCount} 人／容量 ${ev.capacity} 人">${pCount}/${ev.capacity}</span>`;
 
                 const deleteBtnHtml = `<button data-action="delete-event" data-event-id="${escapeHTML(ev.id)}" title="刪除活動" class="text-red-500 hover:bg-red-50 px-2 py-1.5 rounded transition text-lg mt-1 md:mt-0"><i class="fa-solid fa-trash"></i></button>`;
                 const publishBtnHtml = ev.isPublished
@@ -2693,7 +2687,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                         ${ev.isOneOnOne ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded-md text-[10px] md:text-xs font-bold bg-red-100 text-red-700 border border-red-300 whitespace-nowrap">一對一</span>' : ''}
                         ${isSeries ? '<br><span class="inline-block px-2 py-0.5 mt-1 rounded text-[10px] md:text-xs font-bold bg-purple-100 text-purple-700 whitespace-nowrap">系列</span>' : ''}
                     </td>
-                    <td class="px-4 md:px-6 py-4 align-top font-medium ${isPast ? 'text-gray-500' : 'text-gray-900'} md:sticky md:left-[110px] md:z-10 bg-inherit shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100">
+                    <td class="px-4 md:px-6 py-4 align-top font-medium ${isPast ? 'text-gray-500' : 'text-gray-900'} md:sticky md:left-[100px] md:z-10 bg-inherit shadow-none md:shadow-[2px_0_5px_rgba(0,0,0,0.02)] border-r border-gray-100">
                         <div class="whitespace-normal leading-relaxed"><span class="admin-event-title min-w-0 break-words">${escapeHTML(ev.title)}</span></div>
                         <span class="text-xs text-gray-500 block mt-2 whitespace-nowrap"><i class="fa-solid fa-user-tie mr-1"></i>${escapeHTML(ev.teacher || '未設定')}</span>
                         ${mainLocationBadges}
@@ -2702,7 +2696,6 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     <td class="admin-event-status-cell px-4 md:px-6 py-4 text-center align-top">
                         <div class="admin-event-status-stack">
                             ${publicationStatusHtml}
-                            ${capacityStatusHtml}
                         </div>
                     </td>
                     <td class="admin-event-actions-cell px-4 md:px-6 py-4 text-right whitespace-nowrap sticky right-0 z-10 bg-inherit shadow-[-4px_0_10px_rgba(0,0,0,0.02)] align-top border-l border-gray-100">
