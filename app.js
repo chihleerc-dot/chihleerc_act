@@ -408,9 +408,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.21.1';
-        const VERSION_UPDATED_AT = '2026/09/12 21:13';
-        const VERSION_UPDATED_AT_ISO = '2026-09-12T21:13:00+08:00';
+        const VERSION_LABEL = 'V11.21.2';
+        const VERSION_UPDATED_AT = '2026/09/12 21:35';
+        const VERSION_UPDATED_AT_ISO = '2026-09-12T21:35:00+08:00';
         const API_TIMEOUT_MS = 20000;
         const PUBLIC_DATA_TIMEOUT_MS = 25000;
         const PUBLIC_DATA_MAX_ATTEMPTS = 3;
@@ -2639,8 +2639,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     ? `<div class="mt-2 flex items-start gap-1 text-[10px] md:text-xs"><i class="fa-solid fa-location-dot text-gray-400 mt-1 flex-shrink-0"></i><span class="flex flex-wrap gap-1 min-w-0">${renderLocationBadges(ev.location)}</span></div>`
                     : '';
                 const publicationStatusHtml = ev.isPublished
-                    ? '<span class="publication-status-published inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-eye mr-1"></i>已公開</span>'
-                    : '<span class="publication-status-unpublished inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-eye-slash mr-1"></i>未公開</span>';
+                    ? `<button type="button" data-action="toggle-published" data-event-id="${escapeHTML(ev.id)}" data-published="false" class="admin-publication-toggle publication-status-published inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap" title="取消公開此活動" aria-label="取消公開 ${escapeHTML(ev.title)}" aria-pressed="true"><i class="fa-solid fa-eye mr-1" aria-hidden="true"></i>已公開</button>`
+                    : `<button type="button" data-action="toggle-published" data-event-id="${escapeHTML(ev.id)}" data-published="true" class="admin-publication-toggle publication-status-unpublished inline-flex items-center px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold whitespace-nowrap" title="公開此活動" aria-label="公開 ${escapeHTML(ev.title)}" aria-pressed="false"><i class="fa-solid fa-eye-slash mr-1" aria-hidden="true"></i>未公開</button>`;
 
                 const sortedAdminSessions = ev.sessions
                     .map((session, originalIndex) => ({ session, originalIndex, start: getSessionStartDate(session) }))
@@ -2675,10 +2675,6 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 }).join('');
 
                 const deleteBtnHtml = `<button data-action="delete-event" data-event-id="${escapeHTML(ev.id)}" title="刪除活動" class="text-red-500 hover:bg-red-50 px-2 py-1.5 rounded transition text-lg mt-1 md:mt-0"><i class="fa-solid fa-trash"></i></button>`;
-                const publishBtnHtml = ev.isPublished
-                    ? `<button data-action="toggle-published" data-event-id="${escapeHTML(ev.id)}" data-published="false" title="取消公開" aria-label="取消公開 ${escapeHTML(ev.title)}" class="text-orange-600 hover:bg-orange-50 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0"><i class="fa-solid fa-eye-slash"></i></button>`
-                    : `<button data-action="toggle-published" data-event-id="${escapeHTML(ev.id)}" data-published="true" title="公開活動" aria-label="公開 ${escapeHTML(ev.title)}" class="text-green-600 hover:bg-green-50 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0"><i class="fa-solid fa-eye"></i></button>`;
-
                 const tr = document.createElement('tr');
                 tr.className = `border-b border-gray-100 transition hover:bg-blue-50 even:bg-slate-50 odd:bg-white group`;
                 tr.innerHTML = `
@@ -2702,7 +2698,6 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                       <div class="admin-event-actions">
                         <button data-action="open-participants" data-event-id="${escapeHTML(ev.id)}" title="報名名單" class="text-chihlee-blue hover:bg-blue-50 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0"><i class="fa-solid fa-users"></i></button>
                         <button data-action="open-notify" data-event-id="${escapeHTML(ev.id)}" title="發送通知" class="text-green-600 hover:bg-green-50 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0 md:mx-1"><i class="fa-solid fa-comment-dots"></i></button>
-                        ${publishBtnHtml}
                         <button data-action="open-edit-event" data-event-id="${escapeHTML(ev.id)}" title="編輯活動" class="text-gray-600 hover:bg-gray-100 px-2 py-1.5 rounded transition text-lg mb-1 md:mb-0"><i class="fa-solid fa-pen-to-square"></i></button>
                         ${deleteBtnHtml}
                       </div>
@@ -3260,8 +3255,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const actionText = isPublished ? '公開' : '取消公開';
             const detail = isPublished
                 ? '公開後，學生報名頁面會立即顯示此活動。'
-                : '取消公開後，學生不能再新增報名；既有報名資料不會刪除。';
-            customConfirm(`確定要${actionText}「${escapeHTML(ev.title)}」？<br><span class="text-sm text-gray-600">${detail}</span>`, async () => {
+                : '取消公開後，學生端將不再顯示此活動；既有報名資料不會刪除。';
+            const confirmQuestion = isPublished ? '確定要公開此活動嗎？' : '確定要取消公開此活動嗎？';
+            customConfirm(`${confirmQuestion}<br><span class="mt-2 inline-block font-bold text-gray-800">${escapeHTML(ev.title)}</span><br><span class="text-sm text-gray-600">${detail}</span>`, async () => {
                 showGlobalLoading(true, `${actionText}活動中...`);
                 try {
                     const res = await apiRequest({
@@ -3512,7 +3508,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const chk = document.getElementById(`admin-add-attend-${idx}`); const mealSel = document.getElementById(`admin-add-meal-${idx}`);
                 if(chk && chk.checked) { sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true }); hasAnyAttend = true; }
                 else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false });
-            });
+            }, isPublished ? '確認公開' : '確認取消公開');
             if(!hasAnyAttend) return showToast('請至少選擇一個場次', 'error');
             if (requiresSingleSessionChoice(ev) && sessData.filter(session => session.attend).length !== 1) {
                 return showToast('此活動必須且只能選擇一個場次', 'error');

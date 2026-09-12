@@ -28,8 +28,12 @@
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .publication-status-published { background: #15803D; color: #FFFFFF; }
-        .publication-status-unpublished { background: #64748B; color: #FFFFFF; }
+.publication-status-published { background: #15803D; color: #FFFFFF; }
+.publication-status-unpublished { background: #64748B; color: #FFFFFF; }
+.admin-publication-toggle { border: 0; cursor: pointer; transition: filter .15s ease, box-shadow .15s ease, transform .15s ease; }
+.admin-publication-toggle:hover { filter: brightness(.92); }
+.admin-publication-toggle:active { transform: translateY(1px); }
+.admin-publication-toggle:focus-visible { outline: 3px solid #FACC15; outline-offset: 2px; }
 
         /* 2026 UI refresh: category-aware, sharp and accessible */
         :root {
@@ -129,9 +133,18 @@
         .admin-event-actions {
             display: flex;
             align-items: flex-start;
-            justify-content: flex-end;
-            gap: .15rem;
+            justify-content: center;
+            gap: .25rem;
+            width: 100%;
+            padding: 0;
             min-height: 2.25rem;
+        }
+        .admin-event-actions > button {
+            flex: 0 0 2rem;
+            width: 2rem;
+            min-width: 2rem;
+            padding-left: .25rem !important;
+            padding-right: .25rem !important;
         }
         .admin-session-booking,
         .admin-session-capacity {
