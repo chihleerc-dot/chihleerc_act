@@ -408,9 +408,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.21.2';
-        const VERSION_UPDATED_AT = '2026/09/12 21:35';
-        const VERSION_UPDATED_AT_ISO = '2026-09-12T21:35:00+08:00';
+        const VERSION_LABEL = 'V11.21.3';
+        const VERSION_UPDATED_AT = '2026/09/12 22:19';
+        const VERSION_UPDATED_AT_ISO = '2026-09-12T22:19:00+08:00';
         const API_TIMEOUT_MS = 20000;
         const PUBLIC_DATA_TIMEOUT_MS = 25000;
         const PUBLIC_DATA_MAX_ATTEMPTS = 3;
@@ -2352,7 +2352,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
                     const isoStart = `${dateStr}T${timeStartClean}`; const isoEnd = `${dateStr}T${timeEndStr}`; const loc = session.location || ev.location;
                     const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}&ctz=Asia%2FTaipei`;
-                    let statusHtml = sd.attend ? `<span class="font-bold text-blue-700 text-xs md:text-sm bg-blue-50 px-2 py-1 rounded border border-blue-100 flex-shrink-0">${escapeHTML(normalizeMealChoice(sd.meal))}</span>` : `<span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded flex-shrink-0">未參加</span>`;
+                    const mealChoice = normalizeMealChoice(sd.meal);
+                    let statusHtml = sd.attend ? `<span class="${getMealBadgeClass(mealChoice)} flex-shrink-0">${escapeHTML(mealChoice)}</span>` : `<span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded flex-shrink-0">未參加</span>`;
                     return `<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-3 border-b border-gray-100 last:border-0 gap-2 px-1"><div class="flex flex-col tabular-nums"><div class="flex items-center flex-wrap"><span class="${sd.attend ? 'text-gray-800' : 'text-gray-400 line-through'} font-medium mr-1">${escapeHTML(session.date)} <span class="hidden sm:inline">${getDayOfWeek(session.date)}</span> <span class="text-gray-500 text-xs ml-1 font-bold">${escapeHTML(session.time)}</span></span>${sd.attend ? `<a href="${escapeHTML(calUrl)}" target="_blank" rel="noopener noreferrer" title="將 ${escapeHTML(ev.title)}｜${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" aria-label="將 ${escapeHTML(ev.title)} ${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" class="ml-1 text-blue-500 hover:text-blue-700 transition text-lg drop-shadow-sm"><i class="fa-regular fa-calendar-plus"></i></a>` : ''}</div><span class="text-[10px] md:text-xs text-gray-500 mt-1 sm:mt-0.5 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(loc)}</span></div><div class="flex items-center justify-end sm:justify-start">${statusHtml}</div></div>`;
                 }).join('');
                 container.innerHTML += `<div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden transition-all duration-200"><div class="absolute top-0 left-0 w-1.5 h-full ${categoryAccentClass}"></div><div class="mb-3 pl-3 flex justify-between items-start"><div><div class="flex items-center gap-2 mb-1.5"><span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>${ev.isOneOnOne ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300">預約</span>` : ''}</div><h4 class="font-bold text-gray-800 text-lg md:text-xl leading-tight mb-0 break-words">${escapeHTML(ev.title)}</h4></div></div><div class="bg-gray-50 p-2 sm:p-4 rounded-lg border border-gray-100 ml-1.5">${sessHtml}</div></div>`;
@@ -3508,7 +3509,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const chk = document.getElementById(`admin-add-attend-${idx}`); const mealSel = document.getElementById(`admin-add-meal-${idx}`);
                 if(chk && chk.checked) { sessData.push({ date: s.date, time: s.time, meal: (ev.hasMeal || ev.hasSnack) ? mealSel.value : '不用餐', attend: true }); hasAnyAttend = true; }
                 else sessData.push({ date: s.date, time: s.time, meal: '不用餐', attend: false });
-            }, isPublished ? '確認公開' : '確認取消公開');
+            });
             if(!hasAnyAttend) return showToast('請至少選擇一個場次', 'error');
             if (requiresSingleSessionChoice(ev) && sessData.filter(session => session.attend).length !== 1) {
                 return showToast('此活動必須且只能選擇一個場次', 'error');
