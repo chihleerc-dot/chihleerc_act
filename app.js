@@ -1,7 +1,7 @@
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjKPpVet1cD9FtbU8yIBzotC3mo3WFc8oJF5il0f0mA3wbJMHzg/exec';
 
         let state = {
-            isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部',
+            isTeacherLoggedIn: false, currentUserRole: null, currentUserName: null, currentFilter: '全部', studentDisplayMode: 'list',
             selectedEventIds: [], currentAdminEventId: null, currentRemarkStudent: null,
             tempTags: [], tempSessions: [], tempImages: [], tempImagesChanged: false, adminCurrentPage: 1, editingRegId: null,
             events: [], eventStats: {}, counselors: [], registrations: [], admins: [], logs: [], adminCreds: null, adminAddTempStudent: null, myRegistrations: [],
@@ -121,8 +121,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 delete swipedCarousel.dataset.swiped;
                 return;
             }
-            // 活動卡片使用 label 包住整張卡片；取消圖片區的 label 預設行為，
-            // 避免點照片、切換箭頭或滑動輪播時誤勾選活動。
+            // 圖片輪播操作獨立於報名勾選，避免點照片、箭頭或滑動時誤選活動。
             const eventImageCarousel = event.target.closest('[data-event-image-carousel]');
             if (eventImageCarousel) event.preventDefault();
             const target = event.target.closest('[data-action]');
@@ -131,7 +130,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const eventId = target.dataset.eventId || '';
             const registrationId = target.dataset.registrationId || '';
             if (action === 'open-event-details' || action === 'calendar-go-event') {
-                // 詳情按鈕位於可勾選的活動卡片內；阻止 label 預設行為，避免開啟詳情時誤勾選。
+                // 詳情與行事曆導引不改變報名勾選狀態。
                 event.preventDefault();
                 if (action === 'open-event-details') event.stopPropagation();
             }
@@ -153,6 +152,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 'clear-student-data': () => clearStudentData(),
                 'retry-initial-load': () => retryInitialDataLoad(),
                 'filter-events': () => filterEvents(target.dataset.category),
+                'switch-student-display': () => switchStudentDisplay(target.dataset.display),
                 'open-register': () => openRegisterModal(),
                 'switch-admin-tab': () => switchAdminTab(target.dataset.tab),
                 'reload-data': () => reloadDataSilently('手動更新資料...'),
@@ -408,9 +408,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.20.5';
-        const VERSION_UPDATED_AT = '2026/09/11 23:49';
-        const VERSION_UPDATED_AT_ISO = '2026-09-11T23:49:00+08:00';
+        const VERSION_LABEL = 'V11.21.0';
+        const VERSION_UPDATED_AT = '2026/09/12 18:33';
+        const VERSION_UPDATED_AT_ISO = '2026-09-12T18:33:00+08:00';
         const API_TIMEOUT_MS = 20000;
         const PUBLIC_DATA_TIMEOUT_MS = 25000;
         const PUBLIC_DATA_MAX_ATTEMPTS = 3;
@@ -631,7 +631,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         function setInitialLoadError(message = '') {
             const panel = document.getElementById('initial-load-error');
             const messageElement = document.getElementById('initial-load-error-message');
-            if (messageElement) messageElement.textContent = message || '目前暫時無法取得活動資料，請稍候再試。';
+            if (messageElement) messageElement.textContent = message || '活動清單正在更新，請稍候片刻後重新載入。';
             if (panel) panel.classList.remove('hidden');
             const content = document.getElementById('student-main-content');
             if (content) content.classList.add('hidden');
@@ -708,7 +708,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     showSkeletonLoading(false);
                     if (!loaded) {
                         console.error('[public-data unavailable]', lastError);
-                        setInitialLoadError('目前暫時無法取得活動資料，請稍候再試。');
+                        setInitialLoadError('活動清單正在更新，請稍候片刻後重新載入。');
                     }
                 }
                 return loaded;
@@ -733,6 +733,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             syncPageScrollLock();
             enhanceAccessibility();
             updateVersionTime();
+            switchStudentDisplay(state.studentDisplayMode);
             const loaded = await fetchInitialData();
             if (loaded) renderStudentEvents();
             loadSavedStudentInfo();
@@ -1107,8 +1108,16 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             if (!match) return String(dateString || '');
             return compact ? `${match[2]}/${match[3]}` : `${match[1]}/${match[2]}/${match[3]}`;
         }
+        function normalizeTimeRangeSeparator(value) {
+            return String(value || '').trim().replace(/[~～－—–]/g, '-');
+        }
         function formatSessionTime(timeString) {
-            return String(timeString || '').trim().replace(/\s*-\s*/g, '–');
+            return normalizeTimeRangeSeparator(timeString).replace(/\s*-\s*/g, '–');
+        }
+        function normalizeStudentIdInput(value) {
+            return String(value || '')
+                .replace(/[\uff10-\uff19]/g, character => String.fromCharCode(character.charCodeAt(0) - 0xfee0))
+                .replace(/\s+/g, '');
         }
         function getUpcomingEventSessions(event, now = new Date()) {
             return (event && Array.isArray(event.sessions) ? event.sessions : [])
@@ -1149,7 +1158,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
         function getSessionStartDate(session) {
             if (!session || !session.date) return null;
-            const startTime = String(session.time || '').split('-')[0].trim();
+            const startTime = normalizeTimeRangeSeparator(session.time).split('-')[0].trim();
             return parseTaiwanDateTime(session.date, startTime || '00:00');
         }
         function isSessionExpired(session, now = new Date()) {
@@ -1349,8 +1358,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     if (clean.length >= 4) return parseInt(clean.substring(0, 2), 10) * 60 + parseInt(clean.substring(2, 4), 10);
                     return 0;
                 };
-                const norm1 = String(time1).replace(/[~～－—]/g, '-');
-                const norm2 = String(time2).replace(/[~～－—]/g, '-');
+                const norm1 = normalizeTimeRangeSeparator(time1);
+                const norm2 = normalizeTimeRangeSeparator(time2);
                 if (!norm1.includes('-') || !norm2.includes('-')) return false;
 
                 const [s1Str, e1Str] = norm1.split('-');
@@ -1548,6 +1557,16 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             renderStudentEvents();
         }
 
+        function switchStudentDisplay(displayMode) {
+            state.studentDisplayMode = displayMode === 'grid' ? 'grid' : 'list';
+            const mainContent = document.getElementById('student-main-content');
+            if (mainContent) mainContent.dataset.displayMode = state.studentDisplayMode;
+            document.querySelectorAll('[data-action="switch-student-display"]').forEach(button => {
+                button.setAttribute('aria-pressed', String(button.dataset.display === state.studentDisplayMode));
+            });
+            scheduleDescriptionClamp();
+        }
+
         function updateBulkActionBar() {
             const bar = document.getElementById('bulk-action-bar'); document.getElementById('selected-count').innerText = state.selectedEventIds.length;
             if (state.selectedEventIds.length > 0) bar.classList.remove('hidden'); else bar.classList.add('hidden');
@@ -1569,33 +1588,8 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 state.selectedEventIds = state.selectedEventIds.filter(id => String(id) !== safeId);
             }
 
-            const labelEl = document.getElementById(`event-card-${safeId}`);
-            if (labelEl) {
-                if (isChecked) {
-                    labelEl.classList.remove('hover:bg-yellow-50/50', 'bg-yellow-50/20', 'border-transparent', 'hover:bg-gray-50');
-                    labelEl.classList.add('bg-blue-50/30', 'border-chihlee-blue', 'hover:bg-blue-50/50');
-                } else {
-                    labelEl.classList.remove('bg-blue-50/30', 'border-chihlee-blue', 'hover:bg-blue-50/50');
-                    const ev = state.events.find(e => String(e.id) === safeId);
-                    if (ev) {
-                        const now = new Date();
-                        const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-                        let activeSession = ev.sessions.find(s => {
-                            const sDateTime = getSessionStartDate(s);
-                            return sDateTime ? sDateTime >= now : false;
-                        }) || ev.sessions[0];
-
-                        const activeSessionDateTime = getSessionStartDate(activeSession);
-                        const isWithinOneMonth = activeSessionDateTime && activeSessionDateTime <= thirtyDaysFromNow;
-
-                        if (isWithinOneMonth) {
-                            labelEl.classList.add('hover:bg-yellow-50/50', 'bg-yellow-50/20', 'border-chihlee-gold');
-                        } else {
-                            labelEl.classList.add('hover:bg-gray-50', 'border-transparent');
-                        }
-                    }
-                }
-            }
+            const cardElement = document.getElementById(`event-card-${safeId}`);
+            if (cardElement) cardElement.classList.toggle('is-selected', isChecked);
             updateBulkActionBar();
         }
 
@@ -1765,59 +1759,67 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                         ? '<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-400 text-white shadow-sm whitespace-nowrap">已額滿</span>'
                         : (!isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-medium rounded bg-gray-100 text-gray-500 border border-gray-200 whitespace-nowrap">剩 ${Math.max(0, ev.capacity - currentCount)} 名額</span>` : ''));
 
-                const label = document.createElement('label');
-                label.id = `event-card-${safeEvId}`;
-                label.dataset.category = ev.category || '';
-                let checkboxHTML = '';
-
-                let borderClass = 'border-transparent';
-                let bgClass = 'hover:bg-gray-50';
-                if (isChecked) { borderClass = 'border-chihlee-blue'; bgClass = 'bg-blue-50/30 hover:bg-blue-50/50'; }
-                else if (isWithinOneMonth && !isAlreadyRegistered && !isFull) { borderClass = 'border-chihlee-gold'; bgClass = 'bg-yellow-50/20 hover:bg-yellow-50/50'; }
-
+                let compactStatusText = '';
+                let compactStatusClass = 'is-available';
                 if (isAlreadyRegistered) {
-                    checkboxHTML = `<i class="fa-solid fa-circle-check text-green-500 text-xl" title="您已報名"></i>`;
-                    label.className = `flex items-start p-3 md:p-5 bg-green-50/30 border-l-4 border-l-green-400 group transition w-full cursor-not-allowed opacity-80`;
+                    compactStatusText = '已報名';
+                    compactStatusClass = 'is-registered';
                 } else if (isFull) {
-                    checkboxHTML = `<input type="checkbox" disabled class="w-5 h-5 text-gray-300 border-gray-300 rounded cursor-not-allowed">`;
-                    label.className = `flex items-start p-3 md:p-5 hover:bg-gray-50 bg-gray-50/50 border-l-4 border-l-gray-300 group transition w-full cursor-not-allowed opacity-75`;
+                    compactStatusText = '已額滿';
+                    compactStatusClass = 'is-full';
+                } else if (isOoo) {
+                    compactStatusText = `尚有 ${availableSessionCount} 個時段`;
+                } else if (perSessionCapacity) {
+                    compactStatusText = `尚有 ${availableSessionCount} 場可選`;
                 } else {
-                    checkboxHTML = `<input type="checkbox" id="chk-evt-${safeEvId}" value="${safeEvId}" aria-label="選擇活動：${escapeHTML(ev.title)}" data-change-action="toggle-event-selection" data-event-id="${escapeHTML(safeEvId)}" class="w-5 h-5 text-chihlee-blue border-gray-300 rounded focus:ring-chihlee-blue cursor-pointer" ${isChecked ? 'checked' : ''}>`;
-                    label.className = `flex items-start p-3 md:p-5 ${bgClass} group transition duration-150 w-full cursor-pointer border-l-4 ${borderClass}`;
+                    compactStatusText = `剩 ${Math.max(0, Number(ev.capacity || 0) - currentCount)} 名`;
                 }
 
-                label.innerHTML = `
-                    <div class="flex-shrink-0 mr-3 md:mr-4 mt-1">${checkboxHTML}</div>
-                    <div class="student-event-layout">
-                        <div class="student-event-content">
-                            <div class="student-event-header">
-                                <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
-                                    <span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>
-                                    ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
-                                    ${isSeries ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200 whitespace-nowrap">共 ${ev.sessions.length} 場</span>` : ''}
-                                    ${mealStr}
-                                    ${isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200 shadow-sm whitespace-nowrap">✅ 您已報名</span>` : ''}
-                                    ${capacityBadgeHtml}
-                                </div>
-                                <h3 class="text-lg md:text-xl font-bold text-gray-800 group-hover:text-chihlee-blue transition leading-tight break-words">${escapeHTML(ev.title)}</h3>
+                const card = document.createElement('article');
+                card.id = `event-card-${safeEvId}`;
+                card.dataset.category = ev.category || '';
+                let checkboxHTML = '';
+
+                if (isAlreadyRegistered) {
+                    checkboxHTML = `<span class="student-event-registered-icon" title="您已報名" aria-label="您已報名"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>`;
+                } else if (isFull) {
+                    checkboxHTML = `<input type="checkbox" disabled aria-label="${escapeHTML(ev.title)}已額滿，無法選擇報名" class="student-event-checkbox">`;
+                } else {
+                    checkboxHTML = `<input type="checkbox" id="chk-evt-${safeEvId}" value="${safeEvId}" aria-label="選擇活動：${escapeHTML(ev.title)}" data-change-action="toggle-event-selection" data-event-id="${escapeHTML(safeEvId)}" class="student-event-checkbox" ${isChecked ? 'checked' : ''}>`;
+                }
+
+                card.className = `student-event-card${isChecked ? ' is-selected' : ''}${isAlreadyRegistered ? ' is-registered' : ''}${isFull ? ' is-full' : ''}${isWithinOneMonth && !isAlreadyRegistered && !isFull ? ' is-upcoming' : ''}`;
+                card.innerHTML = `
+                    <div class="student-event-select">${checkboxHTML}</div>
+                    <div class="student-event-shell">
+                        <header class="student-event-header">
+                            <div class="student-event-badges">
+                                <span class="${categoryBadgeClass}">${escapeHTML(ev.category)}</span>
+                                ${isOoo ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-red-100 text-red-700 border border-red-300 whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>預約</span>` : ''}
+                                ${isSeries ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200 whitespace-nowrap">共 ${ev.sessions.length} 場</span>` : ''}
+                                ${mealStr}
+                                ${isAlreadyRegistered ? `<span class="px-2 py-0.5 text-[10px] md:text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200 shadow-sm whitespace-nowrap">✅ 您已報名</span>` : ''}
+                                ${capacityBadgeHtml}
                             </div>
-                            <div class="student-event-primary has-event-image">
+                            <h3>${escapeHTML(ev.title)}</h3>
+                        </header>
+                        <div class="student-event-body">
+                            <div class="student-event-media-wrap">
                                 ${eventMediaHtml}
-                                <div class="student-event-copy">
-                                    <p class="student-event-description" data-event-id="${escapeHTML(safeEvId)}"><span class="student-event-description-text">${escapeHTML(String(ev.description || '目前沒有活動介紹。').replace(/\s+/g, ' ').trim())}</span></p>
-                                    <div class="event-details-row">
-                                        <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger">查看更多 <span aria-hidden="true">→</span></button>
-                                    </div>
+                                <span class="student-grid-status ${compactStatusClass}">${escapeHTML(compactStatusText)}</span>
+                            </div>
+                            <div class="student-event-copy">
+                                <p class="student-event-description" data-event-id="${escapeHTML(safeEvId)}"><span class="student-event-description-text">${escapeHTML(String(ev.description || '目前沒有活動介紹。').replace(/\s+/g, ' ').trim())}</span></p>
+                                <div class="event-details-row">
+                                    <button type="button" data-action="open-event-details" data-event-id="${escapeHTML(safeEvId)}" aria-haspopup="dialog" aria-controls="modal-event-details" class="event-details-trigger"><span class="student-list-detail-label">查看更多 <span aria-hidden="true">→</span></span><span class="student-grid-detail-label">活動資訊</span></button>
                                 </div>
                             </div>
-                            ${hashtags ? `<div class="student-event-tags">${hashtags}</div>` : ''}
+                            <div class="student-session-panel">${sessionsHTML}</div>
                         </div>
-                        <div class="student-session-panel">
-                            ${sessionsHTML}
-                        </div>
+                        <footer class="student-event-tags"${hashtags ? '' : ' aria-hidden="true"'}>${hashtags}</footer>
                     </div>
                 `;
-                container.appendChild(label);
+                container.appendChild(card);
             });
             scheduleDescriptionClamp();
             updateBulkActionBar();
@@ -2051,8 +2053,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>處理中...';
             }
 
-            const toHalfWidth = (str) => String(str).replace(/[\uff01-\uff5e]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).replace(/\u3000/g, ' ');
-            let sid = toHalfWidth(document.getElementById('reg-student-id').value.trim()).replace(/\s+/g, '');
+            let sid = normalizeStudentIdInput(document.getElementById('reg-student-id').value);
             const sname = document.getElementById('reg-name').value.trim();
             const counselor = document.getElementById('reg-counselor').value.trim();
 
@@ -2255,11 +2256,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         async function executeStudentQuery() {
-            const sid = document.getElementById('query-student-id').value.trim();
+            const sid = normalizeStudentIdInput(document.getElementById('query-student-id').value);
             const sname = document.getElementById('query-name').value.trim();
             const counselor = document.getElementById('query-counselor').value.trim();
 
-            if(!sid || !sname || !counselor) return showToast('請完整填寫學號、姓名與個管老師', 'error');
+            if (!/^\d{8}$/.test(sid)) return showToast('學號格式錯誤，請輸入 8 碼數字', 'error');
+            if(!sname || !counselor) return showToast('請完整填寫學號、姓名與個管老師', 'error');
+            document.getElementById('query-student-id').value = sid;
 
             const container = document.getElementById('query-result-container');
             container.innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-chihlee-blue"></i><br><span class="font-bold tracking-widest">安全連線查詢中...</span></div>';
@@ -2303,11 +2306,22 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const eventMap = new Map();
             state.events.forEach(e => eventMap.set(String(e.id), e));
 
+            const getRegistrationSortDate = (registration, event) => {
+                const attended = (Array.isArray(registration.sessionsData) ? registration.sessionsData : [])
+                    .filter(session => session && session.attend === true)
+                    .map(session => parseTaiwanDateTime(session.date, normalizeTimeRangeSeparator(session.time).split('-')[0].trim() || '00:00'))
+                    .filter(Boolean)
+                    .sort((left, right) => left - right);
+                if (attended.length) return attended[0];
+                const fallbackSession = event && Array.isArray(event.sessions) ? event.sessions[0] : null;
+                return fallbackSession ? getSessionStartDate(fallbackSession) : null;
+            };
+
             let sortedRegs = state.myRegistrations.filter(r => {
                 const ev = eventMap.get(String(r.eventId)) || r.eventSummary; return ev && ev.sessions && ev.sessions.length > 0;
             }).sort((a, b) => {
                 const evA = eventMap.get(String(a.eventId)) || a.eventSummary; const evB = eventMap.get(String(b.eventId)) || b.eventSummary;
-                return (parseTaiwanDateTime(evA.sessions[0].date) || new Date(0)) - (parseTaiwanDateTime(evB.sessions[0].date) || new Date(0));
+                return (getRegistrationSortDate(a, evA) || new Date(0)) - (getRegistrationSortDate(b, evB) || new Date(0));
             });
 
             sortedRegs.forEach(reg => {
@@ -2315,17 +2329,18 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 const categoryBadgeClass = getCategoryBadgeClass(ev.category);
                 const categoryAccentClass = getCategoryAccentClass(ev.category);
 
-                const sessHtml = reg.sessionsData.map((sd, idx) => {
+                const sessHtml = (Array.isArray(reg.sessionsData) ? reg.sessionsData : []).map((sd, idx) => {
                     const session = ev.sessions.find(s => s.date === sd.date && (s.time === sd.time || !sd.time)) || ev.sessions[idx];
                     if (!session) return '';
 
-                    let timeStart = String(session.time).split('-')[0].trim() || '00:00';
+                    const normalizedSessionTime = normalizeTimeRangeSeparator(session.time);
+                    let timeStart = normalizedSessionTime.split('-')[0].trim() || '00:00';
                     let timeStartClean = timeStart.replace(':', '') + '00';
                     const dateStr = String(session.date).replace(/\//g, '');
 
                     let timeEndStr = '';
-                    if (String(session.time).includes('-') && String(session.time).split('-')[1]) {
-                        timeEndStr = String(session.time).split('-')[1].trim().replace(':', '') + '00';
+                    if (normalizedSessionTime.includes('-') && normalizedSessionTime.split('-')[1]) {
+                        timeEndStr = normalizedSessionTime.split('-')[1].trim().replace(':', '') + '00';
                     } else {
                         let h = parseInt(timeStart.split(':')[0], 10);
                         let m = timeStart.split(':')[1] || '00';
@@ -2336,7 +2351,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     }
 
                     const isoStart = `${dateStr}T${timeStartClean}`; const isoEnd = `${dateStr}T${timeEndStr}`; const loc = session.location || ev.location;
-                    const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}`;
+                    const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}&ctz=Asia%2FTaipei`;
                     let statusHtml = sd.attend ? `<span class="font-bold text-blue-700 text-xs md:text-sm bg-blue-50 px-2 py-1 rounded border border-blue-100 flex-shrink-0">${escapeHTML(normalizeMealChoice(sd.meal))}</span>` : `<span class="text-gray-400 text-xs bg-gray-100 px-2 py-1 rounded flex-shrink-0">未參加</span>`;
                     return `<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-3 border-b border-gray-100 last:border-0 gap-2 px-1"><div class="flex flex-col tabular-nums"><div class="flex items-center flex-wrap"><span class="${sd.attend ? 'text-gray-800' : 'text-gray-400 line-through'} font-medium mr-1">${escapeHTML(session.date)} <span class="hidden sm:inline">${getDayOfWeek(session.date)}</span> <span class="text-gray-500 text-xs ml-1 font-bold">${escapeHTML(session.time)}</span></span>${sd.attend ? `<a href="${escapeHTML(calUrl)}" target="_blank" rel="noopener noreferrer" title="將 ${escapeHTML(ev.title)}｜${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" aria-label="將 ${escapeHTML(ev.title)} ${escapeHTML(session.date)} ${escapeHTML(session.time)} 加入行事曆" class="ml-1 text-blue-500 hover:text-blue-700 transition text-lg drop-shadow-sm"><i class="fa-regular fa-calendar-plus"></i></a>` : ''}</div><span class="text-[10px] md:text-xs text-gray-500 mt-1 sm:mt-0.5 break-words"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHTML(loc)}</span></div><div class="flex items-center justify-end sm:justify-start">${statusHtml}</div></div>`;
                 }).join('');
@@ -2348,12 +2363,13 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             const container = document.getElementById('success-events-list');
             container.innerHTML = sessionsList.map(item => {
                 const dateStr = String(item.sessionDate).replace(/\//g, '');
-                let timeStart = String(item.sessionTime).split('-')[0].trim() || '00:00';
+                const normalizedSessionTime = normalizeTimeRangeSeparator(item.sessionTime);
+                let timeStart = normalizedSessionTime.split('-')[0].trim() || '00:00';
                 let timeStartClean = timeStart.replace(':', '') + '00';
                 let timeEndStr = '';
 
-                if (String(item.sessionTime).includes('-') && String(item.sessionTime).split('-')[1]) {
-                    timeEndStr = String(item.sessionTime).split('-')[1].trim().replace(':', '') + '00';
+                if (normalizedSessionTime.includes('-') && normalizedSessionTime.split('-')[1]) {
+                    timeEndStr = normalizedSessionTime.split('-')[1].trim().replace(':', '') + '00';
                 } else {
                     let h = parseInt(timeStart.split(':')[0], 10);
                     let m = timeStart.split(':')[1] || '00';
@@ -2369,7 +2385,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 }
 
                 const isoStart = `${dateStr}T${timeStartClean}`; const isoEnd = `${dateStr}T${timeEndStr}`; const loc = item.sessionLoc || item.event.location;
-                const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.event.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}`;
+                const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.event.title)}&dates=${isoStart}/${isoEnd}&location=${encodeURIComponent(loc)}&ctz=Asia%2FTaipei`;
                 const summary = `${item.event.title}｜${item.sessionDate} ${item.sessionTime}`;
                 return `<div class="flex items-center justify-between gap-3 py-3 border-b border-gray-100 last:border-0"><div class="min-w-0 text-left"><div class="font-bold text-gray-800 break-words">${escapeHTML(item.event.title)}</div><div class="text-sm text-gray-600 tabular-nums">${escapeHTML(item.sessionDate)} ${getDayOfWeek(item.sessionDate)}　${escapeHTML(item.sessionTime)}</div></div><a href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer" title="將 ${escapeHTML(summary)} 加入行事曆" aria-label="將 ${escapeHTML(summary)} 加入行事曆" class="flex-shrink-0 inline-flex items-center justify-center w-11 h-11 text-chihlee-blue bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition text-xl"><i class="fa-regular fa-calendar-plus"></i></a></div>`;
             }).join('');

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜場次驗證與載入穩定修正版 V11.20.5｜2026-09-11 23:49 -->
+<!-- 致理．心夥伴 - 活動報名系統｜正式整合版 V11.21.0｜2026-09-12 18:33 -->
 <html lang="zh-TW" class="frame-guard-pending">
 <head>
     <meta charset="UTF-8">
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <link rel="stylesheet" href="app-custom.css?v=11.20.4-20260911">
+    <link rel="stylesheet" href="app-custom.css?v=11.21.0-20260912">
 
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col relative w-full">
@@ -93,7 +93,7 @@
         <!-- 學生端：報名專區 -->
         <div id="view-student" class="block animate-fade-in w-full">
             <div class="mb-6 md:mb-8 text-center relative px-2">
-                <h1 class="text-2xl md:text-3xl font-bold text-chihlee-blue mb-2">選擇近期活動</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-chihlee-blue mb-2">近期活動</h1>
                 <p class="text-sm md:text-base text-gray-600">查看日期與剩餘名額，勾選活動後即可一次完成報名。</p>
                 <div class="student-steps" aria-label="報名流程">
                     <span><b>1</b>瀏覽並勾選活動</span><span><b>2</b>填寫基本資料</span><span><b>3</b>確認送出報名</span>
@@ -105,7 +105,7 @@
             </div>
 
             <!-- 骨架屏載入 -->
-            <div id="skeleton-student" class="hidden space-y-4 w-full max-w-4xl mx-auto px-2">
+            <div id="skeleton-student" class="hidden space-y-4 w-full mx-auto px-2">
                 <div class="initial-load-message" role="status" aria-live="polite">
                     <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
                     <div>
@@ -127,18 +127,24 @@
             <div id="initial-load-error" class="initial-load-error hidden" role="status" aria-live="polite">
                 <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
                 <div class="min-w-0">
-                    <strong>活動資料暫時無法取得</strong>
-                    <p id="initial-load-error-message">目前暫時無法取得活動資料，請稍候再試。</p>
+                    <strong>活動資料準備中</strong>
+                    <p id="initial-load-error-message">活動清單正在更新，請稍候片刻後重新載入。</p>
                     <button type="button" data-action="retry-initial-load">重新載入活動</button>
                 </div>
             </div>
 
             <div id="student-main-content" class="w-full">
-                <div class="flex flex-wrap justify-center gap-2 mb-6 px-2" id="category-filters">
-                    <button id="filter-btn-all" data-action="filter-events" data-category="全部" aria-pressed="true" class="filter-btn active px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-chihlee-blue bg-chihlee-blue text-white text-xs md:text-sm font-medium transition shadow-sm">全部</button>
-                    <button id="filter-btn-inter" data-action="filter-events" data-category="人際" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-inter-text hover:text-cat-inter-text text-xs md:text-sm font-medium transition">人際</button>
-                    <button id="filter-btn-academic" data-action="filter-events" data-category="課業" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-academic-text hover:text-cat-academic-text text-xs md:text-sm font-medium transition">課業</button>
-                    <button id="filter-btn-career" data-action="filter-events" data-category="職涯" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-career-text hover:text-cat-career-text text-xs md:text-sm font-medium transition">職涯</button>
+                <div class="student-list-toolbar">
+                    <div class="flex flex-wrap justify-center gap-2 px-2" id="category-filters">
+                        <button id="filter-btn-all" data-action="filter-events" data-category="全部" aria-pressed="true" class="filter-btn active px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-chihlee-blue bg-chihlee-blue text-white text-xs md:text-sm font-medium transition shadow-sm">全部</button>
+                        <button id="filter-btn-inter" data-action="filter-events" data-category="人際" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-inter-text hover:text-cat-inter-text text-xs md:text-sm font-medium transition">人際</button>
+                        <button id="filter-btn-academic" data-action="filter-events" data-category="課業" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-academic-text hover:text-cat-academic-text text-xs md:text-sm font-medium transition">課業</button>
+                        <button id="filter-btn-career" data-action="filter-events" data-category="職涯" aria-pressed="false" class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:border-cat-career-text hover:text-cat-career-text text-xs md:text-sm font-medium transition">職涯</button>
+                    </div>
+                    <div class="student-display-switch" role="group" aria-label="活動呈現方式">
+                        <button type="button" data-action="switch-student-display" data-display="list" aria-pressed="true"><i class="fa-solid fa-list" aria-hidden="true"></i>列表檢視</button>
+                        <button type="button" data-action="switch-student-display" data-display="grid" aria-pressed="false"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i>圖片檢視</button>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 w-full">
@@ -329,7 +335,7 @@
                 <div class="min-w-0 flex-1">
                     <div id="event-details-badges" class="event-details-badges"></div>
                     <h3 id="event-details-title" class="event-details-title">活動詳情</h3>
-                    <p class="event-details-teacher"><i class="fa-solid fa-user-tie" aria-hidden="true"></i><span>承辦老師：<strong id="event-details-teacher">未設定</strong></span></p>
+                    <p class="event-details-teacher hidden"><i class="fa-solid fa-user-tie" aria-hidden="true"></i><span>承辦老師：<strong id="event-details-teacher"></strong></span></p>
                 </div>
                 <button type="button" data-action="close-modal" data-modal="modal-event-details" aria-label="關閉活動詳情視窗" title="關閉" class="event-details-close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
@@ -760,7 +766,7 @@
         <div id="loader-text" class="text-base md:text-lg font-bold text-gray-700 tracking-wider bg-white px-4 py-1.5 rounded-full shadow-sm text-center mx-4 border border-gray-100">系統處理中...</div>
     </div>
 
-    <script src="app.js?v=11.20.4-20260911" defer></script>
+    <script src="app.js?v=11.21.0-20260912" defer></script>
 
 </body>
 </html>

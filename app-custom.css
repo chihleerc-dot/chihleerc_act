@@ -419,16 +419,6 @@
         }
         #student-identity-bar { margin-left: 0 !important; }
         #category-filters { justify-content: flex-start !important; max-width: 56rem; margin-inline: auto; }
-        #category-filters::before {
-            content: "活動分類";
-            display: flex;
-            align-items: center;
-            width: 100%;
-            color: var(--ink);
-            font-size: .82rem;
-            font-weight: 800;
-            letter-spacing: .08em;
-        }
         #category-filters button {
             min-height: 40px;
             border-width: 2px !important;
@@ -1205,9 +1195,214 @@
         }
         #global-loader { background: rgba(244,247,250,.92) !important; }
 
+        /* V11.21.0：學生報名頁正式版－寬版列表與精簡圖片檢視共用同一份活動資料。 */
+        #view-student > div:first-child,
+        #category-filters,
+        #student-main-content > .bg-white,
+        .initial-load-error {
+            max-width: none;
+        }
+        .student-list-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin: 0 0 1.25rem;
+        }
+        .student-list-toolbar #category-filters {
+            justify-content: flex-start !important;
+            margin: 0;
+        }
+        .student-display-switch {
+            display: inline-flex;
+            flex: 0 0 auto;
+            gap: .25rem;
+            padding: .25rem;
+            background: #FFFFFF;
+            border: 1px solid #B9D4E8;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(16, 42, 67, .06);
+        }
+        .student-display-switch button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+            min-height: 38px;
+            padding: .45rem .75rem;
+            color: #52677A;
+            background: transparent;
+            border: 0;
+            font-size: .78rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .student-display-switch button[aria-pressed="true"] {
+            color: #FFFFFF;
+            background: var(--primary);
+        }
+        #student-main-content > .bg-white { overflow: visible !important; }
+        #student-events-container {
+            display: grid;
+            gap: 1rem;
+        }
+        .student-event-card {
+            position: relative;
+            display: grid;
+            grid-template-columns: 2rem minmax(0, 1fr);
+            gap: 1rem;
+            min-width: 0;
+            padding: 1.25rem 1.4rem 1rem;
+            background: #FFFFFF;
+            border: 1px solid var(--line) !important;
+            border-left: 6px solid #94A3B8 !important;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(16, 42, 67, .07);
+            transition: border-color .14s ease, box-shadow .14s ease, background .14s ease;
+        }
+        .student-event-card[data-category="人際"] { border-left-color: #00A86B !important; }
+        .student-event-card[data-category="課業"] { border-left-color: #E91E63 !important; }
+        .student-event-card[data-category="職涯"] { border-left-color: #F4B400 !important; }
+        .student-event-card:hover { box-shadow: 0 9px 24px rgba(16, 42, 67, .11); }
+        .student-event-card.is-selected {
+            background: #F2FAFF;
+            border-color: #1684E1 !important;
+            box-shadow: 0 0 0 3px rgba(0, 87, 184, .13);
+        }
+        .student-event-card.is-registered { background: #F5FCF8; }
+        .student-event-card.is-full { background: #FAFBFC; }
+        .student-event-select { padding-top: .15rem; }
+        .student-event-checkbox {
+            width: 1.35rem;
+            height: 1.35rem;
+            min-width: 1.35rem !important;
+            min-height: 1.35rem !important;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        .student-event-checkbox:disabled { cursor: not-allowed; }
+        .student-event-registered-icon { display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; color: #16A05D; font-size: 1.25rem; }
+        .student-event-shell { min-width: 0; }
+        .student-event-header {
+            min-width: 0;
+            min-height: 5.35rem;
+            padding: 0 0 .9rem;
+            border-bottom: 2px solid #D7E7F3;
+        }
+        .student-event-badges { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; min-height: 1.75rem; margin-bottom: .45rem; }
+        .student-event-header h3 { margin: 0; color: var(--ink) !important; font-size: clamp(1.15rem, 1.8vw, 1.45rem); font-weight: 800; line-height: 1.35; overflow-wrap: anywhere; }
+        .student-event-body {
+            display: grid;
+            grid-template-columns: 16rem minmax(13rem, 1fr) 22rem;
+            gap: 1.25rem;
+            align-items: stretch;
+            min-width: 0;
+            padding: 1.15rem 0 .8rem;
+        }
+        .student-event-media-wrap { position: relative; min-width: 0; }
+        .student-event-media-wrap .event-image-carousel,
+        .student-event-media-wrap .event-image-placeholder { height: 100%; min-height: 12.25rem; aspect-ratio: 4 / 3; }
+        .student-event-copy { display: flex; flex-direction: column; min-width: 0; padding: .15rem 0; }
+        .student-event-description { margin: 0; font-size: .9rem; line-height: 1.72; }
+        .event-details-row { align-items: flex-start; margin-top: .75rem; }
+        .student-event-tags { min-height: 2.45rem; margin: 0; padding-top: .8rem; }
+        .student-grid-status,
+        .student-grid-detail-label { display: none; }
+        .student-session-panel { width: 22rem; min-height: 100%; }
+
+        #student-main-content[data-display-mode="grid"] #student-events-container {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            align-items: stretch;
+        }
+        #student-main-content[data-display-mode="grid"] .student-event-card {
+            display: block;
+            height: 100%;
+            padding: 0 1rem 1rem;
+            overflow: hidden;
+            border-left-width: 1px !important;
+            border-top: 6px solid #94A3B8 !important;
+        }
+        #student-main-content[data-display-mode="grid"] .student-event-card[data-category="人際"] { border-top-color: #00A86B !important; }
+        #student-main-content[data-display-mode="grid"] .student-event-card[data-category="課業"] { border-top-color: #E91E63 !important; }
+        #student-main-content[data-display-mode="grid"] .student-event-card[data-category="職涯"] { border-top-color: #F4B400 !important; }
+        #student-main-content[data-display-mode="grid"] .student-event-select {
+            position: absolute;
+            z-index: 5;
+            top: .8rem;
+            left: .8rem;
+            display: grid;
+            place-items: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            padding: 0;
+            background: rgba(255, 255, 255, .96);
+            border: 1px solid #D1DFEA;
+            border-radius: 8px;
+            box-shadow: 0 3px 12px rgba(10, 44, 72, .2);
+        }
+        #student-main-content[data-display-mode="grid"] .student-event-shell { display: flex; flex-direction: column; height: 100%; }
+        #student-main-content[data-display-mode="grid"] .student-event-header { order: 2; min-height: 5.1rem; padding: .9rem 0 .55rem; border: 0; }
+        #student-main-content[data-display-mode="grid"] .student-event-badges { display: none; }
+        #student-main-content[data-display-mode="grid"] .student-event-header h3 {
+            display: -webkit-box;
+            min-height: 2.85em;
+            overflow: hidden;
+            font-size: 1.08rem;
+            line-height: 1.42;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+        #student-main-content[data-display-mode="grid"] .student-event-body { display: contents; }
+        #student-main-content[data-display-mode="grid"] .student-event-media-wrap {
+            order: 1;
+            height: 13.5rem;
+            margin: 0 -1rem;
+        }
+        #student-main-content[data-display-mode="grid"] .student-event-media-wrap .event-image-carousel,
+        #student-main-content[data-display-mode="grid"] .student-event-media-wrap .event-image-placeholder {
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            aspect-ratio: auto;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        #student-main-content[data-display-mode="grid"] .student-grid-status {
+            position: absolute;
+            z-index: 4;
+            top: .8rem;
+            right: .8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2rem;
+            padding: .35rem .65rem;
+            color: #075985;
+            background: rgba(232, 248, 255, .96);
+            border: 1px solid #7DD3FC;
+            border-radius: 999px;
+            box-shadow: 0 2px 9px rgba(16, 42, 67, .13);
+            font-size: .72rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+        #student-main-content[data-display-mode="grid"] .student-grid-status.is-full { color: #B42318; background: rgba(254, 236, 235, .97); border-color: #F59A92; }
+        #student-main-content[data-display-mode="grid"] .student-grid-status.is-registered { color: #087A45; background: rgba(236, 253, 243, .97); border-color: #86D8AE; }
+        #student-main-content[data-display-mode="grid"] .student-event-tags { order: 3; align-content: flex-start; min-height: 3.2rem; padding: 0 0 .6rem; border: 0; }
+        #student-main-content[data-display-mode="grid"] .student-event-copy { order: 4; align-items: center; margin-top: auto; padding: 0; }
+        #student-main-content[data-display-mode="grid"] .student-event-description,
+        #student-main-content[data-display-mode="grid"] .student-session-panel { display: none; }
+        #student-main-content[data-display-mode="grid"] .event-details-row { justify-content: center; width: 100%; min-height: 0; margin: 0; }
+        #student-main-content[data-display-mode="grid"] .event-details-trigger { min-width: 7.5rem; padding: .55rem 1rem; }
+        #student-main-content[data-display-mode="grid"] .student-list-detail-label { display: none; }
+        #student-main-content[data-display-mode="grid"] .student-grid-detail-label { display: inline; }
+
         @media (max-width: 1023px) {
-            .student-event-layout { grid-template-columns: minmax(0, 1fr); }
-            .student-session-panel { width: 100%; }
+            .student-event-body { grid-template-columns: 14rem minmax(0, 1fr); }
+            .student-session-panel { grid-column: 1 / -1; width: 100%; min-height: 0; }
+            #student-main-content[data-display-mode="grid"] #student-events-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            #student-main-content[data-display-mode="grid"] .student-session-panel { display: none; }
         }
 
         @media (max-width: 767px) {
@@ -1238,17 +1433,19 @@
             .calendar-event-card { padding: .75rem; }
             #view-student > div:first-child { padding: 20px 18px; border-left-width: 5px; }
             .student-steps { display: grid; grid-template-columns: 1fr; gap: 8px; }
-            #category-filters { overflow-x: auto; flex-wrap: nowrap !important; justify-content: flex-start !important; padding-bottom: 8px; }
+            .student-list-toolbar { align-items: stretch; flex-direction: column; }
+            .student-display-switch { align-self: flex-end; }
+            #category-filters { width: 100%; overflow-x: auto; flex-wrap: nowrap !important; justify-content: flex-start !important; padding-bottom: 8px; }
             #category-filters::before { position: sticky; left: 0; min-width: 72px; background: var(--canvas); z-index: 1; }
             #category-filters button { flex: 0 0 auto; }
-            #student-events-container > label { padding: 16px !important; }
-            #student-events-container > label > div:first-child { margin-right: 12px !important; }
+            .student-event-card { grid-template-columns: 1.6rem minmax(0, 1fr); gap: .7rem; padding: 1rem .9rem .9rem; }
+            .student-event-header { min-height: 0; }
+            .student-event-body { grid-template-columns: minmax(0, 1fr); gap: .8rem; padding-top: .85rem; }
             .student-event-description { font-size: .8rem; line-height: 1.65; }
             .student-event-tags { margin-top: .65rem; padding-top: .6rem; }
             .event-details-row { min-height: 2.2rem; }
             .student-event-header > .flex,
             .student-event-header h3 { min-height: 0; }
-            .student-event-primary.has-event-image { grid-template-columns: minmax(0, 1fr); gap: .75rem; margin-top: .75rem; }
             .event-image-carousel,
             .event-image-placeholder { max-width: 100%; aspect-ratio: 16 / 9; }
             .event-image-arrow { width: 40px; height: 40px; }
@@ -1256,6 +1453,9 @@
             .event-image-choose-button { width: 100%; }
             .event-image-preview-list { grid-template-columns: 1fr; }
             .student-session-panel { padding: .75rem; }
+            #student-main-content[data-display-mode="grid"] #student-events-container { grid-template-columns: minmax(0, 1fr); }
+            #student-main-content[data-display-mode="grid"] .student-event-card { padding-inline: .9rem; }
+            #student-main-content[data-display-mode="grid"] .student-event-media-wrap { height: 14rem; margin-inline: -.9rem; }
             .student-session-date-time { flex-wrap: wrap; gap: .35rem; }
             .student-session-date-full { display: none; }
             .student-session-date-compact { display: inline; }
