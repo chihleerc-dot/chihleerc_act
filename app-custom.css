@@ -1145,7 +1145,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,.16) !important;
         }
         .query-close-button:hover { color: #FFFFFF !important; background: var(--primary-hover) !important; }
-        .query-titlebar + p { color: #344E65 !important; font-weight: 600; }
+        #query-form-expanded > p { color: #344E65 !important; font-weight: 600; }
         #modal-query > div > div:last-child { background: #F7F8FA !important; }
         #modal-query #query-result-container > div { color: #334E68 !important; }
         #modal-query button[data-action="execute-student-query"] {
@@ -1154,6 +1154,7 @@
             border: 2px solid var(--primary);
             box-shadow: 0 4px 12px rgba(0, 103, 197, .18) !important;
         }
+        .query-mobile-summary { display: none; }
         #modal-register > div {
             overflow-x: hidden;
             border: 3px solid var(--primary);
@@ -1450,9 +1451,32 @@
         @media (max-width: 767px) {
             nav > div { padding-inline: 12px !important; }
             nav .h-auto { align-items: flex-start !important; flex-wrap: wrap; }
-            nav .overflow-x-auto { width: 100%; justify-content: flex-start !important; padding-bottom: 2px; }
+            #primary-nav-actions {
+                display: grid !important;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: .5rem !important;
+                width: 100%;
+                overflow: visible !important;
+                padding-bottom: 2px;
+            }
+            #primary-nav-actions > * + * { margin-left: 0 !important; }
+            #nav-calendar-btn,
+            #nav-student-btn,
+            #nav-query-btn,
+            #nav-teacher-btn {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                min-width: 0;
+                height: 52px;
+                padding: 0 !important;
+                border-radius: 10px !important;
+                font-size: 1.45rem !important;
+            }
+            #primary-nav-actions > button > i { margin: 0 !important; }
+            #primary-nav-actions > button > span { display: none !important; }
             main { padding-top: 16px !important; }
-            .nav-calendar-button { padding-inline: .55rem; }
             .calendar-view-heading { align-items: stretch; flex-direction: column; padding: 1rem; }
             .calendar-today-button { align-self: flex-start; }
             .calendar-layout { gap: .85rem; }
@@ -1541,6 +1565,63 @@
                 max-height: calc(100dvh - 1rem) !important;
                 margin: 0 !important;
             }
+            #modal-query .query-controls-header {
+                padding: .9rem !important;
+                padding-top: .9rem !important;
+            }
+            #modal-query .query-titlebar {
+                grid-template-columns: minmax(0, 1fr) 40px;
+                gap: 8px;
+                padding: 7px 7px 7px 12px;
+                margin-bottom: 10px;
+                border-left-width: 5px;
+            }
+            #modal-query .query-titlebar h3 { font-size: 1.1rem !important; }
+            #modal-query .query-close-button {
+                width: 40px !important;
+                min-width: 40px;
+                height: 40px;
+            }
+            #modal-query.query-controls-collapsed #query-form-expanded { display: none; }
+            #modal-query.query-controls-collapsed .query-titlebar { margin-bottom: 8px; }
+            #modal-query.query-controls-collapsed .query-mobile-summary {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: .65rem;
+                min-width: 0;
+                padding: .55rem .65rem;
+                color: #334E68;
+                background: #F5F9FD;
+                border: 1px solid #C8D9E8;
+                border-radius: 8px;
+            }
+            .query-mobile-summary-text {
+                display: flex;
+                align-items: center;
+                gap: .4rem;
+                min-width: 0;
+                font-size: .78rem;
+                font-weight: 700;
+            }
+            #query-mobile-summary-identity {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .query-mobile-summary button {
+                flex: 0 0 auto;
+                padding: .4rem .55rem;
+                color: var(--primary);
+                background: #FFFFFF;
+                border: 1px solid #9FC3E3;
+                border-radius: 7px;
+                font-size: .72rem;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+            .query-mobile-summary button i { margin-right: .25rem; }
             #modal-participants .participants-modal-header { padding: 1rem !important; gap: .75rem !important; }
             #modal-participants .participants-modal-actions {
                 display: grid !important;

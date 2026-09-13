@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 致理．心夥伴 - 活動報名系統｜學生查詢餐點標籤修正版 V11.21.3｜2026-09-12 22:19 -->
+<!-- 致理．心夥伴 - 活動報名系統｜手機導覽 ICON 修正版 V11.21.5｜2026-09-13 13:55 -->
 <html lang="zh-TW" class="frame-guard-pending">
 <head>
     <meta charset="UTF-8">
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <link rel="stylesheet" href="app-custom.css?v=11.21.3-20260912">
+    <link rel="stylesheet" href="app-custom.css?v=11.21.5-20260913">
 
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col relative w-full">
@@ -39,14 +39,14 @@
                         </span>
                     </div>
                 </div>
-                <div class="flex items-center space-x-1.5 md:space-x-4 overflow-x-auto no-scrollbar pb-1 md:pb-0 justify-end min-w-0 flex-shrink-0">
-                    <button data-action="switch-view" data-view="calendar" id="nav-calendar-btn" class="nav-calendar-button text-gray-300 hover:text-white hover:bg-chihlee-blue transition shrink-0" aria-label="活動月曆" title="活動月曆"><i class="fa-regular fa-calendar-days"></i><span class="hidden lg:inline">活動月曆</span></button>
-                    <button data-action="switch-view" data-view="student" id="nav-student-btn" aria-current="page" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0">報名專區</button>
-                    <button data-action="open-query" id="nav-query-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0"><i class="fa-solid fa-magnifying-glass md:mr-1"></i> <span class="hidden sm:inline">查詢紀錄</span><span class="sm:hidden">查詢</span></button>
-                    <button data-action="switch-view" data-view="teacherLogin" id="nav-teacher-btn" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap shrink-0"><i class="fa-solid fa-user-tie md:mr-1"></i> <span class="hidden sm:inline">系統後台</span><span class="sm:hidden">後台</span></button>
+                <div id="primary-nav-actions" class="flex items-center space-x-1.5 md:space-x-4 overflow-x-auto no-scrollbar pb-1 md:pb-0 justify-end min-w-0 flex-shrink-0">
+                    <button data-action="switch-view" data-view="calendar" id="nav-calendar-btn" class="nav-calendar-button text-gray-300 hover:text-white hover:bg-chihlee-blue transition shrink-0" aria-label="活動月曆" title="活動月曆"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i><span class="hidden md:inline">活動月曆</span></button>
+                    <button data-action="switch-view" data-view="student" id="nav-student-btn" aria-label="報名專區" title="報名專區" aria-current="page" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium bg-chihlee-gold text-white shadow transition whitespace-nowrap shrink-0"><i class="fa-solid fa-clipboard-check md:mr-1" aria-hidden="true"></i><span class="hidden md:inline">報名專區</span></button>
+                    <button data-action="open-query" id="nav-query-btn" aria-label="查詢紀錄" title="查詢紀錄" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-blue transition whitespace-nowrap shrink-0"><i class="fa-solid fa-magnifying-glass md:mr-1" aria-hidden="true"></i><span class="hidden md:inline">查詢紀錄</span></button>
+                    <button data-action="switch-view" data-view="teacherLogin" id="nav-teacher-btn" aria-label="系統後台" title="系統後台" class="px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap shrink-0"><i class="fa-solid fa-user-tie md:mr-1" aria-hidden="true"></i><span class="hidden md:inline">系統後台</span></button>
                     <div id="nav-admin-badge" class="hidden items-center px-2 py-1 rounded bg-yellow-500 text-yellow-900 text-xs font-bold shadow-sm whitespace-nowrap shrink-0"><i class="fa-solid fa-crown md:mr-1"></i><span class="hidden sm:inline">系統管理員</span><span class="sm:hidden">管理員</span></div>
                     <div id="nav-staff-badge" class="hidden items-center px-2 py-1 rounded bg-blue-500 text-white text-xs font-bold shadow-sm whitespace-nowrap shrink-0"></div>
-                    <button data-action="logout" id="nav-logout-btn" class="hidden px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap shrink-0"><i class="fa-solid fa-right-from-bracket md:mr-1"></i> 登出</button>
+                    <button data-action="logout" id="nav-logout-btn" aria-label="登出" title="登出" class="hidden px-2 md:px-3 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:text-white hover:bg-chihlee-red transition whitespace-nowrap shrink-0"><i class="fa-solid fa-right-from-bracket md:mr-1" aria-hidden="true"></i><span class="hidden md:inline">登出</span></button>
                 </div>
             </div>
         </div>
@@ -422,17 +422,23 @@
     <!-- Modal: 學生查詢紀錄 -->
     <div id="modal-query" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-2 md:p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col relative animate-fade-in m-2">
-            <div class="p-5 md:p-8 border-b border-gray-100 flex-shrink-0 pt-8">
+            <div class="query-controls-header p-5 md:p-8 border-b border-gray-100 flex-shrink-0 pt-8">
                 <div class="query-titlebar">
                     <h3 class="text-xl md:text-2xl font-bold">查詢我的報名紀錄</h3>
                     <button type="button" data-action="close-query" aria-label="關閉查詢視窗" class="query-close-button text-xl"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <p class="text-xs md:text-sm text-gray-500 mb-4">若需取消或修改報名，請直接聯繫資源教室辦理。</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-                    <div><label for="query-student-id" class="block text-xs font-bold text-gray-700 mb-1">學號</label><input type="text" id="query-student-id" inputmode="numeric" autocomplete="off" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"></div>
-                    <div><label for="query-name" class="block text-xs font-bold text-gray-700 mb-1">姓名</label><input type="text" id="query-name" autocomplete="name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"></div>
-                    <div><label for="query-counselor" class="block text-xs font-bold text-gray-700 mb-1">個管老師</label><select id="query-counselor" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"><option value="">請選擇個管老師</option></select></div>
-                    <button data-action="execute-student-query" class="w-full sm:col-span-2 md:col-span-3 px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>安全查詢</button>
+                <div id="query-form-expanded">
+                    <p class="text-xs md:text-sm text-gray-500 mb-4">若需取消或修改報名，請直接聯繫資源教室辦理。</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+                        <div><label for="query-student-id" class="block text-xs font-bold text-gray-700 mb-1">學號</label><input type="text" id="query-student-id" inputmode="numeric" autocomplete="off" placeholder="請輸入學號(8碼)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"></div>
+                        <div><label for="query-name" class="block text-xs font-bold text-gray-700 mb-1">姓名</label><input type="text" id="query-name" autocomplete="name" placeholder="請輸入姓名" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"></div>
+                        <div><label for="query-counselor" class="block text-xs font-bold text-gray-700 mb-1">個管老師</label><select id="query-counselor" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-chihlee-blue outline-none text-base md:text-sm transition"><option value="">請選擇個管老師</option></select></div>
+                        <button data-action="execute-student-query" class="w-full sm:col-span-2 md:col-span-3 px-6 py-2.5 bg-chihlee-gold text-white font-bold rounded-lg hover:bg-yellow-600 transition shadow-md whitespace-nowrap"><i class="fa-solid fa-magnifying-glass mr-2"></i>安全查詢</button>
+                    </div>
+                </div>
+                <div id="query-mobile-summary" class="query-mobile-summary" aria-hidden="true">
+                    <span class="query-mobile-summary-text"><i class="fa-solid fa-user-shield" aria-hidden="true"></i><span id="query-mobile-summary-identity"></span></span>
+                    <button type="button" data-action="expand-query-controls" aria-controls="query-form-expanded" aria-expanded="false"><i class="fa-solid fa-pen" aria-hidden="true"></i>修改查詢條件</button>
                 </div>
             </div>
             <div class="p-4 md:p-6 overflow-y-auto flex-grow bg-gray-50 custom-scroll">
@@ -766,7 +772,7 @@
         <div id="loader-text" class="text-base md:text-lg font-bold text-gray-700 tracking-wider bg-white px-4 py-1.5 rounded-full shadow-sm text-center mx-4 border border-gray-100">系統處理中...</div>
     </div>
 
-    <script src="app.js?v=11.21.3-20260912" defer></script>
+    <script src="app.js?v=11.21.5-20260913" defer></script>
 
 </body>
 </html>

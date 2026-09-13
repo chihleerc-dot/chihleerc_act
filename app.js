@@ -161,6 +161,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                 'close-modal': () => closeModal(target.dataset.modal),
                 'close-query': () => closeQueryModalSafe(),
                 'execute-student-query': () => executeStudentQuery(),
+                'expand-query-controls': () => expandQueryControls(),
                 'safe-close-edit-event': () => safeCloseEditEvent(),
                 'add-tag': () => { addTempTag(); markDirty(); },
                 'add-session': () => { addSessionField(); markDirty(); },
@@ -408,9 +409,9 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
         }
 
         // 固定記錄這一版完成修改的時間，不會因登入、重新整理或查詢資料而改變。
-        const VERSION_LABEL = 'V11.21.3';
-        const VERSION_UPDATED_AT = '2026/09/12 22:19';
-        const VERSION_UPDATED_AT_ISO = '2026-09-12T22:19:00+08:00';
+        const VERSION_LABEL = 'V11.21.5';
+        const VERSION_UPDATED_AT = '2026/09/13 13:55';
+        const VERSION_UPDATED_AT_ISO = '2026-09-13T13:55:00+08:00';
         const API_TIMEOUT_MS = 20000;
         const PUBLIC_DATA_TIMEOUT_MS = 25000;
         const PUBLIC_DATA_MAX_ATTEMPTS = 3;
@@ -2242,6 +2243,24 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
 
         function closeQueryModalSafe() { closeModal('modal-query'); }
 
+        function setMobileQueryControlsCollapsed(collapsed, identityText = '') {
+            const modal = document.getElementById('modal-query');
+            const summary = document.getElementById('query-mobile-summary');
+            const summaryIdentity = document.getElementById('query-mobile-summary-identity');
+            const expandButton = summary && summary.querySelector('[data-action="expand-query-controls"]');
+            if (!modal || !summary || !summaryIdentity) return;
+
+            if (identityText) summaryIdentity.textContent = identityText;
+            modal.classList.toggle('query-controls-collapsed', Boolean(collapsed));
+            summary.setAttribute('aria-hidden', collapsed ? 'false' : 'true');
+            if (expandButton) expandButton.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        }
+
+        function expandQueryControls() {
+            setMobileQueryControlsCollapsed(false);
+            setTimeout(() => document.getElementById('query-student-id')?.focus(), 50);
+        }
+
         function openQueryModal() {
             switchView('student');
             const identity = state.studentIdentity || {};
@@ -2251,6 +2270,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
             document.getElementById('query-student-id').value = savedSid || '';
             document.getElementById('query-name').value = savedName || '';
             document.getElementById('query-counselor').value = savedCounselor || '';
+            setMobileQueryControlsCollapsed(false);
             document.getElementById('query-result-container').innerHTML = '<div class="text-center text-gray-500 py-12"><i class="fa-solid fa-shield-halved text-4xl mb-3 text-gray-300"></i><br>請輸入驗證資料以查詢您的報名</div>';
             openModal('modal-query'); setTimeout(() => document.getElementById('query-student-id').focus(), 100);
         }
@@ -2293,6 +2313,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzrP7o2yOFeXBi2eqjK
                     }
 
                     renderQueryResults();
+                    setMobileQueryControlsCollapsed(true, `${sid}｜${sname}｜${counselor}`);
                 }
                 else container.innerHTML = `<div class="text-center text-red-500 py-8 font-bold">${escapeHTML(res.error || '查詢發生錯誤')}</div>`;
             } catch (err) { container.innerHTML = `<div class="text-center text-red-500 py-8">${escapeHTML(getRequestErrorMessage(err))}</div>`; }
